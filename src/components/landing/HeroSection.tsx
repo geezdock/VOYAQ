@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { SocialProofTicker } from "./SocialProofTicker";
 
 const containerVariants = {
@@ -20,6 +21,8 @@ const itemVariants = {
 };
 
 export function HeroSection() {
+  const router = useRouter();
+
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -54,7 +57,10 @@ export function HeroSection() {
         </motion.p>
 
         <motion.div variants={itemVariants}>
-          <button className="brut-btn text-lg px-10 py-4 inline-flex items-center gap-3 group">
+          <button
+            onClick={() => router.push("/auth")}
+            className="brut-btn text-lg px-10 py-4 inline-flex items-center gap-3 group"
+          >
             <span>Start a Squad</span>
             <span
               className="inline-block transition-transform duration-150 group-hover:translate-x-1"
