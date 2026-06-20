@@ -7,8 +7,14 @@ import { User, Settings, LogOut } from "lucide-react";
 
 export function UserAvatarDropdown() {
   const [open, setOpen] = useState(false);
+  const [username, setUsername] = useState("");
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("voyaq_username");
+    if (stored) setUsername(stored);
+  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -19,6 +25,8 @@ export function UserAvatarDropdown() {
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
+
+  const initial = username ? username[0].toUpperCase() : "U";
 
   const items = [
     {
@@ -34,19 +42,27 @@ export function UserAvatarDropdown() {
     {
       label: "Sign Out",
       icon: LogOut,
-      action: () => router.push("/"),
+      action: () => {
+        sessionStorage.removeItem("voyaq_username");
+        router.push("/");
+      },
     },
   ];
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative flex items-center gap-2">
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="w-10 h-10 rounded-bruted border-2 border-ink bg-peach flex items-center justify-center font-display font-bold text-ink text-lg hover:shadow-bruted-sm transition-shadow"
         aria-label="User menu"
       >
-        U
+        {initial}
       </button>
+      {username && (
+        <span className="font-heading text-sm font-semibold text-ink hidden sm:block">
+          @{username}
+        </span>
+      )}
 
       <AnimatePresence>
         {open && (

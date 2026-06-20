@@ -5,9 +5,10 @@ import { CheckCircle, ExternalLink } from "lucide-react";
 
 interface ConsentSentProps {
   contact: { type: "phone" | "email"; value: string };
+  onNext: () => void;
 }
 
-export function ConsentSent({ contact }: ConsentSentProps) {
+export function ConsentSent({ contact, onNext }: ConsentSentProps) {
   const displayValue =
     contact.type === "phone"
       ? `+91 ${contact.value.slice(0, 5)} ${contact.value.slice(5)}`
@@ -71,6 +72,14 @@ export function ConsentSent({ contact }: ConsentSentProps) {
       >
         <ExternalLink className="w-4 h-4" />
         Share via WhatsApp
+      </button>
+
+      <button
+        type="button"
+        onClick={onNext}
+        className="brut-btn w-full text-sm !bg-surface-card !text-ink hover:!bg-surface-alt"
+      >
+        Continue
       </button>
     </motion.div>
   );

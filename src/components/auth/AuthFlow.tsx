@@ -11,6 +11,7 @@ import { OTPStep } from "./OTPStep";
 import { AgeGateModal } from "./AgeGateModal";
 import { ParentContactForm } from "./ParentContactForm";
 import { ConsentSent } from "./ConsentSent";
+import { UsernameStep } from "./UsernameStep";
 import type { AuthState, AuthStep } from "@/types/auth";
 
 export function AuthFlow() {
@@ -23,6 +24,7 @@ export function AuthFlow() {
     otp: [],
     dob: "",
     parentContact: null,
+    username: "",
   });
 
   const goTo = useCallback((step: AuthStep) => {
@@ -43,6 +45,7 @@ export function AuthFlow() {
     },
     "parent-contact": () => goTo("age-gate"),
     "consent-sent": () => goTo("parent-contact"),
+    username: () => goTo("age-gate"),
   };
 
   const stepLabel: Record<AuthStep, string> = {
@@ -53,6 +56,7 @@ export function AuthFlow() {
     "age-gate": "Step 4",
     "parent-contact": "Step 5",
     "consent-sent": "Consent",
+    username: "Step 5",
   };
 
   function getOTPLabel(): { label: string; sublabel: string } {
@@ -139,9 +143,7 @@ export function AuthFlow() {
           {state.step === "age-gate" && (
             <AgeGateModal
               key="age-gate"
-              onAdult={() => {
-                window.location.href = "/dashboard";
-              }}
+              onAdult={() => goTo("username")}
               onMinor={() => goTo("parent-contact")}
             />
           )}
@@ -160,6 +162,17 @@ export function AuthFlow() {
             <ConsentSent
               key="consent-sent"
               contact={state.parentContact}
+              onNext={() => goTo("username")}
+            />
+          )}
+
+          {state.step === "username" && (
+            <UsernameStep
+              key="username"
+              onNext={(username) => {
+                sessionStorage.setItem("voyaq_username", username);
+                window.location.href = "/dashboard";
+              }}
             />
           )}
         </AnimatePresence>

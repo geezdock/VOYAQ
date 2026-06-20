@@ -7,7 +7,8 @@ export type AuthStep =
   | "otp"
   | "age-gate"
   | "parent-contact"
-  | "consent-sent";
+  | "consent-sent"
+  | "username";
 
 export interface AuthState {
   step: AuthStep;
@@ -17,4 +18,5 @@ export interface AuthState {
   otp: string[];
   dob: string;
   parentContact: { type: "phone" | "email"; value: string } | null;
+  username: string;
 }
