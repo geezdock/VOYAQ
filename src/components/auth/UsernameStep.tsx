@@ -14,8 +14,18 @@ export function UsernameStep({ onNext }: UsernameStepProps) {
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingCheckRef = useRef<string>("");
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const checkAvailability = useCallback(async (value: string) => {
+    pendingCheckRef.current = value;
     const result = usernameSchema.safeParse(value);
     if (!result.success) {
       setError(result.error.issues[0].message);
@@ -25,6 +35,8 @@ export function UsernameStep({ onNext }: UsernameStepProps) {
     setError(null);
     setStatus("checking");
     const available = await isUsernameAvailable(value);
+    if (!mountedRef.current) return;
+    if (pendingCheckRef.current !== value) return;
     setStatus(available ? "available" : "taken");
     if (!available) {
       setError("This username is taken");

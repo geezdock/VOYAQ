@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AuthState, AuthStep } from "@/types/auth";
 
@@ -20,6 +20,9 @@ export function useAuthSteps() {
     username: "",
   });
 
+  const authMethodRef = useRef(state.authMethod);
+  authMethodRef.current = state.authMethod;
+
   const goTo = useCallback((step: AuthStep) => {
     setState((prev) => ({ ...prev, step }));
   }, []);
@@ -29,11 +32,11 @@ export function useAuthSteps() {
     phone: () => goTo("auth-method"),
     email: () => goTo("auth-method"),
     otp: () => {
-      if (state.authMethod === "phone") goTo("phone");
+      if (authMethodRef.current === "phone") goTo("phone");
       else goTo("email");
     },
     "age-gate": () => {
-      if (state.authMethod === "google") goTo("auth-method");
+      if (authMethodRef.current === "google") goTo("auth-method");
       else goTo("otp");
     },
     "parent-contact": () => goTo("age-gate"),

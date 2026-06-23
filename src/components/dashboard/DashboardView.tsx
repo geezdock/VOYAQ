@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users } from "lucide-react";
 import { EmptyState } from "./EmptyState";
 import { SquadGrid } from "./SquadGrid";
-import { CreateSquadModal } from "./CreateSquadModal";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { useSquad } from "@/lib/SquadContext";
 import { mockSquads } from "@/lib/mock";
@@ -18,15 +17,14 @@ export function DashboardView() {
   const joinCode = searchParams.get("join");
 
   const { squads, updateSquad, addSquad } = useSquad();
-  const [showCreate, setShowCreate] = useState(false);
   const [joinSquad, setJoinSquad] = useState<Squad | null>(null);
 
   // Handle join code from URL
   useEffect(() => {
     if (!joinCode) return;
 
-    // Search mock squads first
-    const found = mockSquads.find((s) => s.inviteCode === joinCode);
+    // Search runtime squads first, then mock as fallback
+    const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
     if (found) {
       const alreadyJoined = found.members.some((m) => m.id === "me");
       if (!alreadyJoined && found.members.length < found.memberLimit) {
@@ -89,7 +87,7 @@ export function DashboardView() {
                 Your Squads
               </h1>
               <button
-                onClick={() => setShowCreate(true)}
+                onClick={() => router.push("/create")}
                 className="brut-btn text-sm px-5 py-3 min-h-[44px]"
               >
                 + New Squad
@@ -109,18 +107,9 @@ export function DashboardView() {
             />
           </motion.div>
         ) : (
-          <EmptyState onCreate={() => setShowCreate(true)} />
+          <EmptyState />
         )}
       </main>
-
-      <CreateSquadModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        onCreated={(squad: Squad) => {
-          addSquad(squad);
-          router.push(`/workspace/${squad.id}`);
-        }}
-      />
 
       {/* Join Squad Modal */}
       <AnimatePresence>

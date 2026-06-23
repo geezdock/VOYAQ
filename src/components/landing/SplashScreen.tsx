@@ -23,19 +23,19 @@ const labels = [
   { text: "DATES", x: 124, y: 38, color: dotColors[3] },
 ];
 
-let splashSeen = false;
+let _splashSeen = false;
 
 export function SplashScreen({ children }: SplashScreenProps) {
-  const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(() => {
+    if (_splashSeen) return false;
+    _splashSeen = true;
+    return true;
+  });
   const [phase, setPhase] = useState<"typing" | "converging" | "locking" | "done">("typing");
   const [showBoldV, setShowBoldV] = useState(false);
 
   useEffect(() => {
-    if (splashSeen) {
-      setShowSplash(false);
-      return;
-    }
-    splashSeen = true;
+    if (!showSplash) return;
 
     const t1 = setTimeout(() => setPhase("converging"), 1400);
     const t2 = setTimeout(() => setPhase("locking"), 2000);
@@ -44,7 +44,7 @@ export function SplashScreen({ children }: SplashScreenProps) {
     return () => {
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4);
     };
-  }, []);
+  }, [showSplash]);
 
   const isConverged = phase !== "typing";
   const isLocked = phase === "locking" || phase === "done";

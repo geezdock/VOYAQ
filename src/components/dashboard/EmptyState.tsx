@@ -1,13 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { Compass, MapPin, ArrowRight } from "lucide-react";
 
-interface EmptyStateProps {
-  onCreate: () => void;
-}
-
-export function EmptyState({ onCreate }: EmptyStateProps) {
+export function EmptyState() {
+  const router = useRouter();
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -69,7 +67,7 @@ export function EmptyState({ onCreate }: EmptyStateProps) {
         Create a squad, invite your friends, and plan your next adventure together.
       </p>
 
-      <button onClick={onCreate} className="brut-btn text-base px-8 py-4 flex items-center gap-2">
+      <button onClick={() => router.push("/create")} className="brut-btn text-base px-8 py-4 flex items-center gap-2">
         Create a Squad
         <ArrowRight className="w-5 h-5" />
       </button>
