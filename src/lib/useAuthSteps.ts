@@ -2,12 +2,18 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase";
 import type { AuthState, AuthStep } from "@/types/auth";
 
 export function useAuthSteps() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const mode = searchParams.get("mode") ?? "get-started";
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null);
+  function getSupabase() {
+    if (!supabaseRef.current) supabaseRef.current = createClient();
+    return supabaseRef.current;
+  }
 
   const [state, setState] = useState<AuthState>({
     step: "auth-method",
@@ -20,6 +26,9 @@ export function useAuthSteps() {
     username: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const authMethodRef = useRef(state.authMethod);
   useEffect(() => {
     authMethodRef.current = state.authMethod;
@@ -27,6 +36,7 @@ export function useAuthSteps() {
 
   const goTo = useCallback((step: AuthStep) => {
     setState((prev) => ({ ...prev, step }));
+    setError(null);
   }, []);
 
   const backMap: Record<AuthStep, (() => void) | null> = {
@@ -71,37 +81,111 @@ export function useAuthSteps() {
     };
   }
 
-  function handleGoogleAuth() {
+  async function handleGoogleAuth() {
+    setLoading(true);
+    setError(null);
+    const { error: authError } = await getSupabase().auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+    }
+  }
+
+  async function sendOTP() {
+    setLoading(true);
+    setError(null);
+    if (state.authMethod === "phone") {
+      const { error: authError } = await getSupabase().auth.signInWithOtp({
+        phone: `+91${state.phone}`,
+      });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return false;
+      }
+    } else {
+      const { error: authError } = await getSupabase().auth.signInWithOtp({
+        email: state.email,
+      });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return false;
+      }
+    }
+    setLoading(false);
+    return true;
+  }
+
+  async function handleOTPComplete() {
+    setLoading(true);
+    setError(null);
+    const otp = state.otp.join("");
+
+    let authResult;
+    if (state.authMethod === "phone") {
+      authResult = await getSupabase().auth.verifyOtp({
+        phone: `+91${state.phone}`,
+        token: otp,
+        type: "sms",
+      });
+    } else {
+      authResult = await getSupabase().auth.verifyOtp({
+        email: state.email,
+        token: otp,
+        type: "email",
+      });
+    }
+
+    if (authResult.error) {
+      setError(authResult.error.message);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
     if (mode === "login") {
-      sessionStorage.setItem("voyaq_username", "You");
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     } else {
       goTo("age-gate");
     }
   }
 
-  function handleOTPComplete() {
-    if (mode === "login") {
-      sessionStorage.setItem("voyaq_username", "You");
-      window.location.href = "/dashboard";
-    } else {
-      goTo("age-gate");
+  async function handleUsernameComplete(username: string) {
+    setLoading(true);
+    const { createProfile } = await import("@/lib/actions");
+    const result = await createProfile({
+      username,
+      displayName: username,
+      dob: state.dob,
+      parentContact: state.parentContact,
+    });
+    if (result.error) {
+      setError(result.error);
+      setLoading(false);
+      return;
     }
-  }
-
-  function handleUsernameComplete(username: string) {
-    sessionStorage.setItem("voyaq_username", username);
-    window.location.href = "/dashboard";
+    setLoading(false);
+    router.push("/dashboard");
   }
 
   return {
     state,
     setState,
     mode,
+    loading,
+    error,
     goTo,
     backMap,
     stepLabel,
     getOTPLabel,
+    sendOTP,
     handleGoogleAuth,
     handleOTPComplete,
     handleUsernameComplete,

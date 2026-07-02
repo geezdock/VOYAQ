@@ -117,6 +117,7 @@ export function LandingHeader() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </header>
   );
 }

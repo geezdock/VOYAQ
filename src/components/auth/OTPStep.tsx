@@ -8,11 +8,12 @@ interface OTPStepProps {
   label: string;
   sublabel: string;
   onNext: () => void;
+  loading?: boolean;
 }
 
 const DIGITS = 6;
 
-export function OTPStep({ label, sublabel, onNext }: OTPStepProps) {
+export function OTPStep({ label, sublabel, onNext, loading }: OTPStepProps) {
   const [otp, setOtp] = useState<string[]>(Array(DIGITS).fill(""));
   const [error, setError] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(30);
@@ -40,7 +41,7 @@ export function OTPStep({ label, sublabel, onNext }: OTPStepProps) {
     }
 
     const full = next.join("");
-    if (full.length === DIGITS) {
+    if (full.length === DIGITS && !loading) {
       const result = otpSchema.safeParse(full);
       if (result.success) {
         onNext();

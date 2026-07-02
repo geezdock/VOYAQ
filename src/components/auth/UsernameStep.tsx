@@ -7,9 +7,10 @@ import { usernameSchema, isUsernameAvailable } from "@/lib/schemas";
 
 interface UsernameStepProps {
   onNext: (username: string) => void;
+  loading?: boolean;
 }
 
-export function UsernameStep({ onNext }: UsernameStepProps) {
+export function UsernameStep({ onNext, loading }: UsernameStepProps) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<"idle" | "checking" | "available" | "taken">("idle");
@@ -125,10 +126,10 @@ export function UsernameStep({ onNext }: UsernameStepProps) {
 
         <button
           type="submit"
-          disabled={status !== "available"}
+          disabled={status !== "available" || loading}
           className="brut-btn w-full text-base disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Continue
+          {loading ? "Creating account..." : "Continue"}
         </button>
       </form>
 

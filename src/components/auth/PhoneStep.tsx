@@ -6,9 +6,10 @@ import { phoneSchema } from "@/lib/schemas";
 
 interface PhoneStepProps {
   onNext: (phone: string) => void;
+  loading?: boolean;
 }
 
-export function PhoneStep({ onNext }: PhoneStepProps) {
+export function PhoneStep({ onNext, loading }: PhoneStepProps) {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -58,8 +59,8 @@ export function PhoneStep({ onNext }: PhoneStepProps) {
           )}
         </div>
 
-        <button type="submit" className="brut-btn w-full text-base">
-          Send OTP
+        <button type="submit" disabled={loading} className="brut-btn w-full text-base disabled:opacity-40 disabled:cursor-not-allowed">
+          {loading ? "Sending..." : "Send OTP"}
         </button>
       </form>
     </motion.div>

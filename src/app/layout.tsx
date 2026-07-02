@@ -43,11 +43,8 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <Script
-          id="remove-bis"
+          src="/scripts/clean-bis.js"
           strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `document.querySelectorAll('[bis_skin_checked]').forEach(function(el){el.removeAttribute("bis_skin_checked")})`,
-          }}
         />
         <SquadProvider>{children}</SquadProvider>
       </body>

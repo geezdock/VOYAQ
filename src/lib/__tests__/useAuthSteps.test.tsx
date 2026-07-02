@@ -5,11 +5,27 @@ import { useAuthSteps } from "@/lib/useAuthSteps";
 const mockPush = vi.fn();
 let mockMode = "get-started";
 
+const mockSupabase = {
+  auth: {
+    signInWithOAuth: vi.fn().mockResolvedValue({ error: null }),
+    signInWithOtp: vi.fn().mockResolvedValue({ error: null }),
+    verifyOtp: vi.fn().mockResolvedValue({ error: null }),
+  },
+};
+
+vi.mock("@/lib/supabase", () => ({
+  createClient: () => mockSupabase,
+}));
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
   useSearchParams: () => ({
     get: (key: string) => (key === "mode" ? mockMode : null),
   }),
+}));
+
+vi.mock("@/lib/actions", () => ({
+  createProfile: vi.fn().mockResolvedValue({ error: null }),
 }));
 
 describe("useAuthSteps", () => {
@@ -64,28 +80,23 @@ describe("useAuthSteps", () => {
     expect(label.label).toBe("test@example.com");
   });
 
-  it("handleGoogleAuth goes to age-gate in get-started mode", () => {
+  it("handleGoogleAuth calls signInWithOAuth", async () => {
     const { result } = renderHook(() => useAuthSteps());
-    act(() => result.current.handleGoogleAuth());
+    await act(async () => { await result.current.handleGoogleAuth(); });
+    expect(mockSupabase.auth.signInWithOAuth).toHaveBeenCalled();
+    expect(result.current.state.step).toBe("auth-method");
+  });
+
+  it("handleOTPComplete goes to age-gate in get-started mode", async () => {
+    const { result } = renderHook(() => useAuthSteps());
+    await act(async () => { await result.current.handleOTPComplete(); });
     expect(result.current.state.step).toBe("age-gate");
   });
 
-  it("handleOTPComplete goes to age-gate in get-started mode", () => {
+  it("handleUsernameComplete pushes to dashboard and calls createProfile", async () => {
     const { result } = renderHook(() => useAuthSteps());
-    act(() => result.current.handleOTPComplete());
-    expect(result.current.state.step).toBe("age-gate");
-  });
-
-  it("handleUsernameComplete stores username and sets location", () => {
-    const originalLocation = window.location;
-    Object.defineProperty(window, "location", {
-      value: { ...originalLocation, href: "" },
-      writable: true,
-    });
-
-    const { result } = renderHook(() => useAuthSteps());
-    act(() => result.current.handleUsernameComplete("testuser"));
-    expect(sessionStorage.getItem("voyaq_username")).toBe("testuser");
+    await act(async () => { await result.current.handleUsernameComplete("testuser"); });
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
   });
 });
 
@@ -105,15 +116,15 @@ describe("useAuthSteps login mode", () => {
     expect(result.current.mode).toBe("login");
   });
 
-  it("handleGoogleAuth redirects to dashboard in login mode", () => {
+  it("handleGoogleAuth calls signInWithOAuth in login mode", async () => {
     const { result } = renderHook(() => useAuthSteps());
-    act(() => result.current.handleGoogleAuth());
-    expect(sessionStorage.getItem("voyaq_username")).toBe("You");
+    await act(async () => { await result.current.handleGoogleAuth(); });
+    expect(mockSupabase.auth.signInWithOAuth).toHaveBeenCalled();
   });
 
-  it("handleOTPComplete redirects to dashboard in login mode", () => {
+  it("handleOTPComplete pushes to dashboard in login mode", async () => {
     const { result } = renderHook(() => useAuthSteps());
-    act(() => result.current.handleOTPComplete());
-    expect(sessionStorage.getItem("voyaq_username")).toBe("You");
+    await act(async () => { await result.current.handleOTPComplete(); });
+    expect(mockPush).toHaveBeenCalledWith("/dashboard");
   });
 });

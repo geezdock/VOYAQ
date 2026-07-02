@@ -1,37 +1,30 @@
 "use client";
 
-import { use } from "react";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { TripView } from "@/components/trip/TripView";
+import { useEffect } from "react";
 import { useSquad } from "@/lib/SquadContext";
+import { TripView } from "@/components/trip/TripView";
 
-export default function TripPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function TripPage() {
+  const params = useParams();
   const router = useRouter();
-  const { getSquad } = useSquad();
+  const { squads, getSquad } = useSquad();
 
+  const id = params.id as string;
   const squad = getSquad(id);
+
+  useEffect(() => {
+    if (squads.length > 0 && !squad) {
+      router.replace("/dashboard");
+    }
+  }, [squad, squads.length, router]);
 
   if (!squad) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="brut-card w-full max-w-md text-center space-y-4">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Trip not found
-          </h1>
-          <p className="font-heading text-sm text-ink-muted">
-            This trip doesn&apos;t exist or has been removed.
-          </p>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="brut-btn text-sm"
-          >
-            Back to Dashboard
-          </button>
+        <div className="brut-card w-full max-w-md text-center">
+          <p className="font-heading text-sm text-ink-muted">Loading trip...</p>
         </div>
       </div>
     );

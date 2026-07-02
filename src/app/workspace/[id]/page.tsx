@@ -1,51 +1,40 @@
 "use client";
 
-import { use } from "react";
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { WorkspaceView } from "@/components/workspace/WorkspaceView";
+import { useEffect } from "react";
 import { useSquad } from "@/lib/SquadContext";
+import { WorkspaceView } from "@/components/workspace/WorkspaceView";
 
-export default function WorkspacePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function WorkspacePage() {
+  const params = useParams();
   const router = useRouter();
-  const { getSquad, updateSquad } = useSquad();
+  const { squads, getSquad, updateSquad } = useSquad();
 
+  const id = params.id as string;
   const squad = getSquad(id);
+
+  useEffect(() => {
+    if (squads.length > 0 && !squad) {
+      router.replace("/dashboard");
+    }
+  }, [squad, squads.length, router]);
 
   if (!squad) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="brut-card w-full max-w-md text-center space-y-4">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Squad not found
-          </h1>
-          <p className="font-heading text-sm text-ink-muted">
-            This squad doesn&apos;t exist or has been removed.
-          </p>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="brut-btn text-sm"
-          >
-            Back to Dashboard
-          </button>
+        <div className="brut-card w-full max-w-md text-center">
+          <p className="font-heading text-sm text-ink-muted">Loading squad...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <WorkspaceView
-          squad={squad}
-          onBack={() => router.push("/dashboard")}
-          onUpdate={updateSquad}
-        />
-      </main>
-    </div>
+    <WorkspaceView
+      squad={squad}
+      onBack={() => router.push("/dashboard")}
+      onUpdate={updateSquad}
+    />
   );
 }

@@ -3,17 +3,13 @@
 import { AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { AuthMethodSelect } from "./AuthMethodSelect";
-import { PhoneStep } from "./PhoneStep";
 import { EmailStep } from "./EmailStep";
 import { OTPStep } from "./OTPStep";
-import { AgeGateModal } from "./AgeGateModal";
-import { ParentContactForm } from "./ParentContactForm";
-import { ConsentSent } from "./ConsentSent";
-import { UsernameStep } from "./UsernameStep";
 import { useAuthSteps } from "@/lib/useAuthSteps";
+import type { AuthStep } from "@/types/auth";
 
 export function AuthFlow() {
-  const { state, setState, mode, goTo, backMap, stepLabel, getOTPLabel, handleGoogleAuth, handleOTPComplete, handleUsernameComplete } = useAuthSteps();
+  const { state, setState, mode, loading, goTo, backMap, stepLabel, getOTPLabel, sendOTP, handleOTPComplete } = useAuthSteps();
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -42,76 +38,30 @@ export function AuthFlow() {
           {state.step === "auth-method" && (
             <AuthMethodSelect
               key="auth-method"
-              onSelect={(method) => {
-                setState((prev) => ({ ...prev, authMethod: method }));
-                if (method === "google") {
-                  handleGoogleAuth();
-                } else {
-                  goTo(method);
-                }
-              }}
               mode={mode}
-            />
-          )}
-
-          {state.step === "phone" && (
-            <PhoneStep
-              key="phone"
-              onNext={(phone) => {
-                setState((prev) => ({ ...prev, phone }));
-                goTo("otp");
+              onSelect={(method) => {
+                setState((prev) => ({ ...prev, authMethod: method, step: method as AuthStep }));
               }}
             />
           )}
-
           {state.step === "email" && (
             <EmailStep
               key="email"
-              onNext={(email) => {
+              loading={loading}
+              onNext={async (email) => {
                 setState((prev) => ({ ...prev, email }));
-                goTo("otp");
+                const ok = await sendOTP();
+                if (ok) goTo("otp");
               }}
             />
           )}
-
           {state.step === "otp" && (
             <OTPStep
               key="otp"
-              {...getOTPLabel()}
-              onNext={() => handleOTPComplete()}
-            />
-          )}
-
-          {state.step === "age-gate" && (
-            <AgeGateModal
-              key="age-gate"
-              onAdult={() => goTo("username")}
-              onMinor={() => goTo("parent-contact")}
-            />
-          )}
-
-          {state.step === "parent-contact" && (
-            <ParentContactForm
-              key="parent-contact"
-              onSent={(contact) => {
-                setState((prev) => ({ ...prev, parentContact: contact }));
-                goTo("consent-sent");
-              }}
-            />
-          )}
-
-          {state.step === "consent-sent" && state.parentContact && (
-            <ConsentSent
-              key="consent-sent"
-              contact={state.parentContact}
-              onNext={() => goTo("username")}
-            />
-          )}
-
-          {state.step === "username" && (
-            <UsernameStep
-              key="username"
-              onNext={(username) => handleUsernameComplete(username)}
+              label={getOTPLabel().label}
+              sublabel={getOTPLabel().sublabel}
+              loading={loading}
+              onNext={handleOTPComplete}
             />
           )}
         </AnimatePresence>

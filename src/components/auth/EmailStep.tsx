@@ -6,9 +6,10 @@ import { emailSchema } from "@/lib/schemas";
 
 interface EmailStepProps {
   onNext: (email: string) => void;
+  loading?: boolean;
 }
 
-export function EmailStep({ onNext }: EmailStepProps) {
+export function EmailStep({ onNext, loading }: EmailStepProps) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -51,8 +52,8 @@ export function EmailStep({ onNext }: EmailStepProps) {
           )}
         </div>
 
-        <button type="submit" className="brut-btn w-full text-base">
-          Send OTP
+        <button type="submit" disabled={loading} className="brut-btn w-full text-base disabled:opacity-40 disabled:cursor-not-allowed">
+          {loading ? "Sending..." : "Send OTP"}
         </button>
       </form>
     </motion.div>
