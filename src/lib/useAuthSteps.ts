@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { AuthState, AuthStep } from "@/types/auth";
 
@@ -21,7 +21,9 @@ export function useAuthSteps() {
   });
 
   const authMethodRef = useRef(state.authMethod);
-  authMethodRef.current = state.authMethod;
+  useEffect(() => {
+    authMethodRef.current = state.authMethod;
+  }, [state.authMethod]);
 
   const goTo = useCallback((step: AuthStep) => {
     setState((prev) => ({ ...prev, step }));

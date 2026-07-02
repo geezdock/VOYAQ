@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useAuthSteps } from "@/lib/useAuthSteps";
 
@@ -78,9 +78,8 @@ describe("useAuthSteps", () => {
 
   it("handleUsernameComplete stores username and sets location", () => {
     const originalLocation = window.location;
-    const mockHref = "";
     Object.defineProperty(window, "location", {
-      value: { ...originalLocation, href: mockHref, set href(v: string) {} },
+      value: { ...originalLocation, href: "" },
       writable: true,
     });
 

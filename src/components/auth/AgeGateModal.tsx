@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { dobSchema, calculateAge } from "@/lib/schemas";
 
@@ -12,11 +12,7 @@ interface AgeGateModalProps {
 export function AgeGateModal({ onAdult, onMinor }: AgeGateModalProps) {
   const [dob, setDob] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [maxDate, setMaxDate] = useState("");
-
-  useEffect(() => {
-    setMaxDate(new Date().toISOString().split("T")[0]);
-  }, []);
+  const [maxDate] = useState(() => new Date().toISOString().split("T")[0]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

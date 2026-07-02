@@ -7,14 +7,14 @@ import { User, Settings, LogOut } from "lucide-react";
 
 export function UserAvatarDropdown() {
   const [open, setOpen] = useState(false);
-  const [username, setUsername] = useState("");
+  const [username] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("voyaq_username") || "";
+    }
+    return "";
+  });
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem("voyaq_username");
-    if (stored) setUsername(stored);
-  }, []);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {

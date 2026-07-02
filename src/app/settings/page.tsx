@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, LogOut, User, Bell } from "lucide-react";
@@ -8,12 +8,12 @@ import Link from "next/link";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    const stored = sessionStorage.getItem("voyaq_username");
-    if (stored) setUsername(stored);
-  }, []);
+  const [username] = useState(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("voyaq_username") || "";
+    }
+    return "";
+  });
 
   function handleSignOut() {
     sessionStorage.removeItem("voyaq_username");

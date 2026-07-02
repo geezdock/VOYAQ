@@ -45,11 +45,7 @@ export function UsernameStep({ onNext }: UsernameStepProps) {
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    if (!username) {
-      setError(null);
-      setStatus("idle");
-      return;
-    }
+    if (!username) return;
     debounceRef.current = setTimeout(() => checkAvailability(username), 500);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -93,11 +89,12 @@ export function UsernameStep({ onNext }: UsernameStepProps) {
                 type="text"
                 placeholder="yourname"
                 value={username}
-                onChange={(e) => {
-                  const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20);
-                  setUsername(val);
-                  setError(null);
-                }}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^a-zA-Z0-9_]/g, "").slice(0, 20);
+                    setUsername(val);
+                    setError(null);
+                    if (!val) setStatus("idle");
+                  }}
                 className="brut-input w-full rounded-l-none font-mono text-lg"
                 autoFocus
                 autoComplete="off"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users } from "lucide-react";
@@ -17,33 +17,35 @@ export function DashboardView() {
   const joinCode = searchParams.get("join");
 
   const { squads, updateSquad, addSquad } = useSquad();
-  const [joinSquad, setJoinSquad] = useState<Squad | null>(null);
+  const [dismissed, setDismissed] = useState(false);
 
-  // Handle join code from URL
+  const pendingJoin = useMemo(() => {
+    if (!joinCode || dismissed) return null;
+    const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
+    if (!found) return null;
+    if (found.members.some((m) => m.id === "me") || found.members.length >= found.memberLimit) return null;
+    return found;
+  }, [joinCode, squads, dismissed]);
+
+  // Handle redirect + URL cleanup for join codes
   useEffect(() => {
     if (!joinCode) return;
-
-    // Search runtime squads first, then mock as fallback
     const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
     if (found) {
       const alreadyJoined = found.members.some((m) => m.id === "me");
-      if (!alreadyJoined && found.members.length < found.memberLimit) {
-        setJoinSquad(found);
-      } else {
-        // Already joined or full — just open the squad
+      if (alreadyJoined || found.members.length >= found.memberLimit) {
         router.push(`/workspace/${found.id}`);
       }
     }
-    // Clear the URL param
     window.history.replaceState({}, "", "/dashboard");
-  }, [joinCode]);
+  }, [joinCode, squads, router]);
 
   function handleJoinSquad() {
-    if (!joinSquad) return;
+    if (!pendingJoin) return;
     const updated: Squad = {
-      ...joinSquad,
+      ...pendingJoin,
       members: [
-        ...joinSquad.members,
+        ...pendingJoin.members,
         {
           id: "me",
           name: "You",
@@ -55,7 +57,7 @@ export function DashboardView() {
       ],
     };
     updateSquad(updated);
-    setJoinSquad(null);
+    setDismissed(true);
     router.push(`/workspace/${updated.id}`);
   }
 
@@ -113,14 +115,14 @@ export function DashboardView() {
 
       {/* Join Squad Modal */}
       <AnimatePresence>
-        {joinSquad && (
+        {pendingJoin && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="absolute inset-0 bg-ink/40"
-              onClick={() => setJoinSquad(null)}
+              onClick={() => setDismissed(true)}
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -134,11 +136,11 @@ export function DashboardView() {
 
               <div className="space-y-2">
                 <p className="font-display text-2xl font-bold text-ink">
-                  Join {joinSquad.name}
+                  Join {pendingJoin.name}
                 </p>
-                {joinSquad.destination && (
+                {pendingJoin.destination && (
                   <p className="font-mono text-sm text-ink-muted">
-                    {joinSquad.destination}
+                    {pendingJoin.destination}
                   </p>
                 )}
               </div>
@@ -147,11 +149,11 @@ export function DashboardView() {
                 <div className="flex items-center justify-between">
                   <span className="font-heading text-sm text-ink-muted">Members</span>
                   <span className="font-mono text-sm font-bold text-ink">
-                    {joinSquad.members.length} / {joinSquad.memberLimit}
+                    {pendingJoin.members.length} / {pendingJoin.memberLimit}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  {joinSquad.members.slice(0, 8).map((m) => (
+                  {pendingJoin.members.slice(0, 8).map((m) => (
                     <div
                       key={m.id}
                       className={`w-7 h-7 rounded-full ${m.color} flex items-center justify-center ring-2 ring-white`}
@@ -166,7 +168,7 @@ export function DashboardView() {
 
               <div className="flex gap-3">
                 <button
-                  onClick={() => setJoinSquad(null)}
+                  onClick={() => setDismissed(true)}
                   className="flex-1 brut-btn text-sm !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted"
                 >
                   Cancel
