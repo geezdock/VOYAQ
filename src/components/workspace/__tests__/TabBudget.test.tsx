@@ -3,6 +3,13 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { TabBudget } from "@/components/workspace/steps/TabBudget";
 import type { Squad } from "@/types/squad";
 
+vi.mock("@/lib/SquadContext", () => ({
+  useSquad: () => ({
+    isMe: (id: string) => id === "me",
+    currentUserId: "me",
+  }),
+}));
+
 function makeSquad(overrides: Partial<Squad> = {}): Squad {
   return {
     id: "squad-1",

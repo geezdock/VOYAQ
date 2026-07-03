@@ -1,23 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, LogOut, User, Bell } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [username] = useState(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("voyaq_username") || "";
-    }
-    return "";
-  });
+  const [username, setUsername] = useState("");
 
-  function handleSignOut() {
-    sessionStorage.removeItem("voyaq_username");
-    router.push("/");
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data?.username) setUsername(data.username);
+    })();
+  }, []);
+
+  async function handleSignOut() {
+    try {
+      await createClient().auth.signOut();
+      router.push("/");
+    } catch {
+      // Sign out failed — page will still navigate away
+      router.push("/");
+    }
   }
 
   return (

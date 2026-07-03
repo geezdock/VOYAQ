@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Check } from "lucide-react";
 import type { Squad, Poll } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface TabPollsProps {
   squad: Squad;
@@ -11,6 +12,7 @@ interface TabPollsProps {
 }
 
 export function TabPolls({ squad, onUpdate }: TabPollsProps) {
+  const { isMe, currentUserId } = useSquad();
   const [showCreate, setShowCreate] = useState(false);
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
@@ -18,6 +20,7 @@ export function TabPolls({ squad, onUpdate }: TabPollsProps) {
   function handleCreate() {
     if (!question.trim() || options.filter((o) => o.trim()).length < 2) return;
 
+    const uid = currentUserId || "me";
     const newPoll: Poll = {
       id: `poll-${Date.now()}`,
       question: question.trim(),
@@ -28,7 +31,7 @@ export function TabPolls({ squad, onUpdate }: TabPollsProps) {
           label: label.trim(),
           votes: [],
         })),
-      createdBy: "me",
+      createdBy: uid,
       createdAt: new Date().toISOString(),
     };
 
@@ -39,21 +42,22 @@ export function TabPolls({ squad, onUpdate }: TabPollsProps) {
   }
 
   function handleVote(pollId: string, optionId: string) {
+    const uid = currentUserId || "me";
     const updatedPolls = squad.polls.map((poll) => {
       if (poll.id !== pollId) return poll;
       return {
         ...poll,
         options: poll.options.map((opt) => {
-          const hasVoted = opt.votes.includes("me");
+          const hasVoted = opt.votes.some((v) => isMe(v));
           if (opt.id === optionId) {
             return {
               ...opt,
               votes: hasVoted
-                ? opt.votes.filter((v) => v !== "me")
-                : [...opt.votes, "me"],
+                ? opt.votes.filter((v) => !isMe(v))
+                : [...opt.votes, uid],
             };
           }
-          return { ...opt, votes: opt.votes.filter((v) => v !== "me") };
+          return { ...opt, votes: opt.votes.filter((v) => !isMe(v)) };
         }),
       };
     });
@@ -170,7 +174,7 @@ export function TabPolls({ squad, onUpdate }: TabPollsProps) {
           0
         );
         const myVote = poll.options.find((opt) =>
-          opt.votes.includes("me")
+          opt.votes.some((v) => isMe(v))
         )?.id;
 
         return (

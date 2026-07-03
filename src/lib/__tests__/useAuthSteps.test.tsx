@@ -100,6 +100,23 @@ describe("useAuthSteps", () => {
   });
 });
 
+describe("useAuthSteps setup mode", () => {
+  beforeEach(() => {
+    mockMode = "setup";
+    vi.clearAllMocks();
+    sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    mockMode = "get-started";
+  });
+
+  it("reads setup mode from searchParams", () => {
+    const { result } = renderHook(() => useAuthSteps());
+    expect(result.current.mode).toBe("setup");
+  });
+});
+
 describe("useAuthSteps login mode", () => {
   beforeEach(() => {
     mockMode = "login";

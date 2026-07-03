@@ -194,7 +194,7 @@ export function QuickWalkthrough() {
                 <p className="font-heading text-sm text-ink-light mb-4">
                   {card.sub}
                 </p>
-                <div className="h-16 flex items-center justify-center">
+                <div className="h-auto sm:h-16 flex items-center justify-center">
                   <StepComponent active={activeCard === i} />
                 </div>
               </motion.div>

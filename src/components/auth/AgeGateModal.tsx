@@ -5,8 +5,8 @@ import { motion } from "framer-motion";
 import { dobSchema, calculateAge } from "@/lib/schemas";
 
 interface AgeGateModalProps {
-  onAdult: () => void;
-  onMinor: () => void;
+  onAdult: (dob: string) => void;
+  onMinor: (dob: string) => void;
 }
 
 export function AgeGateModal({ onAdult, onMinor }: AgeGateModalProps) {
@@ -24,9 +24,9 @@ export function AgeGateModal({ onAdult, onMinor }: AgeGateModalProps) {
     }
     const age = calculateAge(dob);
     if (age >= 18) {
-      onAdult();
+      onAdult(dob);
     } else {
-      onMinor();
+      onMinor(dob);
     }
   }
 
@@ -37,6 +37,9 @@ export function AgeGateModal({ onAdult, onMinor }: AgeGateModalProps) {
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
       className="space-y-6"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Age verification"
     >
       <div className="text-center space-y-2">
         <p className="font-heading text-lg font-bold text-ink">
@@ -59,7 +62,7 @@ export function AgeGateModal({ onAdult, onMinor }: AgeGateModalProps) {
               setDob(e.target.value);
               setError(null);
             }}
-            className="brut-input w-full font-mono text-base"
+            className="brut-input w-full font-mono text-base max-sm:text-lg"
             max={maxDate}
             autoFocus
           />

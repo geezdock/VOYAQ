@@ -111,7 +111,7 @@ export function StageChaos({
               </div>
             </div>
 
-            <div className="bg-[#e5ddd5] p-3 space-y-0.5 min-h-[380px] flex flex-col">
+            <div className="bg-[#e5ddd5] p-3 space-y-0.5 min-h-[280px] sm:min-h-[380px] flex flex-col">
               <div className="flex-1 space-y-1">
                 {chaosMessages.map((msg, i) => (
                   <MessageItem

@@ -16,29 +16,29 @@ export function DashboardView() {
   const router = useRouter();
   const joinCode = searchParams.get("join");
 
-  const { squads, updateSquad, addSquad } = useSquad();
+  const { squads, updateSquad, addSquad, isMe, currentUserId } = useSquad();
   const [dismissed, setDismissed] = useState(false);
 
   const pendingJoin = useMemo(() => {
     if (!joinCode || dismissed) return null;
     const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
     if (!found) return null;
-    if (found.members.some((m) => m.id === "me") || found.members.length >= found.memberLimit) return null;
+    if (found.members.some((m) => isMe(m.id)) || found.members.length >= found.memberLimit) return null;
     return found;
-  }, [joinCode, squads, dismissed]);
+  }, [joinCode, squads, dismissed, isMe]);
 
   // Handle redirect + URL cleanup for join codes
   useEffect(() => {
     if (!joinCode) return;
     const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
     if (found) {
-      const alreadyJoined = found.members.some((m) => m.id === "me");
+      const alreadyJoined = found.members.some((m) => isMe(m.id));
       if (alreadyJoined || found.members.length >= found.memberLimit) {
         router.push(`/workspace/${found.id}`);
       }
     }
     window.history.replaceState({}, "", "/dashboard");
-  }, [joinCode, squads, router]);
+  }, [joinCode, squads, router, isMe]);
 
   function handleJoinSquad() {
     if (!pendingJoin) return;
@@ -47,7 +47,7 @@ export function DashboardView() {
       members: [
         ...pendingJoin.members,
         {
-          id: "me",
+          id: currentUserId || "me",
           name: "You",
           initial: "Y",
           color: "bg-accent",

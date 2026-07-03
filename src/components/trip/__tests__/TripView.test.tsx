@@ -11,7 +11,11 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/lib/SquadContext", () => ({
-  useSquad: () => ({ updateSquad: mockUpdateSquad }),
+  useSquad: () => ({
+    updateSquad: mockUpdateSquad,
+    isMe: (id: string) => id === "me",
+    currentUserId: "me",
+  }),
 }));
 
 function makeSquad(overrides: Partial<Squad> = {}): Squad {

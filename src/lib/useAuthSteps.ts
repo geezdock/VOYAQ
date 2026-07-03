@@ -5,6 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 import type { AuthState, AuthStep } from "@/types/auth";
 
+const validTransitions: Record<AuthStep, AuthStep[]> = {
+  "auth-method": ["phone", "email", "age-gate"],
+  phone: ["otp"],
+  email: ["otp"],
+  otp: ["age-gate"],
+  "age-gate": ["username", "parent-contact"],
+  "parent-contact": ["consent-sent"],
+  "consent-sent": ["username"],
+  username: [],
+};
+
 export function useAuthSteps() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,26 +45,35 @@ export function useAuthSteps() {
     authMethodRef.current = state.authMethod;
   }, [state.authMethod]);
 
-  const goTo = useCallback((step: AuthStep) => {
-    setState((prev) => ({ ...prev, step }));
+  const goTo = useCallback((step: AuthStep, skipValidation?: boolean) => {
+    setState((prev) => {
+      if (!skipValidation) {
+        const allowed = validTransitions[prev.step];
+        if (allowed && allowed.length > 0 && !allowed.includes(step)) {
+          console.warn(`Invalid transition: ${prev.step} → ${step}`);
+          return prev;
+        }
+      }
+      return { ...prev, step };
+    });
     setError(null);
   }, []);
 
   const backMap: Record<AuthStep, (() => void) | null> = {
     "auth-method": () => router.push("/"),
-    phone: () => goTo("auth-method"),
-    email: () => goTo("auth-method"),
+    phone: () => goTo("auth-method", true),
+    email: () => goTo("auth-method", true),
     otp: () => {
-      if (authMethodRef.current === "phone") goTo("phone");
-      else goTo("email");
+      if (authMethodRef.current === "phone") goTo("phone", true);
+      else goTo("email", true);
     },
     "age-gate": () => {
-      if (authMethodRef.current === "google") goTo("auth-method");
-      else goTo("otp");
+      if (authMethodRef.current === "google") goTo("auth-method", true);
+      else goTo("otp", true);
     },
-    "parent-contact": () => goTo("age-gate"),
-    "consent-sent": () => goTo("parent-contact"),
-    username: () => goTo("age-gate"),
+    "parent-contact": () => goTo("age-gate", true),
+    "consent-sent": () => goTo("parent-contact", true),
+    username: () => goTo("age-gate", true),
   };
 
   const stepLabel: Record<AuthStep, string> = {
@@ -81,17 +101,27 @@ export function useAuthSteps() {
     };
   }
 
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+
   async function handleGoogleAuth() {
     setLoading(true);
     setError(null);
-    const { error: authError } = await getSupabase().auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (authError) {
-      setError(authError.message);
+    try {
+      const { error: authError } = await getSupabase().auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (authError) {
+        setError(authError.message);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to sign in with Google");
+    } finally {
       setLoading(false);
     }
   }
@@ -99,9 +129,10 @@ export function useAuthSteps() {
   async function sendOTP() {
     setLoading(true);
     setError(null);
-    if (state.authMethod === "phone") {
+    const { authMethod, phone, email } = stateRef.current;
+    if (authMethod === "phone") {
       const { error: authError } = await getSupabase().auth.signInWithOtp({
-        phone: `+91${state.phone}`,
+        phone: `+91${phone}`,
       });
       if (authError) {
         setError(authError.message);
@@ -110,7 +141,7 @@ export function useAuthSteps() {
       }
     } else {
       const { error: authError } = await getSupabase().auth.signInWithOtp({
-        email: state.email,
+        email,
       });
       if (authError) {
         setError(authError.message);
@@ -125,18 +156,19 @@ export function useAuthSteps() {
   async function handleOTPComplete() {
     setLoading(true);
     setError(null);
-    const otp = state.otp.join("");
+    const current = stateRef.current;
+    const otp = current.otp.join("");
 
     let authResult;
-    if (state.authMethod === "phone") {
+    if (current.authMethod === "phone") {
       authResult = await getSupabase().auth.verifyOtp({
-        phone: `+91${state.phone}`,
+        phone: `+91${current.phone}`,
         token: otp,
         type: "sms",
       });
     } else {
       authResult = await getSupabase().auth.verifyOtp({
-        email: state.email,
+        email: current.email,
         token: otp,
         type: "email",
       });

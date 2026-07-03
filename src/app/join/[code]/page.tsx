@@ -1,48 +1,54 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Users, ArrowRight, AlertCircle, CheckCircle } from "lucide-react";
+import { Users, ArrowRight, AlertCircle } from "lucide-react";
 import { useSquad } from "@/lib/SquadContext";
+import { fetchSquadByInviteCode, joinSquadInDb } from "@/lib/supabase/squad-queries";
 import type { Squad } from "@/types/squad";
 
 export default function JoinPage() {
   const params = useParams();
   const router = useRouter();
-  const { squads, updateSquad } = useSquad();
+  const { squads, refreshSquads, isMe, currentUserId } = useSquad();
   const [joining, setJoining] = useState(false);
+  const [remoteSquad, setRemoteSquad] = useState<Squad | null | undefined>(undefined);
 
   const code = params.code as string;
 
-  const squad = useMemo(
-    () => squads.find((s) => s.inviteCode === code),
-    [code, squads],
-  );
+  useEffect(() => {
+    let cancelled = false;
+    fetchSquadByInviteCode(code).then((s) => {
+      if (!cancelled) setRemoteSquad(s);
+    }).catch(() => {
+      if (!cancelled) setRemoteSquad(null);
+    });
+    return () => { cancelled = true; };
+  }, [code]);
 
-  const alreadyJoined = squad?.members.some((m) => m.id === "me");
+  const squad = remoteSquad !== undefined ? remoteSquad : squads.find((s) => s.inviteCode === code);
+
+  const alreadyJoined = squad?.members.some((m) => isMe(m.id));
   const squadFull = squad ? squad.members.length >= squad.memberLimit : false;
 
-  function handleJoin() {
-    if (!squad || alreadyJoined || squadFull || joining) return;
+  useEffect(() => {
+    if ((alreadyJoined || squadFull) && squad) {
+      router.push(`/workspace/${squad.id}`);
+    }
+  }, [alreadyJoined, squadFull, squad, router]);
+
+  async function handleJoin() {
+    if (!squad || alreadyJoined || squadFull || joining || !currentUserId) return;
     setJoining(true);
 
-    const updated: Squad = {
-      ...squad,
-      members: [
-        ...squad.members,
-        {
-          id: "me",
-          name: "You",
-          initial: "Y",
-          color: "bg-accent",
-          verified: true,
-          joinedAt: new Date().toISOString(),
-        },
-      ],
-    };
-    updateSquad(updated);
-    router.push(`/workspace/${updated.id}`);
+    try {
+      await joinSquadInDb(squad.id, currentUserId);
+      await refreshSquads();
+      router.push(`/workspace/${squad.id}`);
+    } catch {
+      setJoining(false);
+    }
   }
 
   if (!squad) {
@@ -78,10 +84,7 @@ export default function JoinPage() {
     );
   }
 
-  if (alreadyJoined || squadFull) {
-    const destination = router.push(`/workspace/${squad.id}`);
-    return null;
-  }
+  if (alreadyJoined || squadFull) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

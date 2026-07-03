@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
-import Script from "next/script";
 import { SquadProvider } from "@/lib/SquadContext";
 import "./globals.css";
 
@@ -31,6 +30,11 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -42,9 +46,10 @@ export default function RootLayout({
         className={`${spaceGrotesk.variable} ${syne.variable} ${jetbrainsMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <Script
-          src="/scripts/clean-bis.js"
-          strategy="beforeInteractive"
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){function c(){var a=document.querySelectorAll("[bis_skin_checked]");for(var b=0;b<a.length;b++){a[b].removeAttribute("bis_skin_checked")}}var d=new MutationObserver(c);d.observe(document.documentElement,{attributes:!0,subtree:!0,attributeFilter:["bis_skin_checked"]});document.readyState==="loading"?document.addEventListener("DOMContentLoaded",c):c()})()`,
+          }}
         />
         <SquadProvider>{children}</SquadProvider>
       </body>

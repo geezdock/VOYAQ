@@ -48,7 +48,7 @@ const statusConfig: Record<
 
 export function TripView({ squad, onBack }: TripViewProps) {
   const router = useRouter();
-  const { updateSquad } = useSquad();
+  const { updateSquad, isMe } = useSquad();
   const [showCancel, setShowCancel] = useState(false);
   const hasLocked = !!squad.lockedDestination && squad.lockedBudget !== undefined && !!squad.lockedDates;
 
@@ -85,10 +85,14 @@ export function TripView({ squad, onBack }: TripViewProps) {
 
   async function handleShare() {
     const url = `${window.location.origin}/trip/${squad.id}`;
-    if (navigator.share) {
-      await navigator.share({ title: squad.name, url });
-    } else {
-      await navigator.clipboard.writeText(url);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: squad.name, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+      }
+    } catch {
+      // Share declined or clipboard unavailable
     }
   }
 
@@ -221,7 +225,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
               </div>
 
               {/* Quick stats */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="border-2 border-ink/10 rounded-[10px] p-3 text-center bg-surface-alt/50">
                   <MapPin className="w-4 h-4 text-accent mx-auto mb-1" />
                   <p className="font-mono text-[10px] text-ink-muted uppercase tracking-wider">
@@ -302,7 +306,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-heading text-sm font-bold text-ink truncate">
-                        {member.id === "me" ? "You" : member.name}
+                        {isMe(member.id) ? "You" : member.name}
                       </p>
                       <p className="font-mono text-[10px] text-ink-muted">
                         {member.verified ? "Verified" : "Unverified"}

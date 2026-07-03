@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { getSupabaseEnv } from "@/lib/env";
 
 const publicRoutes = new Set([
   "/",
@@ -12,13 +13,12 @@ const publicRoutes = new Set([
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (publicRoutes.has(pathname) || pathname.startsWith("/join/") || pathname.startsWith("/_next") || pathname.startsWith("/icon")) {
+  if (publicRoutes.has(pathname) || pathname.startsWith("/join/") || pathname.startsWith("/_next") || pathname.startsWith("/api/") || pathname.startsWith("/icon") || pathname === "/robots.txt" || pathname === "/sitemap.xml") {
     return NextResponse.next();
   }
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  const { url, key } = getSupabaseEnv();
+  const supabase = createServerClient(url, key,
     {
       cookies: {
         getAll() {

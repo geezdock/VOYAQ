@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, Plus, X, Lock, Unlock } from "lucide-react";
 import type { Squad } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface TabDestinationsProps {
   squad: Squad;
@@ -11,6 +12,7 @@ interface TabDestinationsProps {
 }
 
 export function TabDestinations({ squad, onUpdate }: TabDestinationsProps) {
+  const { isMe, currentUserId } = useSquad();
   const [newDest, setNewDest] = useState("");
 
   const totalVotes = squad.votes.length;
@@ -41,12 +43,13 @@ export function TabDestinations({ squad, onUpdate }: TabDestinationsProps) {
 
   function handleVote(dest: string) {
     if (isLocked) return;
-    const existing = squad.votes.find((v) => v.memberId === "me");
+    const uid = currentUserId || "me";
+    const existing = squad.votes.find((v) => isMe(v.memberId));
     const newVotes = existing
       ? squad.votes.map((v) =>
-          v.memberId === "me" ? { ...v, destination: dest } : v
+          isMe(v.memberId) ? { ...v, destination: dest } : v
         )
-      : [...squad.votes, { memberId: "me", destination: dest }];
+      : [...squad.votes, { memberId: uid, destination: dest }];
     onUpdate({ ...squad, votes: newVotes });
   }
 
@@ -67,7 +70,7 @@ export function TabDestinations({ squad, onUpdate }: TabDestinationsProps) {
     onUpdate({ ...squad, lockedDestination: undefined });
   }
 
-  const myVote = squad.votes.find((v) => v.memberId === "me")?.destination;
+  const myVote = squad.votes.find((v) => isMe(v.memberId))?.destination;
 
   return (
     <div className="max-w-lg space-y-6">
@@ -119,7 +122,7 @@ export function TabDestinations({ squad, onUpdate }: TabDestinationsProps) {
                 <button
                   onClick={() => handleVote(dest.name)}
                   disabled={isLocked}
-                  className={`font-heading text-sm sm:text-lg font-bold w-28 sm:w-36 shrink-0 text-left transition-colors ${
+                  className={`font-heading text-sm sm:text-lg font-bold max-sm:w-20 sm:w-36 shrink-0 text-left transition-colors ${
                     squad.lockedDestination === dest.name
                       ? "text-success"
                       : myVote === dest.name

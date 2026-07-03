@@ -37,7 +37,7 @@ const steps: { id: Step; label: string; icon: typeof Users }[] = [
 
 export default function CreateSquadPage() {
   const router = useRouter();
-  const { addSquad } = useSquad();
+  const { addSquad, currentUserId } = useSquad();
   const [step, setStep] = useState<Step>("name");
   const stepIndex = steps.findIndex((s) => s.id === step);
 
@@ -98,7 +98,7 @@ export default function CreateSquadPage() {
     }
   }
 
-  function handleCreate() {
+  async function handleCreate() {
     if (!validateStep(step)) return;
 
     const inviteCode = form.name
@@ -106,16 +106,17 @@ export default function CreateSquadPage() {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
+    const uid = currentUserId || "me";
     const newSquad: Squad = {
       id: `squad-${Date.now()}`,
       name: form.name.trim(),
       inviteCode: `${inviteCode}-${Math.random().toString(36).slice(2, 6)}`,
-      createdBy: "me",
+      createdBy: uid,
       destination: form.destination.trim() || undefined,
       destinations: form.destination.trim() ? [form.destination.trim()] : [],
       members: [
         {
-          id: "me",
+          id: uid,
           name: "You",
           initial: "Y",
           color: "bg-accent",
@@ -133,8 +134,8 @@ export default function CreateSquadPage() {
               id: `dp-${Date.now()}`,
               startDate: form.startDate,
               endDate: form.endDate,
-              proposedBy: "me",
-              votes: ["me"],
+              proposedBy: uid,
+              votes: [uid],
               createdAt: new Date().toISOString(),
             },
           ]
@@ -144,8 +145,12 @@ export default function CreateSquadPage() {
       createdAt: new Date().toISOString(),
     };
 
-    addSquad(newSquad);
-    router.push(`/workspace/${newSquad.id}`);
+    try {
+      const created = await addSquad(newSquad);
+      router.push(`/workspace/${created.id}`);
+    } catch {
+      // Squad creation failed — user stays on create page
+    }
   }
 
   const variants = {
@@ -287,7 +292,7 @@ export default function CreateSquadPage() {
                       −
                     </button>
                     <div className="text-center">
-                      <span className="font-display text-5xl font-extrabold text-ink tabular-nums">
+                      <span className="font-display text-4xl sm:text-5xl font-extrabold text-ink tabular-nums">
                         {form.memberLimit}
                       </span>
                       <p className="font-mono text-xs text-ink-muted mt-1">members</p>
@@ -336,7 +341,7 @@ export default function CreateSquadPage() {
 
                 <div className="brut-card space-y-6">
                   <div className="text-center">
-                    <span className="font-display text-5xl font-extrabold text-ink tabular-nums">
+                    <span className="font-display text-4xl sm:text-5xl font-extrabold text-ink tabular-nums">
                       ₹{form.budgetPerPerson.toLocaleString("en-IN")}
                     </span>
                     <p className="font-mono text-xs text-ink-muted mt-1">per person</p>

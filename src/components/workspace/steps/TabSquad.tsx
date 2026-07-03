@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Copy, Check, Users, UserMinus, Crown } from "lucide-react";
 import type { Squad } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface TabSquadProps {
   squad: Squad;
@@ -11,11 +12,17 @@ interface TabSquadProps {
 }
 
 export function TabSquad({ squad, onUpdate }: TabSquadProps) {
+  const { isMe } = useSquad();
   const [copied, setCopied] = useState(false);
 
-  function handleCopy() {
+  async function handleCopy() {
     const url = `${window.location.origin}/join/${squad.inviteCode}`;
-    navigator.clipboard.writeText(url);
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Clipboard not available — fall back to prompt
+      prompt("Copy invite link:", url);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
@@ -33,7 +40,7 @@ export function TabSquad({ squad, onUpdate }: TabSquadProps) {
         {/* Invite callout */}
         <div className="mx-5 mt-5 bg-accent/5 border border-accent/20 rounded-xl px-4 py-4 flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-            <Users className="w-4.5 h-4.5 text-accent" />
+            <Users className="w-4 h-4 text-accent" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-heading text-sm font-bold text-ink leading-tight">
@@ -77,7 +84,7 @@ export function TabSquad({ squad, onUpdate }: TabSquadProps) {
                   initial={{ opacity: 0, x: -16 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.3 }}
-                  className="flex items-center gap-3 border border-ink/8 rounded-xl p-2.5 hover:bg-surface-alt/50 transition-colors"
+                  className="flex items-center gap-3 border border-ink/10 rounded-xl p-2.5 hover:bg-surface-alt/50 transition-colors"
                 >
                   <div
                     className={`w-8 h-8 rounded-full ${member.color} flex items-center justify-center ring-2 ring-white shrink-0 relative`}
@@ -103,10 +110,10 @@ export function TabSquad({ squad, onUpdate }: TabSquadProps) {
                       )}
                     </div>
                     <p className="font-mono text-[10px] text-ink-muted">
-                      {member.id === "me" ? "You" : "Joined"}
+                      {isMe(member.id) ? "You" : "Joined"}
                     </p>
                   </div>
-                  {member.id !== "me" && (
+                  {!isMe(member.id) && (
                     <button
                       onClick={() => handleRemove(member.id)}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center hover:bg-error/10 rounded-lg transition-colors"

@@ -79,7 +79,7 @@ export function LandingHeader() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 mt-2 border-2 border-ink rounded-bruted-lg bg-surface-card shadow-bruted-lg p-4 z-50 md:hidden"
+            className="absolute top-full left-0 right-0 mt-2 border-2 border-ink rounded-bruted-lg bg-surface-card shadow-bruted-lg p-4 z-50 md:hidden max-h-[80vh] overflow-y-auto"
           >
             <nav className="flex flex-col gap-3">
               {navLinks.map((link) => (

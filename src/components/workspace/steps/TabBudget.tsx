@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle, Sparkles, Check, Lock, Unlock } from "lucide-react";
 import type { Squad } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface TabBudgetProps {
   squad: Squad;
@@ -11,8 +12,9 @@ interface TabBudgetProps {
 }
 
 export function TabBudget({ squad, onUpdate }: TabBudgetProps) {
+  const { isMe, currentUserId } = useSquad();
   const [myBudget, setMyBudget] = useState(
-    squad.budgetPreferences.find((p) => p.memberId === "me")?.amount || 5000
+    squad.budgetPreferences.find((p) => isMe(p.memberId))?.amount || 5000
   );
 
   const totalPrefs = squad.budgetPreferences.length;
@@ -40,14 +42,15 @@ export function TabBudget({ squad, onUpdate }: TabBudgetProps) {
 
   function handleSetBudget() {
     if (isLocked) return;
+    const uid = currentUserId || "me";
     const existing = squad.budgetPreferences.findIndex(
-      (p) => p.memberId === "me"
+      (p) => isMe(p.memberId)
     );
     const newPrefs = [...squad.budgetPreferences];
     if (existing >= 0) {
-      newPrefs[existing] = { memberId: "me", amount: myBudget };
+      newPrefs[existing] = { memberId: uid, amount: myBudget };
     } else {
-      newPrefs.push({ memberId: "me", amount: myBudget });
+      newPrefs.push({ memberId: uid, amount: myBudget });
     }
     onUpdate({ ...squad, budgetPreferences: newPrefs });
   }
@@ -193,7 +196,7 @@ export function TabBudget({ squad, onUpdate }: TabBudgetProps) {
           </div>
 
           <div className="flex items-baseline gap-2 mb-4">
-            <span className="font-display text-4xl font-extrabold text-ink">
+            <span className="font-display text-3xl sm:text-4xl font-extrabold text-ink">
               {formatRupee(avgBudget)}
             </span>
             <span className="font-heading text-sm text-ink-muted">/person</span>

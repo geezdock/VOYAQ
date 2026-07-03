@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Plus, Calendar, Trash2 } from "lucide-react";
 import type { Squad, DateProposal } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface TabDatesProps {
   squad: Squad;
@@ -27,6 +28,7 @@ function getDays(start: string, end: string) {
 }
 
 export function TabDates({ squad, onUpdate }: TabDatesProps) {
+  const { isMe, currentUserId } = useSquad();
   const [showForm, setShowForm] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -45,12 +47,13 @@ export function TabDates({ squad, onUpdate }: TabDatesProps) {
       return;
     }
 
+    const uid = currentUserId || "me";
     const newProposal: DateProposal = {
       id: `dp-${Date.now()}`,
       startDate,
       endDate,
-      proposedBy: "me",
-      votes: ["me"],
+      proposedBy: uid,
+      votes: [uid],
       createdAt: new Date().toISOString(),
     };
 
@@ -61,12 +64,13 @@ export function TabDates({ squad, onUpdate }: TabDatesProps) {
   }
 
   function handleVote(proposalId: string) {
+    const uid = currentUserId || "me";
     const updated = squad.dateProposals.map((p) => {
       if (p.id !== proposalId) return p;
-      const hasVoted = p.votes.includes("me");
+      const hasVoted = p.votes.some((v) => isMe(v));
       return {
         ...p,
-        votes: hasVoted ? p.votes.filter((v) => v !== "me") : [...p.votes, "me"],
+        votes: hasVoted ? p.votes.filter((v) => !isMe(v)) : [...p.votes, uid],
       };
     });
     onUpdate({ ...squad, dateProposals: updated });
@@ -229,7 +233,7 @@ export function TabDates({ squad, onUpdate }: TabDatesProps) {
       {sortedProposals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {sortedProposals.map((proposal) => {
-            const myVoted = proposal.votes.includes("me");
+            const myVoted = proposal.votes.some((v) => isMe(v));
             const approvalPct =
               totalMembers > 0 ? Math.round((proposal.votes.length / totalMembers) * 100) : 0;
             const proposer = squad.members.find((m) => m.id === proposal.proposedBy);
@@ -327,7 +331,7 @@ export function TabDates({ squad, onUpdate }: TabDatesProps) {
                     </button>
                   )}
 
-                  {(proposal.proposedBy === "me" || squad.createdBy === "me") && !isLocked && (
+                  {(isMe(proposal.proposedBy) || isMe(squad.createdBy)) && !isLocked && (
                     <button
                       onClick={() => handleDelete(proposal.id)}
                       className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-[6px] border-[2px] border-ink/20 hover:border-error/40 hover:bg-error/5 transition-all"

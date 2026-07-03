@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SplashScreenProps {
@@ -23,12 +23,12 @@ const labels = [
   { text: "DATES", x: 124, y: 38, color: dotColors[3] },
 ];
 
-let _splashSeen = false;
+const splashState = { seen: false };
 
 export function SplashScreen({ children }: SplashScreenProps) {
   const [showSplash, setShowSplash] = useState(() => {
-    if (_splashSeen) return false;
-    _splashSeen = true;
+    if (splashState.seen) return false;
+    splashState.seen = true;
     return true;
   });
   const [phase, setPhase] = useState<"typing" | "converging" | "locking" | "done">("typing");

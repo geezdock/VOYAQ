@@ -2,6 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CreateSquadModal } from "@/components/dashboard/CreateSquadModal";
 
+vi.mock("@/lib/SquadContext", () => ({
+  useSquad: () => ({
+    currentUserId: "me",
+  }),
+}));
+
 describe("CreateSquadModal", () => {
   const onClose = vi.fn();
   const onCreated = vi.fn();

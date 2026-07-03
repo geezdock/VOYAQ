@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { otpSchema } from "@/lib/schemas";
 
@@ -19,15 +19,30 @@ export function OTPStep({ label, sublabel, onNext, loading }: OTPStepProps) {
   const [resendTimer, setResendTimer] = useState(30);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
+  const [resendKey, setResendKey] = useState(0);
+  const endRef = useRef(0);
+
   useEffect(() => {
     inputsRef.current[0]?.focus();
   }, []);
 
   useEffect(() => {
-    if (resendTimer <= 0) return;
-    const id = setInterval(() => setResendTimer((t) => t - 1), 1000);
+    endRef.current = Date.now() + 30000;
+    const id = setInterval(() => {
+      const r = Math.max(0, Math.round((endRef.current - Date.now()) / 1000));
+      setResendTimer(r);
+      if (r <= 0) clearInterval(id);
+    }, 250);
     return () => clearInterval(id);
-  }, [resendTimer]);
+  }, [resendKey]);
+
+  function handleResend() {
+    endRef.current = Date.now() + 30000;
+    setResendTimer(30);
+    setResendKey((k) => k + 1);
+    setOtp(Array(DIGITS).fill(""));
+    inputsRef.current[0]?.focus();
+  }
 
   function handleChange(index: number, value: string) {
     if (!/^\d?$/.test(value)) return;
@@ -96,7 +111,7 @@ export function OTPStep({ label, sublabel, onNext, loading }: OTPStepProps) {
             value={digit}
             onChange={(e) => handleChange(i, e.target.value)}
             onKeyDown={(e) => handleKeyDown(i, e)}
-            className="brut-input w-11 h-13 max-sm:w-10 max-sm:h-12 text-center font-mono text-xl tracking-widest"
+            className="brut-input w-11 h-12 max-sm:w-11 max-sm:h-12 text-center font-mono text-xl tracking-widest"
             autoComplete="one-time-code"
           />
         ))}
@@ -114,11 +129,7 @@ export function OTPStep({ label, sublabel, onNext, loading }: OTPStepProps) {
         ) : (
           <button
             type="button"
-            onClick={() => {
-              setResendTimer(30);
-              setOtp(Array(DIGITS).fill(""));
-              inputsRef.current[0]?.focus();
-            }}
+            onClick={handleResend}
             className="font-heading text-sm text-accent underline underline-offset-2 hover:text-accent-dark transition-colors min-h-[44px] py-2.5 inline-flex items-center"
           >
             Resend OTP

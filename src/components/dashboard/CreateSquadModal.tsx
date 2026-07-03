@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import type { Squad } from "@/types/squad";
+import { useSquad } from "@/lib/SquadContext";
 
 interface CreateSquadModalProps {
   open: boolean;
@@ -16,6 +17,7 @@ export function CreateSquadModal({
   onClose,
   onCreated,
 }: CreateSquadModalProps) {
+  const { currentUserId } = useSquad();
   const [name, setName] = useState("");
   const [destination, setDestination] = useState("");
   const [error, setError] = useState("");
@@ -34,16 +36,17 @@ export function CreateSquadModal({
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
 
+    const uid = currentUserId || "me";
     const newSquad: Squad = {
       id: `squad-${Date.now()}`,
       name: name.trim(),
       inviteCode: `${inviteCode}-${Math.random().toString(36).slice(2, 6)}`,
-      createdBy: "me",
+      createdBy: uid,
       destination: destination.trim() || undefined,
       destinations: destination.trim() ? [destination.trim()] : [],
       members: [
         {
-          id: "me",
+          id: uid,
           name: "You",
           initial: "Y",
           color: "bg-accent",

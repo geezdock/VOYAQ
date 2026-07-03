@@ -16,7 +16,7 @@ export function MiniStoryMode() {
   });
 
   return (
-    <div ref={containerRef} className="relative h-[400vh]">
+    <div ref={containerRef} className="relative h-[500vh]">
       <div className="sticky top-0 h-dvh overflow-hidden bg-surface">
         <StageChaos scrollYProgress={scrollYProgress} />
         <StageVoting scrollYProgress={scrollYProgress} />

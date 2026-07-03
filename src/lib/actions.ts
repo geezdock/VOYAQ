@@ -3,6 +3,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { getSupabaseEnv } from "./env";
 
 export async function createProfile(params: {
   username: string;
@@ -11,11 +12,9 @@ export async function createProfile(params: {
   parentContact?: { type: "phone" | "email"; value: string } | null;
 }) {
   const cookieStore = await cookies();
+  const { url, key } = getSupabaseEnv();
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
+  const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return cookieStore.getAll();

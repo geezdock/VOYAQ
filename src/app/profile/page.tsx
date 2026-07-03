@@ -1,19 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, User } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [username] = useState(() => {
-    if (typeof window !== "undefined") {
-      return sessionStorage.getItem("voyaq_username") || "";
-    }
-    return "";
-  });
+  const [username, setUsername] = useState("");
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("username, created_at")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data) {
+        setUsername(data.username || "");
+        setCreatedAt(data.created_at);
+      }
+    })();
+  }, []);
+
+  const memberSince = createdAt
+    ? new Date(createdAt).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+    : new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
   return (
     <div className="min-h-screen">
@@ -51,7 +69,7 @@ export default function ProfilePage() {
                   @{username || "unknown"}
                 </p>
                 <p className="font-heading text-sm text-ink-muted">
-                  Member since {new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+                  Member since {memberSince}
                 </p>
               </div>
             </div>
