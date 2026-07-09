@@ -27,18 +27,22 @@ describe("AuthMethodSelect", () => {
     expect(screen.getByText("Sign in to your account.")).toBeInTheDocument();
   });
 
-  it("calls onSelect with google when Google is clicked", () => {
+  it("shows maintenance modal when Google is clicked", () => {
     const onSelect = vi.fn();
     render(<AuthMethodSelect mode="get-started" onSelect={onSelect} />);
     fireEvent.click(screen.getByText("Continue with Google"));
-    expect(onSelect).toHaveBeenCalledWith("google");
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByText("Under Maintenance")).toBeInTheDocument();
+    expect(screen.getByText("Sign in with Google is temporarily unavailable.")).toBeInTheDocument();
   });
 
-  it("calls onSelect with phone when Phone is clicked", () => {
+  it("shows maintenance modal when Phone is clicked", () => {
     const onSelect = vi.fn();
     render(<AuthMethodSelect mode="get-started" onSelect={onSelect} />);
     fireEvent.click(screen.getByText("Phone"));
-    expect(onSelect).toHaveBeenCalledWith("phone");
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(screen.getByText("Under Maintenance")).toBeInTheDocument();
+    expect(screen.getByText("Phone number sign in is temporarily unavailable.")).toBeInTheDocument();
   });
 
   it("calls onSelect with email when Email is clicked", () => {

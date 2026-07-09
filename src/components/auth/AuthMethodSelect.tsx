@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Smartphone, Mail } from "lucide-react";
 import type { AuthMethod } from "@/types/auth";
+import { MaintenanceModal } from "./MaintenanceModal";
 
 interface AuthMethodSelectProps {
   onSelect?: (method: AuthMethod) => void;
@@ -10,6 +12,22 @@ interface AuthMethodSelectProps {
 }
 
 export function AuthMethodSelect({ onSelect, mode }: AuthMethodSelectProps) {
+  const [maintenance, setMaintenance] = useState<"google" | "phone" | null>(null);
+
+  function handleSelect(method: AuthMethod) {
+    if (method === "google") {
+      setMaintenance("google");
+    } else if (method === "phone") {
+      setMaintenance("phone");
+    } else {
+      onSelect?.(method);
+    }
+  }
+
+  function handleCloseMaintenance() {
+    setMaintenance(null);
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -30,7 +48,7 @@ export function AuthMethodSelect({ onSelect, mode }: AuthMethodSelectProps) {
       </div>
 
       <button
-        onClick={() => onSelect?.("google")}
+        onClick={() => handleSelect("google")}
         className="brut-btn w-full text-base inline-flex items-center justify-center gap-3 !bg-surface-card !text-ink hover:!bg-surface-alt"
       >
         <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" aria-hidden="true">
@@ -62,7 +80,7 @@ export function AuthMethodSelect({ onSelect, mode }: AuthMethodSelectProps) {
 
       <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-3">
         <button
-          onClick={() => onSelect?.("phone")}
+          onClick={() => handleSelect("phone")}
           className="brut-card !p-4 flex flex-col items-center gap-2 hover:shadow-bruted transition-shadow cursor-pointer !border-ink"
         >
           <Smartphone className="w-6 h-6 max-sm:w-5 max-sm:h-5 text-ink" />
@@ -73,7 +91,7 @@ export function AuthMethodSelect({ onSelect, mode }: AuthMethodSelectProps) {
         </button>
 
         <button
-          onClick={() => onSelect?.("email")}
+          onClick={() => handleSelect("email")}
           className="brut-card !p-4 flex flex-col items-center gap-2 hover:shadow-bruted transition-shadow cursor-pointer !border-ink"
         >
           <Mail className="w-6 h-6 max-sm:w-5 max-sm:h-5 text-ink" />
@@ -83,6 +101,10 @@ export function AuthMethodSelect({ onSelect, mode }: AuthMethodSelectProps) {
           <span className="font-mono text-xs text-ink-muted">OTP via email</span>
         </button>
       </div>
+
+      {maintenance && (
+        <MaintenanceModal method={maintenance} onClose={handleCloseMaintenance} />
+      )}
     </motion.div>
   );
 }
