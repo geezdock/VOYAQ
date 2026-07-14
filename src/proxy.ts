@@ -13,7 +13,8 @@ const publicRoutes = new Set([
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (publicRoutes.has(pathname) || pathname.startsWith("/auth/") || pathname.startsWith("/join/") || pathname.startsWith("/_next") || pathname.startsWith("/api/") || pathname.startsWith("/icon") || pathname === "/robots.txt" || pathname === "/sitemap.xml") {
+  const isPaused = process.env.NEXT_PUBLIC_SUPABASE_PAUSED === "true";
+  if (isPaused || publicRoutes.has(pathname) || pathname.startsWith("/auth/") || pathname.startsWith("/join/") || pathname.startsWith("/_next") || pathname.startsWith("/api/") || pathname.startsWith("/icon") || pathname === "/robots.txt" || pathname === "/sitemap.xml") {
     return NextResponse.next();
   }
 
