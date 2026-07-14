@@ -1,151 +1,67 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
-import { AuthMethodSelect } from "./AuthMethodSelect";
-import { EmailStep } from "./EmailStep";
-import { PhoneStep } from "./PhoneStep";
-import { OTPStep } from "./OTPStep";
-import { AgeGateModal } from "./AgeGateModal";
-import { ParentContactForm } from "./ParentContactForm";
-import { ConsentSent } from "./ConsentSent";
-import { UsernameStep } from "./UsernameStep";
-import { useAuthSteps } from "@/lib/useAuthSteps";
-import type { AuthStep } from "@/types/auth";
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { motion } from "framer-motion";
+import { PartyPopper } from "lucide-react";
 
 export function AuthFlow() {
   const router = useRouter();
-  const { state, setState, mode, loading, error, goTo, backMap, stepLabel, getOTPLabel, sendOTP, handleOTPComplete, handleGoogleAuth, handleUsernameComplete } = useAuthSteps();
+  const searchParams = useSearchParams();
+  const mode = searchParams.get("mode") ?? "get-started";
+  const [name, setName] = useState("");
 
-  useEffect(() => {
-    if (mode === "setup") {
-      setState((prev) => ({ ...prev, authMethod: "google" }));
-      goTo("age-gate");
-      router.replace("/auth");
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    router.push("/dashboard");
+  }
 
   return (
     <div className="min-h-dvh flex items-center justify-center p-4 max-sm:p-2">
-      <div className="brut-card w-full max-w-md">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {backMap[state.step] && (
-              <button
-                onClick={backMap[state.step]!}
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center -ml-2 hover:bg-surface-alt rounded-bruted transition-colors"
-                aria-label="Go back"
-              >
-                <ArrowLeft className="w-5 h-5 text-ink" />
-              </button>
-            )}
-            <span className="font-display text-xl font-bold text-ink">
-              VOYAQ
-            </span>
-          </div>
-          <span className="font-mono text-xs text-ink-muted uppercase tracking-wider">
-            {stepLabel[state.step]}
-          </span>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="brut-card w-full max-w-md text-center"
+      >
+        <div className="mx-auto w-14 h-14 rounded-bruted bg-ink flex items-center justify-center mb-4">
+          <PartyPopper className="w-7 h-7 text-surface" />
         </div>
 
-        <AnimatePresence mode="wait">
-          {state.step === "auth-method" && (
-            <AuthMethodSelect
-              key="auth-method"
-              mode={mode}
-              onSelect={(method) => {
-                if (method === "google") {
-                  handleGoogleAuth();
-                } else {
-                  setState((prev) => ({ ...prev, authMethod: method, step: method as AuthStep }));
-                }
-              }}
-            />
-          )}
-          {state.step === "phone" && (
-            <PhoneStep
-              key="phone"
-              loading={loading}
-              onNext={async (phone) => {
-                setState((prev) => ({ ...prev, phone }));
-                const ok = await sendOTP();
-                if (ok) goTo("otp");
-              }}
-            />
-          )}
-          {state.step === "email" && (
-            <EmailStep
-              key="email"
-              loading={loading}
-              onNext={async (email) => {
-                setState((prev) => ({ ...prev, email }));
-                const ok = await sendOTP();
-                if (ok) goTo("otp");
-              }}
-            />
-          )}
-          {state.step === "otp" && (
-            <OTPStep
-              key="otp"
-              label={getOTPLabel().label}
-              sublabel={getOTPLabel().sublabel}
-              loading={loading}
-              onNext={handleOTPComplete}
-            />
-          )}
-          {state.step === "age-gate" && (
-            <AgeGateModal
-              key="age-gate"
-              onAdult={(dob) => {
-                setState((prev) => ({ ...prev, dob }));
-                goTo("username");
-              }}
-              onMinor={(dob) => {
-                setState((prev) => ({ ...prev, dob }));
-                goTo("parent-contact");
-              }}
-            />
-          )}
-          {state.step === "parent-contact" && (
-            <ParentContactForm
-              key="parent-contact"
-              onSent={(contact) => {
-                setState((prev) => ({ ...prev, parentContact: contact }));
-                goTo("consent-sent");
-              }}
-            />
-          )}
-          {state.step === "consent-sent" && state.parentContact && (
-            <ConsentSent
-              key="consent-sent"
-              contact={state.parentContact}
-              onNext={() => goTo("username")}
-            />
-          )}
-          {state.step === "username" && (
-            <UsernameStep
-              key="username"
-              loading={loading}
-              onNext={async (username) => {
-                await handleUsernameComplete(username);
-              }}
-            />
-          )}
-        </AnimatePresence>
+        <h1 className="font-display text-2xl font-extrabold text-ink uppercase tracking-tight mb-1">
+          {mode === "login" ? "Welcome back" : "Get started"}
+        </h1>
 
-        {error && (
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="font-mono text-xs text-error text-center mt-4"
+        <p className="font-heading text-sm text-ink-muted mb-6">
+          {mode === "login"
+            ? "Sign in to your account."
+            : "Join your squad and start planning trips."}
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="text-left space-y-1">
+            <label className="font-heading text-xs font-semibold text-ink-light uppercase tracking-wider">
+              What should we call you?
+            </label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="brut-input w-full text-base"
+              placeholder="Enter your name"
+              autoFocus
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={!name.trim()}
+            className="brut-btn w-full text-base disabled:opacity-40"
           >
-            {error}
-          </motion.p>
-        )}
-      </div>
+            {mode === "login" ? "Sign in" : "Let&apos;s go"}
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 }

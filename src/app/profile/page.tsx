@@ -1,37 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, User } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase";
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const [username, setUsername] = useState("");
-  const [createdAt, setCreatedAt] = useState<string | null>(null);
-
-  useEffect(() => {
-    const supabase = createClient();
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("username, created_at")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (data) {
-        setUsername(data.username || "");
-        setCreatedAt(data.created_at);
-      }
-    })();
-  }, []);
-
-  const memberSince = createdAt
-    ? new Date(createdAt).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
-    : new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
+  const memberSince = new Date().toLocaleDateString("en-IN", { month: "long", year: "numeric" });
 
   return (
     <div className="min-h-screen">
@@ -53,31 +27,23 @@ export default function ProfilePage() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Profile
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-ink">Profile</h1>
 
           <div className="brut-card space-y-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-bruted-lg border-2 border-ink bg-peach flex items-center justify-center">
-                <span className="font-display text-2xl font-bold text-ink">
-                  {username ? username[0].toUpperCase() : "U"}
-                </span>
+                <span className="font-display text-2xl font-bold text-ink">Y</span>
               </div>
               <div>
-                <p className="font-display text-xl font-bold text-ink">
-                  @{username || "unknown"}
-                </p>
-                <p className="font-heading text-sm text-ink-muted">
-                  Member since {memberSince}
-                </p>
+                <p className="font-display text-xl font-bold text-ink">@You</p>
+                <p className="font-heading text-sm text-ink-muted">Member since {memberSince}</p>
               </div>
             </div>
 
             <div className="border-t border-ink/10 pt-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="font-heading text-sm text-ink-muted">Username</span>
-                <span className="font-mono text-sm text-ink">@{username || "unknown"}</span>
+                <span className="font-mono text-sm text-ink">@You</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-heading text-sm text-ink-muted">Status</span>

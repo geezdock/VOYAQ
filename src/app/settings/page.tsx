@@ -1,39 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, LogOut, User, Bell } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase";
 
 export default function SettingsPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
-
-  useEffect(() => {
-    const supabase = createClient();
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (data?.username) setUsername(data.username);
-    })();
-  }, []);
-
-  async function handleSignOut() {
-    try {
-      await createClient().auth.signOut();
-      router.push("/");
-    } catch {
-      // Sign out failed — page will still navigate away
-      router.push("/");
-    }
-  }
 
   return (
     <div className="min-h-screen">
@@ -55,9 +28,7 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-6"
         >
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Settings
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-ink">Settings</h1>
 
           <div className="space-y-4">
             <div className="brut-card space-y-4">
@@ -65,11 +36,10 @@ export default function SettingsPage() {
                 <User className="w-5 h-5 text-ink-muted" />
                 <span className="font-heading text-sm font-bold text-ink">Account</span>
               </div>
-
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-heading text-sm text-ink-muted">Username</span>
-                  <span className="font-mono text-sm text-ink">@{username || "unknown"}</span>
+                  <span className="font-mono text-sm text-ink">@You</span>
                 </div>
               </div>
             </div>
@@ -79,7 +49,6 @@ export default function SettingsPage() {
                 <Bell className="w-5 h-5 text-ink-muted" />
                 <span className="font-heading text-sm font-bold text-ink">Notifications</span>
               </div>
-
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="font-heading text-sm text-ink-muted">Squad updates</span>
@@ -97,13 +66,11 @@ export default function SettingsPage() {
             </div>
 
             <button
-              onClick={handleSignOut}
+              onClick={() => router.push("/")}
               className="w-full brut-card !p-4 flex items-center justify-center gap-2 hover:bg-error/5 hover:border-error/30 transition-colors"
             >
               <LogOut className="w-4 h-4 text-error" />
-              <span className="font-heading text-sm font-bold text-error">
-                Sign Out
-              </span>
+              <span className="font-heading text-sm font-bold text-error">Sign Out</span>
             </button>
           </div>
         </motion.div>
