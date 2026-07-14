@@ -31,10 +31,12 @@ export default function WorkspacePage() {
   }
 
   return (
-    <WorkspaceView
-      squad={squad}
-      onBack={() => router.push("/dashboard")}
-      onUpdate={updateSquad}
-    />
+    <main className="max-w-4xl mx-auto px-4 py-8 min-h-screen">
+      <WorkspaceView
+        squad={squad}
+        onBack={() => router.push("/dashboard")}
+        onUpdate={updateSquad}
+      />
+    </main>
   );
 }

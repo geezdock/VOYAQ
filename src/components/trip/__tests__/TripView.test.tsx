@@ -149,7 +149,7 @@ describe("TripView", () => {
   it("renders trip stats (destination, budget, duration)", () => {
     render(<TripView squad={makeSquad()} onBack={onBack} />);
     expect(screen.getAllByText("Goa").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("3 day trip")).toBeInTheDocument();
+    expect(screen.getByText(/3d/)).toBeInTheDocument();
   });
 
   it("calls onBack when Dashboard button clicked", () => {

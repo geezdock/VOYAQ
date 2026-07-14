@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users } from "lucide-react";
 import { EmptyState } from "./EmptyState";
 import { SquadGrid } from "./SquadGrid";
-import { UserAvatarDropdown } from "./UserAvatarDropdown";
 import { useSquad } from "@/lib/SquadContext";
 import { mockSquads } from "@/lib/mock";
 import type { Squad } from "@/types/squad";
@@ -62,56 +61,40 @@ export function DashboardView() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b-2 border-ink bg-surface-card">
-        <div className="max-w-6xl mx-auto px-4 py-0 flex items-center justify-between h-16">
-          <div className="w-28">
-            <span className="font-display text-xl font-bold text-ink">
-              VOYAQ
-            </span>
+    <div>
+      {squads.length > 0 ? (
+        <motion.div
+          key="squad-list"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="font-display text-2xl font-bold text-ink">
+              My Squads
+            </h1>
+            <button
+              onClick={() => router.push("/create")}
+              className="brut-btn text-sm px-5 py-3 min-h-[44px]"
+            >
+              + New Squad
+            </button>
           </div>
-
-          <div className="w-28 flex justify-end">
-            <UserAvatarDropdown />
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {squads.length > 0 ? (
-          <motion.div
-            key="squad-list"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="font-display text-2xl font-bold text-ink">
-                Your Squads
-              </h1>
-              <button
-                onClick={() => router.push("/create")}
-                className="brut-btn text-sm px-5 py-3 min-h-[44px]"
-              >
-                + New Squad
-              </button>
-            </div>
-            <SquadGrid
-              squads={squads}
-              onSelect={(id) => {
-                const s = squads.find((sq) => sq.id === id);
-                const tripStatuses = ["booked", "pending", "cancelled"];
-                if (s && tripStatuses.includes(s.status)) {
-                  router.push(`/trip/${id}`);
-                } else {
-                  router.push(`/workspace/${id}`);
-                }
-              }}
-            />
-          </motion.div>
-        ) : (
-          <EmptyState />
-        )}
-      </main>
+          <SquadGrid
+            squads={squads}
+            onSelect={(id) => {
+              const s = squads.find((sq) => sq.id === id);
+              const tripStatuses = ["booked", "pending", "cancelled"];
+              if (s && tripStatuses.includes(s.status)) {
+                router.push(`/trip/${id}`);
+              } else {
+                router.push(`/workspace/${id}`);
+              }
+            }}
+          />
+        </motion.div>
+      ) : (
+        <EmptyState />
+      )}
 
       {/* Join Squad Modal */}
       <AnimatePresence>

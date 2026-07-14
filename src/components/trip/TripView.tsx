@@ -14,7 +14,7 @@ import {
   Clock,
   XCircle,
   PartyPopper,
-  AlertTriangle,
+  Compass,
 } from "lucide-react";
 import type { Squad } from "@/types/squad";
 import { useSquad } from "@/lib/SquadContext";
@@ -25,31 +25,17 @@ interface TripViewProps {
   onBack: () => void;
 }
 
-const statusConfig: Record<
-  string,
-  { label: string; icon: typeof CheckCircle; className: string }
-> = {
-  booked: {
-    label: "Booked",
-    icon: CheckCircle,
-    className: "bg-success/10 text-success border-success/30",
-  },
-  pending: {
-    label: "Pending",
-    icon: Clock,
-    className: "bg-amber-400/10 text-amber-600 border-amber-400/30",
-  },
-  cancelled: {
-    label: "Cancelled",
-    icon: XCircle,
-    className: "bg-error/10 text-error border-error/30",
-  },
+const statusConfig: Record<string, { label: string; icon: typeof CheckCircle; className: string }> = {
+  booked: { label: "Booked", icon: CheckCircle, className: "bg-success/10 text-success" },
+  pending: { label: "Pending", icon: Clock, className: "bg-amber-400/10 text-amber-600" },
+  cancelled: { label: "Cancelled", icon: XCircle, className: "bg-error/10 text-error" },
 };
 
 export function TripView({ squad, onBack }: TripViewProps) {
   const router = useRouter();
   const { updateSquad, isMe } = useSquad();
   const [showCancel, setShowCancel] = useState(false);
+
   const hasLocked = !!squad.lockedDestination && squad.lockedBudget !== undefined && !!squad.lockedDates;
 
   const [countdown, setCountdown] = useState(
@@ -92,7 +78,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
         await navigator.clipboard.writeText(url);
       }
     } catch {
-      // Share declined or clipboard unavailable
+      // silent
     }
   }
 
@@ -100,15 +86,11 @@ export function TripView({ squad, onBack }: TripViewProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="brut-card w-full max-w-md text-center space-y-4">
-          <h1 className="font-display text-2xl font-bold text-ink">
-            Trip not ready
-          </h1>
+          <h1 className="font-display text-2xl font-bold text-ink">Trip not ready</h1>
           <p className="font-heading text-sm text-ink-muted">
             Lock destination, budget, and dates before viewing the trip.
           </p>
-          <button onClick={onBack} className="brut-btn text-sm">
-            Back to Dashboard
-          </button>
+          <button onClick={onBack} className="brut-btn text-sm">Back to Dashboard</button>
         </div>
       </div>
     );
@@ -116,282 +98,195 @@ export function TripView({ squad, onBack }: TripViewProps) {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b-2 border-ink bg-surface-card">
-        <div className="max-w-6xl mx-auto px-4 py-0 flex items-center justify-between h-16">
+      <header className="border-b border-ink/10 bg-surface-card">
+        <div className="max-w-3xl mx-auto px-4 flex items-center justify-between h-14">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 font-heading text-sm font-semibold text-ink-muted hover:text-ink transition-colors min-h-[44px] py-2"
+            className="flex items-center gap-1.5 font-heading text-sm font-semibold text-ink-muted hover:text-ink transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Dashboard
           </button>
 
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-1.5 font-heading text-sm font-semibold text-ink-muted hover:text-ink transition-colors min-h-[44px] py-2"
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </button>
+          <div className="flex items-center gap-2">
+            {cfg && StatusIcon && (
+              <span className={`flex items-center gap-1 font-mono text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-bruted ${cfg.className}`}>
+                <StatusIcon className="w-3 h-3" />
+                {cfg.label}
+              </span>
+            )}
+            <button
+              onClick={handleShare}
+              className="w-8 h-8 flex items-center justify-center rounded-bruted text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
+              title="Share"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-4 py-6 sm:py-10">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="border-2 border-ink rounded-[14px] bg-white shadow-bruted-sm overflow-hidden"
         >
-          {/* Hero section */}
-          <div className="border-[3px] border-ink rounded-[16px] bg-white shadow-bruted-lg overflow-hidden">
-            {countdown && !countdown.expired && (
-              <div className="bg-ink px-5 py-4 text-center">
-                <p className="font-mono text-[10px] text-surface/50 uppercase tracking-widest mb-1">
-                  Departing in
-                </p>
-                <div className="flex items-center justify-center gap-4">
-                  <div>
-                    <span className="font-display text-3xl sm:text-4xl font-extrabold text-surface">
-                      {countdown.days}
-                    </span>
-                    <span className="font-mono text-[10px] text-surface/50 uppercase ml-1">
-                      days
-                    </span>
-                  </div>
-                  <span className="text-surface/20 text-2xl">|</span>
-                  <div>
-                    <span className="font-display text-3xl sm:text-4xl font-extrabold text-surface">
-                      {countdown.hours}
-                    </span>
-                    <span className="font-mono text-[10px] text-surface/50 uppercase ml-1">
-                      hrs
-                    </span>
-                  </div>
-                  <span className="text-surface/20 text-2xl">|</span>
-                  <div>
-                    <span className="font-display text-3xl sm:text-4xl font-extrabold text-surface">
-                      {countdown.minutes}
-                    </span>
-                    <span className="font-mono text-[10px] text-surface/50 uppercase ml-1">
-                      min
-                    </span>
-                  </div>
-                </div>
+          {/* Countdown / Status bar */}
+          {countdown && !countdown.expired && (
+            <div className="bg-ink px-5 py-3 flex items-center justify-between">
+              <span className="font-mono text-[10px] text-surface/50 uppercase tracking-widest">
+                Departing in
+              </span>
+              <div className="flex items-center gap-3">
+                <span className="font-display text-xl sm:text-2xl font-extrabold text-surface">
+                  {countdown.days}<span className="font-mono text-[10px] text-surface/50 uppercase ml-0.5">d</span>
+                </span>
+                <span className="text-surface/20 text-lg">·</span>
+                <span className="font-display text-xl sm:text-2xl font-extrabold text-surface">
+                  {countdown.hours}<span className="font-mono text-[10px] text-surface/50 uppercase ml-0.5">h</span>
+                </span>
+                <span className="text-surface/20 text-lg">·</span>
+                <span className="font-display text-xl sm:text-2xl font-extrabold text-surface">
+                  {countdown.minutes}<span className="font-mono text-[10px] text-surface/50 uppercase ml-0.5">m</span>
+                </span>
               </div>
-            )}
+            </div>
+          )}
 
-            {countdown?.expired && (
-              <div className="bg-success px-5 py-4 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <PartyPopper className="w-5 h-5 text-white" />
-                  <span className="font-display text-lg font-extrabold text-white uppercase tracking-tight">
-                    Trip time!
-                  </span>
-                </div>
-              </div>
-            )}
+          {countdown?.expired && (
+            <div className="bg-success px-5 py-3 flex items-center justify-center gap-2">
+              <PartyPopper className="w-5 h-5 text-white shrink-0" />
+              <span className="font-display text-base font-extrabold text-white uppercase tracking-tight">
+                Trip time!
+              </span>
+            </div>
+          )}
 
-            {squad.status === "cancelled" && (
-              <div className="bg-error px-5 py-4 text-center">
-                <div className="flex items-center justify-center gap-2">
-                  <XCircle className="w-5 h-5 text-white" />
-                  <span className="font-display text-lg font-extrabold text-white uppercase tracking-tight">
-                    Trip cancelled
-                  </span>
-                </div>
-              </div>
-            )}
+          {squad.status === "cancelled" && (
+            <div className="bg-error px-5 py-3 flex items-center justify-center gap-2">
+              <XCircle className="w-5 h-5 text-white shrink-0" />
+              <span className="font-display text-base font-extrabold text-white uppercase tracking-tight">
+                Trip cancelled
+              </span>
+            </div>
+          )}
 
-            <div className="p-5 sm:p-6 space-y-4">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-ink uppercase tracking-tight truncate">
-                    {squad.name}
-                  </h1>
-                  {squad.lockedDestination && (
-                    <p className="font-heading text-sm text-ink-muted mt-1">
-                      {squad.lockedDestination}
-                    </p>
+          {/* Content */}
+          <div className="p-5 sm:p-7 space-y-5">
+            {/* Title + destination */}
+            <div>
+              <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-ink uppercase tracking-tight">
+                {squad.name}
+              </h1>
+              {squad.lockedDestination && (
+                <p className="font-heading text-sm text-ink-muted mt-1">{squad.lockedDestination}</p>
+              )}
+            </div>
+
+            {/* Trip details row */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              {squad.lockedDestination && (
+                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-ink-muted">
+                  <MapPin className="w-3.5 h-3.5 text-accent" />
+                  {squad.lockedDestination}
+                </span>
+              )}
+              {squad.lockedDates && (
+                <span className="inline-flex items-center gap-1.5 font-mono text-xs text-ink-muted">
+                  <Calendar className="w-3.5 h-3.5 text-peach-dark" />
+                  {formatDate(squad.lockedDates.start)} – {formatDate(squad.lockedDates.end)}
+                  <span className="text-ink-muted/60">· {getDays(squad.lockedDates.start, squad.lockedDates.end)}d</span>
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs text-ink-muted">
+                <DollarSign className="w-3.5 h-3.5 text-success" />
+                {formatRupee(squad.lockedBudget ?? 0)}
+                <span className="text-ink-muted/60">/person</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 font-mono text-xs text-ink-muted">
+                <Users className="w-3.5 h-3.5 text-ink-muted" />
+                {squad.members.length}/{squad.memberLimit}
+              </span>
+            </div>
+
+            {/* Compact member avatars */}
+            <div className="flex items-center gap-1.5">
+              {squad.members.slice(0, 6).map((m) => (
+                <div
+                  key={m.id}
+                  className={`w-7 h-7 rounded-full ${m.color} flex items-center justify-center ring-2 ring-white relative`}
+                  title={isMe(m.id) ? "You" : m.name}
+                >
+                  <span className="text-[10px] font-heading font-bold text-white">{m.initial}</span>
+                  {m.verified && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-success rounded-full border border-white" />
                   )}
                 </div>
-                {cfg && StatusIcon && (
-                  <span
-                    className={`flex items-center gap-1 font-mono text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-bruted border-2 shrink-0 ${cfg.className}`}
+              ))}
+              {squad.members.length > 6 && (
+                <span className="font-mono text-[10px] text-ink-muted ml-0.5">
+                  +{squad.members.length - 6}
+                </span>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-ink/10">
+              <button
+                onClick={() => router.push(`/trip/${squad.id}/hub`)}
+                className="brut-btn text-xs px-4 py-2"
+              >
+                <Compass className="w-3.5 h-3.5 mr-1.5 inline" />
+                Destination Hub
+              </button>
+              <button onClick={handleShare} className="brut-btn text-xs px-4 py-2 !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
+                <Share2 className="w-3.5 h-3.5 mr-1.5 inline" />
+                Share
+              </button>
+              {squad.status === "cancelled" ? (
+                <button onClick={handleRebook} className="brut-btn text-xs px-4 py-2">
+                  Book Again
+                </button>
+              ) : (
+                (squad.status === "booked" || squad.status === "pending") && (
+                  <button
+                    onClick={() => setShowCancel(true)}
+                    className="brut-btn text-xs px-4 py-2 !bg-error !text-white !border-error"
                   >
-                    <StatusIcon className="w-3.5 h-3.5" />
-                    {cfg.label}
-                  </span>
-                )}
-              </div>
-
-              {/* Quick stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="border-2 border-ink/10 rounded-[10px] p-3 text-center bg-surface-alt/50">
-                  <MapPin className="w-4 h-4 text-accent mx-auto mb-1" />
-                  <p className="font-mono text-[10px] text-ink-muted uppercase tracking-wider">
-                    Destination
-                  </p>
-                  <p className="font-display text-sm font-bold text-ink mt-0.5 truncate">
-                    {squad.lockedDestination}
-                  </p>
-                </div>
-                <div className="border-2 border-ink/10 rounded-[10px] p-3 text-center bg-surface-alt/50">
-                  <DollarSign className="w-4 h-4 text-success mx-auto mb-1" />
-                  <p className="font-mono text-[10px] text-ink-muted uppercase tracking-wider">
-                    Budget
-                  </p>
-                  <p className="font-display text-sm font-bold text-ink mt-0.5">
-                    {formatRupee(squad.lockedBudget ?? 0)}
-                    <span className="font-mono text-[9px] text-ink-muted font-normal">
-                      /person
-                    </span>
-                  </p>
-                </div>
-                <div className="border-2 border-ink/10 rounded-[10px] p-3 text-center bg-surface-alt/50">
-                  <Calendar className="w-4 h-4 text-peach-dark mx-auto mb-1" />
-                  <p className="font-mono text-[10px] text-ink-muted uppercase tracking-wider">
-                    Duration
-                  </p>
-                  <p className="font-display text-sm font-bold text-ink mt-0.5">
-                    {squad.lockedDates
-                      ? `${formatDate(squad.lockedDates.start)} – ${formatDate(squad.lockedDates.end)}`
-                      : "—"}
-                  </p>
-                </div>
-              </div>
-
-              {squad.lockedDates && (
-                <p className="font-mono text-[10px] text-ink-muted text-center">
-                  {getDays(squad.lockedDates.start, squad.lockedDates.end)} day trip
-                </p>
+                    <XCircle className="w-3.5 h-3.5 mr-1.5 inline" />
+                    Cancel
+                  </button>
+                )
               )}
             </div>
           </div>
-
-          {/* Squad Members */}
-          <div className="border-[3px] border-ink rounded-[16px] bg-white shadow-bruted-sm overflow-hidden">
-            <div className="p-5 sm:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-ink-muted" />
-                  <h2 className="font-display text-lg font-extrabold text-ink uppercase tracking-tight">
-                    Squad
-                  </h2>
-                </div>
-                <span className="font-mono text-xs text-ink-muted font-bold">
-                  {squad.members.length} / {squad.memberLimit}
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {squad.members.map((member, i) => (
-                  <motion.div
-                    key={member.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.04, duration: 0.25 }}
-                    className="flex items-center gap-3 border border-ink/10 rounded-[10px] p-3"
-                  >
-                    <div
-                      className={`w-9 h-9 rounded-full ${member.color} flex items-center justify-center ring-2 ring-white shrink-0 relative`}
-                    >
-                      <span className="text-xs font-heading font-bold text-white">
-                        {member.initial}
-                      </span>
-                      {member.verified && (
-                        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-success rounded-full border-2 border-white flex items-center justify-center">
-                          <CheckCircle className="w-2.5 h-2.5 text-white" />
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-heading text-sm font-bold text-ink truncate">
-                        {isMe(member.id) ? "You" : member.name}
-                      </p>
-                      <p className="font-mono text-[10px] text-ink-muted">
-                        {member.verified ? "Verified" : "Unverified"}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <button
-              onClick={onBack}
-              className="flex-1 brut-btn text-sm !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted"
-            >
-              Dashboard
-            </button>
-            {squad.status === "cancelled" ? (
-              <button
-                onClick={handleRebook}
-                className="flex-1 brut-btn text-sm"
-              >
-                Book Again
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={handleShare}
-                  className="flex-1 brut-btn text-sm"
-                >
-                  <Share2 className="w-4 h-4 mr-1.5 inline" />
-                  Share
-                </button>
-                {(squad.status === "booked" || squad.status === "pending") && (
-                  <button
-                    onClick={() => setShowCancel(true)}
-                    className="flex-1 brut-btn text-sm !bg-error !text-white !border-error !shadow-bruted-sm hover:!shadow-bruted"
-                  >
-                    <XCircle className="w-4 h-4 mr-1.5 inline" />
-                    Cancel
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Cancel confirmation modal */}
-          {showCancel && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="brut-card w-full max-w-sm !shadow-bruted-lg"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <AlertTriangle className="w-6 h-6 text-error" />
-                  <h3 className="font-display text-xl font-bold text-ink">
-                    Cancel Trip?
-                  </h3>
-                </div>
-                <p className="font-heading text-sm text-ink-muted mb-6">
-                  This will cancel the trip for all squad members. You can
-                  re-book it later.
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowCancel(false)}
-                    className="flex-1 brut-btn text-sm !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted"
-                  >
-                    Keep Trip
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="flex-1 brut-btn text-sm !bg-error !text-white !border-error"
-                  >
-                    Yes, Cancel
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
         </motion.div>
       </main>
+
+      {/* Cancel modal */}
+      {showCancel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-ink/50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="brut-card w-full max-w-sm"
+          >
+            <h3 className="font-display text-lg font-bold text-ink mb-2">Cancel Trip?</h3>
+            <p className="font-heading text-sm text-ink-muted mb-5">
+              This will cancel the trip for all squad members. You can re-book it later.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowCancel(false)} className="flex-1 brut-btn text-sm !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
+                Keep Trip
+              </button>
+              <button onClick={handleCancel} className="flex-1 brut-btn text-sm !bg-error !text-white !border-error">
+                Yes, Cancel
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
