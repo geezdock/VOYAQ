@@ -1,20 +1,48 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CalendarDays, MapPin, Tag } from "lucide-react";
+import { CalendarDays, MapPin, Tag, SearchX, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchEvents } from "@/lib/services/events";
 import type { EventItem } from "@/types/destination";
 
 interface HubEventsProps {
-  events: EventItem[];
+  destinationName: string;
 }
 
-export function HubEvents({ events }: HubEventsProps) {
-  if (events.length === 0) {
+export function HubEvents({ destinationName }: HubEventsProps) {
+  const { data: events, loading, error, retry } = useFetch<EventItem[]>(
+    () => fetchEvents(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
     return (
-      <div className="text-center py-16 space-y-3">
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Loading events...</p>
+      </div>
+    );
+  }
+
+  if (error || !events || events.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
         <CalendarDays className="w-10 h-10 text-ink-muted/40 mx-auto" />
-        <p className="font-heading text-sm text-ink-muted">No upcoming events found for this destination</p>
-        <p className="font-mono text-xs text-ink-muted/60">Check back closer to your travel dates</p>
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load events" : "No upcoming events found"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Check back closer to your travel dates"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
       </div>
     );
   }

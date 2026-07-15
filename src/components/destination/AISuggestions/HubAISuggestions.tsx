@@ -1,11 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, AlertTriangle, Lightbulb, Info } from "lucide-react";
+import { Sparkles, AlertTriangle, Lightbulb, Info, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchAISuggestions } from "@/lib/services/ai";
 import type { AISuggestion } from "@/types/destination";
 
 interface HubAISuggestionsProps {
-  suggestions: AISuggestion[];
+  destinationName?: string;
+  budget?: number;
+  dates?: { start: string; end: string };
 }
 
 const typeConfig = {
@@ -28,13 +32,39 @@ const priorityColor = {
   low: "text-ink-muted/60 bg-ink/5 border-ink/5",
 };
 
-export function HubAISuggestions({ suggestions }: HubAISuggestionsProps) {
-  if (suggestions.length === 0) {
+export function HubAISuggestions({ destinationName, budget, dates }: HubAISuggestionsProps) {
+  const { data: suggestions, loading, error, retry } = useFetch<AISuggestion[]>(
+    () => destinationName ? fetchAISuggestions({ destination: destinationName, budget, dates }) : Promise.resolve(null),
+    [destinationName, budget, dates],
+  );
+
+  if (loading) {
     return (
-      <div className="text-center py-16 space-y-3">
+      <div className="flex items-center justify-center py-16">
+        <p className="font-heading text-sm text-ink-muted">Generating AI suggestions...</p>
+      </div>
+    );
+  }
+
+  if (error || !suggestions || suggestions.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
         <Sparkles className="w-10 h-10 text-ink-muted/40 mx-auto" />
-        <p className="font-heading text-sm text-ink-muted">No AI suggestions yet</p>
-        <p className="font-mono text-xs text-ink-muted/60">Suggestions will appear as your trip data grows</p>
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to generate suggestions" : "No AI suggestions yet"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Suggestions will appear as your trip data grows"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
       </div>
     );
   }
@@ -44,6 +74,9 @@ export function HubAISuggestions({ suggestions }: HubAISuggestionsProps) {
       <div className="flex items-center gap-2 mb-2">
         <Sparkles className="w-5 h-5 text-accent" />
         <p className="font-heading text-sm font-bold text-ink uppercase tracking-wider">AI-Powered Suggestions</p>
+        {suggestions.length > 0 && (
+          <span className="ml-auto inline-block w-2 h-2 rounded-full bg-success" title="Live from AI" />
+        )}
       </div>
       {suggestions.map((suggestion, i) => {
         const cfg = typeConfig[suggestion.type];

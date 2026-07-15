@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Plane, Train, Car, Bike, IndianRupee, Timer, ArrowRight } from "lucide-react";
+import { Plane, Train, Car, Bike, IndianRupee, Timer, ArrowRight, SearchX, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchTransport } from "@/lib/services/transport";
 import type { TransportOption } from "@/types/destination";
 
 interface HubTransportProps {
-  options: TransportOption[];
+  destinationName: string;
 }
 
 const modeIcon: Record<string, typeof Plane> = {
@@ -16,7 +18,43 @@ const modeIcon: Record<string, typeof Plane> = {
   Bus: Car,
 };
 
-export function HubTransport({ options }: HubTransportProps) {
+export function HubTransport({ destinationName }: HubTransportProps) {
+  const { data: options, loading, error, retry } = useFetch<TransportOption[]>(
+    () => fetchTransport(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Loading transport options...</p>
+      </div>
+    );
+  }
+
+  if (error || !options || options.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <SearchX className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load transport options" : "No transport options found"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Try searching again or check local guides"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {options.map((option, i) => {

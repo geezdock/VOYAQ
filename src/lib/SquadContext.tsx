@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from "react";
 import { mockSquads } from "./mock";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Squad } from "@/types/squad";
 
 interface SquadContextValue {
@@ -33,12 +34,13 @@ function pickColor(index: number) {
 }
 
 export function SquadProvider({ children }: { children: ReactNode }) {
+  const { user, loading: authLoading } = useAuth();
   const [squads, setSquads] = useState<Squad[]>(mockSquads);
-  const [loading] = useState(false);
   const [error] = useState<string | null>(null);
-  const [currentUserId] = useState<string | null>("me");
   const [toast, setToast] = useState<string | null>(null);
   const previousRef = useRef<Map<string, Squad>>(new Map(mockSquads.map((s) => [s.id, s])));
+
+  const currentUserId = user?.id ?? null;
 
   const dismissToast = useCallback(() => setToast(null), []);
 
@@ -64,7 +66,7 @@ export function SquadProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SquadContext.Provider value={{ squads, currentUserId, isMe, loading, error, getSquad, updateSquad, addSquad, toast, dismissToast }}>
+    <SquadContext.Provider value={{ squads, currentUserId, isMe, loading: authLoading, error, getSquad, updateSquad, addSquad, toast, dismissToast }}>
       {children}
     </SquadContext.Provider>
   );

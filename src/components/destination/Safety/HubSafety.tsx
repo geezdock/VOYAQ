@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldAlert, Phone, Hospital, AlertTriangle, ShieldCheck } from "lucide-react";
+import { ShieldAlert, Phone, Hospital, AlertTriangle, ShieldCheck, SearchX, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchSafety } from "@/lib/services/safety";
 import type { Advisory, EmergencyInfo } from "@/types/destination";
 
 interface HubSafetyProps {
-  advisories: Advisory[];
-  emergency: EmergencyInfo;
+  destinationName: string;
 }
 
 const severityConfig = {
@@ -15,7 +16,50 @@ const severityConfig = {
   high: { label: "Warning", className: "bg-error/10 text-error border-error/30" },
 };
 
-export function HubSafety({ advisories, emergency }: HubSafetyProps) {
+interface SafetyData {
+  advisories: Advisory[];
+  emergency: EmergencyInfo;
+}
+
+export function HubSafety({ destinationName }: HubSafetyProps) {
+  const { data, loading, error, retry } = useFetch<SafetyData>(
+    () => fetchSafety(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Loading safety info...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <SearchX className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load safety info" : "No safety information available"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Check back later or contact local authorities"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const { advisories, emergency } = data;
+
   return (
     <div className="space-y-6">
       <motion.div

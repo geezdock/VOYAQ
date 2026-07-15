@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CloudSun, Droplets, Wind } from "lucide-react";
+import { CloudSun, Droplets, Wind, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchLiveWeather } from "@/lib/services/weather";
 import type { WeatherData } from "@/types/destination";
 
 interface HubWeatherProps {
-  data: WeatherData;
+  destinationName: string;
 }
 
 const conditionIcon: Record<string, string> = {
@@ -16,11 +18,53 @@ const conditionIcon: Record<string, string> = {
   Showers: "🌦️",
   "Light Rain": "🌧️",
   Foggy: "🌫️",
+  Snow: "❄️",
 };
 
-export function HubWeather({ data }: HubWeatherProps) {
+export function HubWeather({ destinationName }: HubWeatherProps) {
+  const { data, loading, error, retry } = useFetch<WeatherData>(
+    () => fetchLiveWeather(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Loading live weather...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <CloudSun className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load weather" : "Weather data unavailable"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : `Could not fetch weather for ${destinationName}`}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-2">
+        <span className="inline-block w-2 h-2 rounded-full bg-success" />
+        <span className="font-mono text-[10px] text-success font-bold uppercase tracking-wider">Live</span>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

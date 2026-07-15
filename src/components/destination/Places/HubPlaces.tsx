@@ -1,11 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock, Sun, IndianRupee } from "lucide-react";
+import { Clock, Sun, IndianRupee, SearchX, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchAttractions } from "@/lib/services/places";
 import type { Attraction } from "@/types/destination";
 
 interface HubPlacesProps {
-  attractions: Attraction[];
+  destinationName: string;
 }
 
 const categoryEmoji: Record<string, string> = {
@@ -16,7 +18,43 @@ const categoryEmoji: Record<string, string> = {
   Cultural: "🎭",
 };
 
-export function HubPlaces({ attractions }: HubPlacesProps) {
+export function HubPlaces({ destinationName }: HubPlacesProps) {
+  const { data: attractions, loading, error, retry } = useFetch<Attraction[]>(
+    () => fetchAttractions(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Discovering attractions nearby...</p>
+      </div>
+    );
+  }
+
+  if (error || !attractions || attractions.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <SearchX className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load attractions" : "No attractions found nearby"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Try searching again or explore local guides"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   const grouped = attractions.reduce(
     (acc, a) => {
       (acc[a.category] ??= []).push(a);

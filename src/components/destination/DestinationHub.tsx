@@ -23,7 +23,6 @@ import { HubSafety } from "./Safety/HubSafety";
 import { HubTransport } from "./Transport/HubTransport";
 import { HubBudget } from "./Budget/HubBudget";
 import { HubAISuggestions } from "./AISuggestions/HubAISuggestions";
-import { useDestination } from "@/lib/hooks/useDestination";
 import type { HubTab } from "@/types/destination";
 import type { Squad } from "@/types/squad";
 
@@ -48,7 +47,7 @@ const tabIds: HubTab[] = tabs.map((t) => t.id);
 
 export function DestinationHub({ squad, onBack }: DestinationHubProps) {
   const [activeTab, setActiveTab] = useState<HubTab>("overview");
-  const { data, loading, error } = useDestination(squad.lockedDestination);
+  const destinationName = squad.lockedDestination ?? squad.destination;
   const scrollRef = useRef<HTMLDivElement>(null);
   const btnRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
@@ -106,40 +105,39 @@ export function DestinationHub({ squad, onBack }: DestinationHubProps) {
   }, []);
 
   function renderContent() {
-    if (loading) {
-      return (
-        <div className="flex items-center justify-center py-20">
-          <p className="font-heading text-sm text-ink-muted">Loading destination info...</p>
-        </div>
-      );
-    }
-    if (error || !data) {
+    if (!destinationName) {
       return (
         <div className="text-center py-20 space-y-3">
-          <p className="font-heading text-sm text-ink-muted">{error || "No destination data"}</p>
-          <p className="font-mono text-xs text-ink-muted/60">Mock data will be added as destinations are onboarded</p>
+          <p className="font-heading text-sm text-ink-muted">No destination selected</p>
+          <p className="font-mono text-xs text-ink-muted/60">Lock a destination to see hub details</p>
         </div>
       );
     }
     switch (activeTab) {
       case "overview":
-        return <HubOverview data={data} squad={squad} />;
+        return <HubOverview squad={squad} destinationName={destinationName} />;
       case "weather":
-        return <HubWeather data={data.weather} />;
+        return <HubWeather destinationName={destinationName} />;
       case "food":
-        return <HubFood items={data.food} />;
+        return <HubFood destinationName={destinationName} />;
       case "places":
-        return <HubPlaces attractions={data.attractions} />;
+        return <HubPlaces destinationName={destinationName} />;
       case "events":
-        return <HubEvents events={data.events} />;
+        return <HubEvents destinationName={destinationName} />;
       case "safety":
-        return <HubSafety advisories={data.advisories} emergency={data.emergency} />;
+        return <HubSafety destinationName={destinationName} />;
       case "transport":
-        return <HubTransport options={data.transport} />;
+        return <HubTransport destinationName={destinationName} />;
       case "budget":
-        return <HubBudget insights={data.budgetInsights} squad={squad} />;
+        return <HubBudget destinationName={destinationName} squad={squad} />;
       case "ai":
-        return <HubAISuggestions suggestions={data.aiSuggestions} />;
+        return (
+          <HubAISuggestions
+                destinationName={destinationName}
+            budget={squad.lockedBudget ?? squad.budgetPerPerson}
+            dates={squad.lockedDates ?? undefined}
+          />
+        );
     }
   }
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
 import { SquadProvider } from "@/lib/SquadContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -54,7 +55,9 @@ export default function RootLayout({
             __html: `(function(){function c(){var a=document.querySelectorAll("[bis_skin_checked]");for(var b=0;b<a.length;b++){a[b].removeAttribute("bis_skin_checked")}}var d=new MutationObserver(c);d.observe(document.documentElement,{attributes:!0,subtree:!0,attributeFilter:["bis_skin_checked"]});document.readyState==="loading"?document.addEventListener("DOMContentLoaded",c):c()})()`,
           }}
         />
-        <SquadProvider>{children}</SquadProvider>
+        <AuthProvider>
+          <SquadProvider>{children}</SquadProvider>
+        </AuthProvider>
       </body>
     </html>
   );

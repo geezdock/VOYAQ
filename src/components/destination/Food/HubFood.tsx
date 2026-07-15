@@ -1,14 +1,52 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Tag, UtensilsCrossed, MapPin } from "lucide-react";
+import { Tag, UtensilsCrossed, SearchX, RefreshCw } from "lucide-react";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchFood } from "@/lib/services/places";
 import type { FoodItem } from "@/types/destination";
 
 interface HubFoodProps {
-  items: FoodItem[];
+  destinationName: string;
 }
 
-export function HubFood({ items }: HubFoodProps) {
+export function HubFood({ destinationName }: HubFoodProps) {
+  const { data: items, loading, error, retry } = useFetch<FoodItem[]>(
+    () => fetchFood(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Finding restaurants nearby...</p>
+      </div>
+    );
+  }
+
+  if (error || !items || items.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <SearchX className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load restaurants" : "No restaurants found nearby"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Try searching again or explore local eateries"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       {items.map((item, i) => (

@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { IndianRupee, Info } from "lucide-react";
+import { IndianRupee, Info, SearchX, RefreshCw } from "lucide-react";
 import { formatRupee } from "@/lib/trip-utils";
+import { useFetch } from "@/lib/hooks/useFetch";
+import { fetchBudgetInsights } from "@/lib/services/budget";
 import type { BudgetInsight } from "@/types/destination";
 import type { Squad } from "@/types/squad";
 
 interface HubBudgetProps {
-  insights: BudgetInsight[];
+  destinationName: string;
   squad: Squad;
 }
 
@@ -20,7 +22,43 @@ const categoryColor: Record<string, string> = {
   "Permits & Entry": "bg-blue-100/50 border-blue-300 text-blue-700",
 };
 
-export function HubBudget({ insights, squad }: HubBudgetProps) {
+export function HubBudget({ destinationName, squad }: HubBudgetProps) {
+  const { data: insights, loading, error, retry } = useFetch<BudgetInsight[]>(
+    () => fetchBudgetInsights(destinationName),
+    [destinationName],
+  );
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="font-heading text-sm text-ink-muted">Loading budget insights...</p>
+      </div>
+    );
+  }
+
+  if (error || !insights || insights.length === 0) {
+    return (
+      <div className="text-center py-16 space-y-4">
+        <IndianRupee className="w-10 h-10 text-ink-muted/40 mx-auto" />
+        <p className="font-heading text-sm text-ink-muted">
+          {error ? "Failed to load budget insights" : "No budget insights available"}
+        </p>
+        <p className="font-mono text-xs text-ink-muted/60">
+          {error ? "Check your connection and try again" : "Check back later or plan your own budget"}
+        </p>
+        {error && (
+          <button
+            onClick={retry}
+            className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
+
   const totalEstimated = insights.reduce((sum, b) => sum + b.estimatedCost, 0);
   const lockedBudget = squad.lockedBudget ?? totalEstimated;
   const remaining = lockedBudget - totalEstimated;
