@@ -82,9 +82,10 @@ Also includes: hero section, quick walkthrough, dual CTAs, featured-travel marqu
 
 ```
 src/
-├── app/                  # Next.js App Router pages
+├── app/                  # Next.js App Router pages + API routes
 │   ├── (dashboard)/      # Route group: dashboard, profile, notifications
-│   ├── auth/             # Auth flow
+│   ├── api/              # API routes (weather, places, events, safety, transport, budget, ai)
+│   ├── auth/             # Auth flow + callback
 │   ├── trip/[id]/        # Trip overview + Destination Hub (/hub)
 │   ├── workspace/[id]/   # Squad workspace (voting, budget, dates, polls)
 │   └── ...               # Static pages (how-it-works, safety, settings, etc.)
@@ -100,26 +101,34 @@ src/
 │   ├── safety/           # Safety guidelines
 │   └── auth/             # Auth flow UI
 │
-├── lib/                  # Business logic, hooks, mock data
-│   ├── hooks/            # Custom hooks (useDestination)
-│   ├── SquadContext.tsx   # Global squad state provider
-│   ├── destination-data.ts # Static destination intelligence
-│   ├── mock.ts            # Mock squads for development
-│   └── trip-utils.ts      # Date, budget, countdown utilities
+├── contexts/             # React context providers
+│   └── AuthContext.tsx    # Auth state provider
 │
-├── types/                 # TypeScript interfaces
-│   ├── squad.ts           # Squad, Member, Vote, Poll, etc.
-│   ├── destination.ts     # Weather, Food, Attraction, Event, etc.
-│   └── auth.ts            # Auth state types
+├── lib/                  # Business logic, hooks, services
+│   ├── hooks/            # Custom hooks (useFetch, useAuthSteps)
+│   ├── services/         # API service functions (weather, places, events, safety, transport, budget, ai)
+│   ├── supabase/         # Supabase client, server, middleware
+│   ├── SquadContext.tsx  # Global squad state provider
+│   ├── destinations.ts  # Destination metadata + coordinates
+│   ├── mock.ts          # Mock squads for development
+│   └── trip-utils.ts    # Date, budget, countdown utilities
 │
-└── tests/                 # Global test setup
-    └── setup.ts           # jest-dom matchers
+├── types/                # TypeScript interfaces
+│   ├── squad.ts          # Squad, Member, Vote, Poll, etc.
+│   ├── destination.ts   # Weather, Food, Attraction, Event, etc.
+│   └── auth.ts           # Auth state types
+│
+├── proxy.ts              # Auth callback proxy
+│
+└── tests/                # Global test setup
+    └── setup.ts          # jest-dom matchers
 ```
 
 ### Key Design Decisions
 
-- **Mock-first development** — `SquadContext.tsx` provides synchronous mock data with no backend dependency. The `useDestination()` hook follows the same pattern: swap the data source when real APIs arrive.
-- **Modular destination hub** — each section (Weather, Food, Safety, etc.) is an independent component in its own directory. The data layer (`destination-data.ts`) maps destination strings to objects — no `if/else` branching.
+- **Live API-first** — Destination Hub data is fetched from real APIs (Open-Meteo for weather, Wikipedia REST for events, Overpass for places/safety/transport/budget, OSRM for transport times, Gemini for AI tips). Each API route lives in `src/app/api/` and is consumed via a `useFetch` hook with built-in loading, error, and retry states.
+- **Service layer** — `src/lib/services/` contains typed fetcher functions for each API route, keeping components clean and testable.
+- **Modular destination hub** — each section (Weather, Food, Safety, etc.) is an independent component in its own directory. All use the shared `useFetch` hook for consistent loading/error/retry UX.
 - **Route groups** — `(dashboard)` groups dashboard sub-pages under a shared layout without affecting the URL path.
 - **Tests co-located** — `__tests__/` directories sit next to their source components, not in a central `tests/` folder.
 
@@ -181,7 +190,7 @@ Open [http://localhost:3000](http://localhost:3000). The app works entirely with
 
 ## Testing
 
-153 tests across 15 test files. Tests are co-located with source files in `__tests__/` directories.
+175 tests across 17 test files. Tests are co-located with source files in `__tests__/` directories.
 
 ```bash
 npm test          # Run once
@@ -194,6 +203,8 @@ npm run test:watch # Watch mode
 - Trip view (stats, status, countdown, cancel/rebook) — 18 tests
 - Dashboard (squad card, grid, create modal, avatar dropdown) — 19 tests
 - Workspace summary (trip ready overlay) — 7 tests
+- Destination Hub components (loading, empty, error, retry, data states) — 18 tests
+- `useFetch` hook (loading, success, error, retry) — 4 tests
 - Utility functions (trip-utils, schemas, useAuthSteps) — 54 tests
 - Schema validation (Zod) — 27 tests
 
@@ -225,7 +236,7 @@ Custom Tailwind theme with brut-inspired tokens:
 - [ ] **AI Itinerary Generator** — day-by-day trip plans from locked destination + budget
 - [ ] **Toolkit** — expense split, packing checklist, budget calculator, currency converter, offline downloads
 - [ ] **Latest / Intel** — state-wise travel news, gov notices, weather alerts, festivals
-- [ ] **Real API integration** — weather, places, events, transport pricing
+- [x] **Real API integration** — weather, places, events, safety, transport, budget, AI tips
 - [ ] **Backend persistence** — re-add Supabase or alternative data layer
 - [ ] **Beta testing** — onboarding flows, feedback collection
 
