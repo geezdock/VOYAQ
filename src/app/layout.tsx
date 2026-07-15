@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
-import { SquadProvider } from "@/lib/SquadContext";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { SquadProvider } from "@/shared/providers/SquadContext";
+import { AuthProvider } from "@/shared/providers/AuthContext";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({

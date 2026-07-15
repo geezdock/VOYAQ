@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDestinationCoords } from "@/lib/destinations";
+import { getDestinationCoords } from "@/constants/destinations";
 
 const CATEGORIES_BY_TYPE: Record<string, { category: string; baseCost: number; notes: string }[]> = {
   beach: [

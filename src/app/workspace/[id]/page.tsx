@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSquad } from "@/lib/SquadContext";
-import { WorkspaceView } from "@/components/workspace/WorkspaceView";
+import { useSquad } from "@/shared/providers/SquadContext";
+import { WorkspaceView } from "@/features/workspace/components/WorkspaceView";
 
 export default function WorkspacePage() {
   const params = useParams();

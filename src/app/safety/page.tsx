@@ -1,5 +1,5 @@
-import { LandingHeader } from "@/components/landing/LandingHeader";
-import { SafetyContent } from "@/components/safety/SafetyContent";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { SafetyContent } from "@/features/safety/components/SafetyContent";
 
 export default function SafetyPage() {
   return (

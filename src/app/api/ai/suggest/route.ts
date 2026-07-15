@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDestinationCoords } from "@/lib/destinations";
+import { getDestinationCoords } from "@/constants/destinations";
 
 interface SuggestRequest {
   destination: string;

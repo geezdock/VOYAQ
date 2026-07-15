@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDestinationCoords } from "@/lib/destinations";
+import { getDestinationCoords } from "@/constants/destinations";
 
 function wmoToCondition(code: number): string {
   if (code === 0) return "Sunny";

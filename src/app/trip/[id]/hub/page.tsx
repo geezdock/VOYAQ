@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSquad } from "@/lib/SquadContext";
-import { DestinationHub } from "@/components/destination/DestinationHub";
+import { useSquad } from "@/shared/providers/SquadContext";
+import { DestinationHub } from "@/features/destination/components/DestinationHub";
 
 export default function DestinationHubPage() {
   const params = useParams();

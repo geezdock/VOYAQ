@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDestinationCoords } from "@/lib/destinations";
+import { getDestinationCoords } from "@/constants/destinations";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

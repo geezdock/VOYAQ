@@ -1,11 +1,11 @@
-import { LandingHeader } from "@/components/landing/LandingHeader";
-import { InteractiveDemo } from "@/components/demo/InteractiveDemo";
-import { ComparisonTable } from "@/components/how-it-works/ComparisonTable";
-import { SharingExport } from "@/components/how-it-works/SharingExport";
-import { RealScenarios } from "@/components/how-it-works/RealScenarios";
-import { FAQ } from "@/components/how-it-works/FAQ";
-import { SafetyLink } from "@/components/how-it-works/SafetyLink";
-import { DualCTA } from "@/components/landing/DualCTA";
+import { LandingHeader } from "@/features/landing/components/LandingHeader";
+import { InteractiveDemo } from "@/features/demo/components/InteractiveDemo";
+import { ComparisonTable } from "@/features/how-it-works/components/ComparisonTable";
+import { SharingExport } from "@/features/how-it-works/components/SharingExport";
+import { RealScenarios } from "@/features/how-it-works/components/RealScenarios";
+import { FAQ } from "@/features/how-it-works/components/FAQ";
+import { SafetyLink } from "@/features/how-it-works/components/SafetyLink";
+import { DualCTA } from "@/features/landing/components/DualCTA";
 
 export default function HowItWorks() {
   return (

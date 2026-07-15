@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, ArrowRight, AlertCircle } from "lucide-react";
-import { useSquad } from "@/lib/SquadContext";
+import { useSquad } from "@/shared/providers/SquadContext";
 
 export default function JoinPage() {
   const params = useParams();

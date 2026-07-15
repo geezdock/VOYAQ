@@ -3,8 +3,8 @@
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useSquad } from "@/lib/SquadContext";
-import { TripView } from "@/components/trip/TripView";
+import { useSquad } from "@/shared/providers/SquadContext";
+import { TripView } from "@/features/trip/components/TripView";
 
 export default function TripPage() {
   const params = useParams();

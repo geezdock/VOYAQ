@@ -1,9 +1,9 @@
-import { SplashScreen } from "@/components/landing/SplashScreen";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { MiniStoryMode } from "@/components/landing/MiniStoryMode";
-import { QuickWalkthrough } from "@/components/landing/QuickWalkthrough";
-import { DualCTA } from "@/components/landing/DualCTA";
-import { MarqueeTicker } from "@/components/landing/MarqueeTicker";
+import { SplashScreen } from "@/features/landing/components/SplashScreen";
+import { HeroSection } from "@/features/landing/components/HeroSection";
+import { MiniStoryMode } from "@/features/landing/components/MiniStoryMode";
+import { QuickWalkthrough } from "@/features/landing/components/QuickWalkthrough";
+import { DualCTA } from "@/features/landing/components/DualCTA";
+import { MarqueeTicker } from "@/features/landing/components/MarqueeTicker";
 
 export default function Home() {
   return (

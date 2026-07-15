@@ -1,4 +1,4 @@
-import { AuthFlow } from "@/components/auth/AuthFlow";
+import { AuthFlow } from "@/features/auth/components/AuthFlow";
 
 import { Suspense } from "react";
 

@@ -13,7 +13,7 @@ import {
   Calendar,
   PartyPopper,
 } from "lucide-react";
-import { useSquad } from "@/lib/SquadContext";
+import { useSquad } from "@/shared/providers/SquadContext";
 import type { Squad } from "@/types/squad";
 
 type Step = "name" | "members" | "budget" | "dates" | "review";
