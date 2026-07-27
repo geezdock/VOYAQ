@@ -8,12 +8,38 @@ interface SuggestRequest {
   preferences?: string[];
 }
 
-export async function POST(request: Request) {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "API key not configured" }, { status: 503 });
-  }
+function getFallbackSuggestions(destination: string, budget?: number) {
+  const budgetStr = budget ? ` ₹${budget.toLocaleString("en-IN")}` : "";
+  return [
+    {
+      type: "budget",
+      tip: `Book group stays and local transport in advance for ${destination} to keep costs within your target budget${budgetStr}.`,
+      priority: "high",
+    },
+    {
+      type: "transport",
+      tip: `Rent shared scooters or book local cabs in ${destination} to split transit costs seamlessly across the squad.`,
+      priority: "high",
+    },
+    {
+      type: "food",
+      tip: `Explore popular local eateries and street food spots near ${destination}'s main market for authentic meals under ₹250/person.`,
+      priority: "medium",
+    },
+    {
+      type: "weather",
+      tip: `Keep an eye on daily weather updates before planning beach/trek activities around ${destination}.`,
+      priority: "medium",
+    },
+    {
+      type: "general",
+      tip: `Maintain a shared squad wallet or log expenses on VOYAQ to settle bills without post-trip awkwardness.`,
+      priority: "low",
+    },
+  ];
+}
 
+export async function POST(request: Request) {
   let body: SuggestRequest;
   try {
     body = await request.json();
@@ -24,6 +50,12 @@ export async function POST(request: Request) {
   const { destination, budget, dates, preferences } = body;
   if (!destination) {
     return NextResponse.json({ error: "Missing 'destination'" }, { status: 400 });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    // Return smart fallback suggestions if API key is not configured
+    return NextResponse.json({ suggestions: getFallbackSuggestions(destination, budget), isFallback: true });
   }
 
   const coords = getDestinationCoords(destination);
@@ -63,7 +95,7 @@ Rules:
     );
 
     if (!res.ok) {
-      return NextResponse.json({ error: "Gemini API error" }, { status: 502 });
+      return NextResponse.json({ suggestions: getFallbackSuggestions(destination, budget), isFallback: true });
     }
 
     const data = await res.json();
@@ -73,14 +105,11 @@ Rules:
     try {
       suggestions = JSON.parse(text.replace(/```json?/gi, "").replace(/```/g, "").trim());
     } catch {
-      return NextResponse.json(
-        { error: "Failed to parse AI response", raw: text },
-        { status: 502 },
-      );
+      return NextResponse.json({ suggestions: getFallbackSuggestions(destination, budget), isFallback: true });
     }
 
     return NextResponse.json({ suggestions });
   } catch {
-    return NextResponse.json({ error: "Failed to fetch AI suggestions" }, { status: 502 });
+    return NextResponse.json({ suggestions: getFallbackSuggestions(destination, budget), isFallback: true });
   }
 }

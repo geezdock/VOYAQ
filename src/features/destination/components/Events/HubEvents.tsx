@@ -6,6 +6,8 @@ import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchEvents } from "@/services/events";
 import type { EventItem } from "@/types/destination";
 
+import { HubSkeleton } from "../HubSkeleton";
+
 interface HubEventsProps {
   destinationName: string;
 }
@@ -17,11 +19,7 @@ export function HubEvents({ destinationName }: HubEventsProps) {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-heading text-sm text-ink-muted">Loading events...</p>
-      </div>
-    );
+    return <HubSkeleton count={3} />;
   }
 
   if (error || !events || events.length === 0) {

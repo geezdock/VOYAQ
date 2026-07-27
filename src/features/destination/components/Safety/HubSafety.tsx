@@ -6,6 +6,8 @@ import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchSafety } from "@/services/safety";
 import type { Advisory, EmergencyInfo } from "@/types/destination";
 
+import { HubSkeleton } from "../HubSkeleton";
+
 interface HubSafetyProps {
   destinationName: string;
 }
@@ -28,11 +30,7 @@ export function HubSafety({ destinationName }: HubSafetyProps) {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-heading text-sm text-ink-muted">Loading safety info...</p>
-      </div>
-    );
+    return <HubSkeleton count={2} />;
   }
 
   if (error || !data) {

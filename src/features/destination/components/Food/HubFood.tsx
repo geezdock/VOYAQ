@@ -6,6 +6,8 @@ import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchFood } from "@/services/places";
 import type { FoodItem } from "@/types/destination";
 
+import { HubSkeleton } from "../HubSkeleton";
+
 interface HubFoodProps {
   destinationName: string;
 }
@@ -17,11 +19,7 @@ export function HubFood({ destinationName }: HubFoodProps) {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-heading text-sm text-ink-muted">Finding restaurants nearby...</p>
-      </div>
-    );
+    return <HubSkeleton count={3} />;
   }
 
   if (error || !items || items.length === 0) {

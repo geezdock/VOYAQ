@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -9,7 +10,7 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  ChevronRight,
+  Zap,
 } from "lucide-react";
 import { TabSquad } from "./steps/TabSquad";
 import { TabDestinations } from "./steps/TabDestinations";
@@ -17,6 +18,8 @@ import { TabDates } from "./steps/TabDates";
 import { TabBudget } from "./steps/TabBudget";
 import { TabPolls } from "./steps/TabPolls";
 import { WorkspaceSummary } from "./WorkspaceSummary";
+import { ConsensusCelebration } from "./ConsensusCelebration";
+import { useSquad } from "@/shared/providers/SquadContext";
 import type { Squad, WorkspaceTab } from "@/types/squad";
 
 interface WorkspaceViewProps {
@@ -34,8 +37,11 @@ const tabs: { id: WorkspaceTab; label: string; icon: typeof Users }[] = [
 ];
 
 export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
+  const router = useRouter();
+  const { isRealtimeConnected } = useSquad();
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("squad");
   const [showSummary, setShowSummary] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const hasDest = !!squad.lockedDestination;
   const hasBudget = squad.lockedBudget !== undefined;
@@ -45,7 +51,7 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
 
   useEffect(() => {
     if (allLocked) {
-      const timer = setTimeout(() => setShowSummary(true), 500);
+      const timer = setTimeout(() => setShowCelebration(true), 400);
       return () => clearTimeout(timer);
     }
   }, [allLocked]);
@@ -78,15 +84,6 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
     }
   }
 
-  function getNextStep(): { tab: WorkspaceTab; label: string } | null {
-    if (!hasDest) return { tab: "destinations", label: "Choose Destination" };
-    if (!hasBudget) return { tab: "budget", label: "Set Budget" };
-    if (!hasDates) return { tab: "dates", label: "Pick Dates" };
-    return null;
-  }
-
-  const nextStep = getNextStep();
-
   return (
     <div>
       <div className="flex items-center gap-4 mb-6">
@@ -97,11 +94,19 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
           <ArrowLeft className="w-4 h-4" />
           Dashboard
         </button>
-        <h1 className="font-display text-2xl font-bold text-ink flex-1 min-w-0 truncate">
-          {squad.name}
-        </h1>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <h1 className="font-display text-2xl font-bold text-ink truncate">
+            {squad.name}
+          </h1>
+          {isRealtimeConnected && (
+            <span className="hidden md:inline-flex items-center gap-1 font-mono text-[10px] text-success bg-success/10 px-2 py-0.5 rounded-full border border-success/30 shrink-0">
+              <Zap className="w-3 h-3 fill-current" />
+              Live Sync
+            </span>
+          )}
+        </div>
         <button
-          onClick={() => setShowSummary(true)}
+          onClick={() => (allLocked ? setShowCelebration(true) : setShowSummary(true))}
           className={`flex items-center gap-2 text-sm font-bold min-h-[44px] px-4 py-2 rounded-bruted border-2 transition-all ${
             allLocked
               ? "border-success bg-success/10 text-success hover:bg-success/20"
@@ -159,7 +164,15 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {showSummary && (
+        {showCelebration && (
+          <ConsensusCelebration
+            squad={squad}
+            onExploreHub={() => router.push(`/trip/${squad.id}/hub`)}
+            onDismiss={() => setShowCelebration(false)}
+          />
+        )}
+
+        {showSummary && !showCelebration && (
           <WorkspaceSummary
             squad={squad}
             onClose={() => setShowSummary(false)}

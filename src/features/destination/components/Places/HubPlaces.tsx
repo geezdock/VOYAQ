@@ -6,6 +6,8 @@ import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchAttractions } from "@/services/places";
 import type { Attraction } from "@/types/destination";
 
+import { HubSkeleton } from "../HubSkeleton";
+
 interface HubPlacesProps {
   destinationName: string;
 }
@@ -25,11 +27,7 @@ export function HubPlaces({ destinationName }: HubPlacesProps) {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-heading text-sm text-ink-muted">Discovering attractions nearby...</p>
-      </div>
-    );
+    return <HubSkeleton count={4} />;
   }
 
   if (error || !attractions || attractions.length === 0) {

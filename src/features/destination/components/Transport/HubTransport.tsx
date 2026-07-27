@@ -6,6 +6,8 @@ import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchTransport } from "@/services/transport";
 import type { TransportOption } from "@/types/destination";
 
+import { HubSkeleton } from "../HubSkeleton";
+
 interface HubTransportProps {
   destinationName: string;
 }
@@ -25,11 +27,7 @@ export function HubTransport({ destinationName }: HubTransportProps) {
   );
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <p className="font-heading text-sm text-ink-muted">Loading transport options...</p>
-      </div>
-    );
+    return <HubSkeleton count={2} />;
   }
 
   if (error || !options || options.length === 0) {

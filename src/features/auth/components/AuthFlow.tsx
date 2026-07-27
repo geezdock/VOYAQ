@@ -3,22 +3,44 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { PartyPopper } from "lucide-react";
+import { PartyPopper, Mail } from "lucide-react";
 import { createClient } from "@/services/supabase/client";
+import { useAuth } from "@/shared/providers/AuthContext";
 
 const DEV_MODE = process.env.NEXT_PUBLIC_DEV_AUTH === "true";
 
 export function AuthFlow() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { signInWithGoogle, signInWithMagicLink } = useAuth();
   const mode = searchParams.get("mode") ?? "get-started";
+
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [useEmailAuth, setUseEmailAuth] = useState(false);
+  const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || loading) return;
+    if (loading) return;
+
+    if (useEmailAuth) {
+      if (!email.trim()) return;
+      setLoading(true);
+      setError(null);
+      const { error: magicLinkError } = await signInWithMagicLink(email.trim());
+      setLoading(false);
+      if (magicLinkError) {
+        setError(magicLinkError.message);
+      } else {
+        setMagicLinkSent(true);
+      }
+      return;
+    }
+
+    if (!name.trim()) return;
 
     setLoading(true);
     setError(null);
@@ -54,8 +76,7 @@ export function AuthFlow() {
       if (message.includes("422") || message.includes("anonymous")) {
         setError(
           "Anonymous sign-ins are disabled in your Supabase project. " +
-          "Enable them at Authentication → Settings → Enable anonymous sign-ins, " +
-          "or set NEXT_PUBLIC_DEV_AUTH=true in .env.local to bypass.",
+          "Set NEXT_PUBLIC_DEV_AUTH=true in .env.local to bypass or sign in with Google/Email below.",
         );
       } else {
         setError(message);
@@ -70,9 +91,9 @@ export function AuthFlow() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="brut-card w-full max-w-md text-center"
+        className="brut-card w-full max-w-md text-center space-y-4"
       >
-        <div className="mx-auto w-14 h-14 rounded-bruted bg-ink flex items-center justify-center mb-4">
+        <div className="mx-auto w-14 h-14 rounded-bruted bg-ink flex items-center justify-center mb-2">
           <PartyPopper className="w-7 h-7 text-surface" />
         </div>
 
@@ -80,39 +101,96 @@ export function AuthFlow() {
           {mode === "login" ? "Welcome back" : "Get started"}
         </h1>
 
-        <p className="font-heading text-sm text-ink-muted mb-6">
+        <p className="font-heading text-sm text-ink-muted">
           {mode === "login"
-            ? "Sign in to your account."
+            ? "Sign in to your squad account."
             : "Join your squad and start planning trips."}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="text-left space-y-1">
-            <label className="font-heading text-xs font-semibold text-ink-light uppercase tracking-wider">
-              What should we call you?
-            </label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="brut-input w-full text-base"
-              placeholder="Enter your name"
-              autoFocus
-              disabled={loading}
-            />
+        {magicLinkSent ? (
+          <div className="bg-success/10 border-2 border-success rounded-bruted p-4 text-center space-y-2">
+            <Mail className="w-8 h-8 text-success mx-auto" />
+            <p className="font-heading text-sm font-bold text-success">Magic link sent!</p>
+            <p className="font-mono text-xs text-ink-muted">
+              Check <strong>{email}</strong> to sign in automatically.
+            </p>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4 text-left">
+            {!useEmailAuth ? (
+              <div className="space-y-1">
+                <label className="font-heading text-xs font-semibold text-ink-light uppercase tracking-wider">
+                  What should we call you?
+                </label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="brut-input w-full text-base"
+                  placeholder="Enter your name"
+                  autoFocus
+                  disabled={loading}
+                />
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <label className="font-heading text-xs font-semibold text-ink-light uppercase tracking-wider">
+                  Your Email Address
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="brut-input w-full text-base"
+                  placeholder="name@college.edu"
+                  autoFocus
+                  disabled={loading}
+                />
+              </div>
+            )}
 
-          {error && (
-            <p className="font-heading text-xs text-error">{error}</p>
-          )}
+            {error && (
+              <p className="font-heading text-xs text-error leading-relaxed">{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={(!useEmailAuth && !name.trim()) || (useEmailAuth && !email.trim()) || loading}
+              className="brut-btn w-full text-base disabled:opacity-40"
+            >
+              {loading
+                ? "Processing..."
+                : useEmailAuth
+                ? "Send Magic Link"
+                : mode === "login"
+                ? "Sign in"
+                : "Let's go"}
+            </button>
+          </form>
+        )}
+
+        <div className="relative py-2 flex items-center justify-center">
+          <div className="border-t border-ink/10 w-full" />
+          <span className="bg-surface-card px-3 font-mono text-xs text-ink-muted uppercase shrink-0">
+            or continue with
+          </span>
+          <div className="border-t border-ink/10 w-full" />
+        </div>
+
+        <div className="space-y-2">
+          <button
+            onClick={() => signInWithGoogle()}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-ink rounded-bruted bg-white font-heading text-sm font-semibold text-ink hover:bg-surface-alt transition-colors shadow-bruted-sm"
+          >
+            <span>Google Login</span>
+          </button>
 
           <button
-            type="submit"
-            disabled={!name.trim() || loading}
-            className="brut-btn w-full text-base disabled:opacity-40"
+            onClick={() => setUseEmailAuth(!useEmailAuth)}
+            className="font-heading text-xs font-semibold text-ink-muted hover:text-ink transition-colors py-1"
           >
-            {loading ? "Setting up..." : mode === "login" ? "Sign in" : "Let's go"}
+            {useEmailAuth ? "← Sign in with Name" : "Sign in with Email Magic Link →"}
           </button>
-        </form>
+        </div>
       </motion.div>
     </div>
   );

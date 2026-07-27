@@ -14,6 +14,8 @@ interface AuthContextValue {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  signInWithGoogle: () => Promise<void>;
+  signInWithMagicLink: (email: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -76,6 +78,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signInWithGoogle = async () => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  };
+
+  const signInWithMagicLink = async (email: string) => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error };
+  };
+
   const signOut = async () => {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -85,7 +108,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signOut }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        loading,
+        signInWithGoogle,
+        signInWithMagicLink,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

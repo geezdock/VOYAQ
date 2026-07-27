@@ -6,4 +6,7 @@ export { fetchFood, fetchAttractions } from "./places";
 export { fetchSafety } from "./safety";
 export { fetchTransport } from "./transport";
 export { fetchLiveWeather } from "./weather";
+export { fetchItinerary } from "./itinerary";
+export { fetchBudgetAllocation } from "./budget-allocator";
+export { fetchEventDrivenUpdates } from "./event-updates";
 export { createBrowserClient, updateSession, createServerClient } from "./supabase";

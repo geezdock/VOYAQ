@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
 import { SquadProvider } from "@/shared/providers/SquadContext";
 import { AuthProvider } from "@/shared/providers/AuthContext";
+import { GlobalToast } from "@/shared/components";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -56,7 +57,10 @@ export default function RootLayout({
           }}
         />
         <AuthProvider>
-          <SquadProvider>{children}</SquadProvider>
+          <SquadProvider>
+            {children}
+            <GlobalToast />
+          </SquadProvider>
         </AuthProvider>
       </body>
     </html>

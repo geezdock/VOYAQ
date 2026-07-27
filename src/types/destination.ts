@@ -113,4 +113,7 @@ export type HubTab =
   | "safety"
   | "transport"
   | "budget"
-  | "ai";
+  | "ai"
+  | "itinerary"
+  | "budget-allocator"
+  | "event-updates";

@@ -23,6 +23,9 @@ import { HubSafety } from "./Safety/HubSafety";
 import { HubTransport } from "./Transport/HubTransport";
 import { HubBudget } from "./Budget/HubBudget";
 import { HubAISuggestions } from "./AISuggestions/HubAISuggestions";
+import { HubItinerary } from "./Itinerary/HubItinerary";
+import { AIBudgetAllocator } from "./BudgetAllocator/AIBudgetAllocator";
+import { EventDrivenUpdates } from "./EventUpdates/EventDrivenUpdates";
 import type { HubTab } from "@/types/destination";
 import type { Squad } from "@/types/squad";
 
@@ -41,6 +44,9 @@ const tabs: { id: HubTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "transport", label: "Transport", icon: Bus },
   { id: "budget", label: "Budget", icon: Wallet },
   { id: "ai", label: "AI Tips", icon: Sparkles },
+  { id: "itinerary", label: "Itinerary", icon: CalendarDays },
+  { id: "budget-allocator", label: "AI Budget", icon: Wallet },
+  { id: "event-updates", label: "Alerts", icon: ShieldAlert },
 ];
 
 const tabIds: HubTab[] = tabs.map((t) => t.id);
@@ -133,9 +139,38 @@ export function DestinationHub({ squad, onBack }: DestinationHubProps) {
       case "ai":
         return (
           <HubAISuggestions
-                destinationName={destinationName}
+            destinationName={destinationName}
             budget={squad.lockedBudget ?? squad.budgetPerPerson}
             dates={squad.lockedDates ?? undefined}
+          />
+        );
+      case "itinerary":
+        return squad.lockedDates ? (
+          <HubItinerary
+            destinationName={destinationName}
+            startDate={squad.lockedDates.start}
+            endDate={squad.lockedDates.end}
+            budget={squad.lockedBudget ?? squad.budgetPerPerson}
+          />
+        ) : (
+          <div className="text-center py-16 space-y-3">
+            <CalendarDays className="w-10 h-10 text-ink-muted/40 mx-auto" />
+            <p className="font-heading text-sm text-ink-muted">Lock your trip dates to generate an itinerary</p>
+          </div>
+        );
+      case "budget-allocator":
+        return (
+          <AIBudgetAllocator
+            destinationName={destinationName}
+            totalBudget={squad.lockedBudget ?? squad.budgetPerPerson}
+          />
+        );
+      case "event-updates":
+        return (
+          <EventDrivenUpdates
+            destinationName={destinationName}
+            startDate={squad.lockedDates?.start}
+            endDate={squad.lockedDates?.end}
           />
         );
     }
