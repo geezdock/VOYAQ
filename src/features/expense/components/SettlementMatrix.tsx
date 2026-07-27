@@ -1,10 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { ArrowRight, Smartphone, CheckCircle } from "lucide-react";
 import type { Settlement } from "@/types/expense";
 import type { SquadMember } from "@/types/squad";
 import { formatRupee } from "@/utils/currency";
-import { SettlementQR } from "./SettlementQR";
+
+const SettlementQRLazy = dynamic(() => import("./SettlementQR").then(m => ({ default: m.SettlementQR })), { ssr: false });
 
 interface SettlementMatrixProps {
   settlements: Settlement[];
@@ -52,7 +54,7 @@ export function SettlementMatrix({ settlements, members }: SettlementMatrixProps
             </div>
 
             {to.upiId && (
-              <SettlementQR settlement={s} fromMember={from} toMember={to} />
+              <SettlementQRLazy settlement={s} fromMember={from} toMember={to} />
             )}
           </div>
         );

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -12,15 +13,18 @@ import {
   DollarSign,
   Zap,
 } from "lucide-react";
-import { TabSquad } from "./steps/TabSquad";
-import { TabDestinations } from "./steps/TabDestinations";
-import { TabDates } from "./steps/TabDates";
-import { TabBudget } from "./steps/TabBudget";
-import { TabPolls } from "./steps/TabPolls";
-import { WorkspaceSummary } from "./WorkspaceSummary";
-import { ConsensusCelebration } from "./ConsensusCelebration";
 import { useSquad } from "@/shared/providers/SquadContext";
 import type { Squad, WorkspaceTab } from "@/types/squad";
+
+const loadingFallback = () => <div className="animate-pulse space-y-4 p-6"><div className="h-6 w-1/3 bg-ink/10 rounded-bruted" /><div className="h-32 bg-ink/10 rounded-bruted" /></div>;
+
+const TabSquadLazy = dynamic(() => import("./steps/TabSquad").then(m => ({ default: m.TabSquad })), { loading: loadingFallback });
+const TabDestinationsLazy = dynamic(() => import("./steps/TabDestinations").then(m => ({ default: m.TabDestinations })), { loading: loadingFallback });
+const TabDatesLazy = dynamic(() => import("./steps/TabDates").then(m => ({ default: m.TabDates })), { loading: loadingFallback });
+const TabBudgetLazy = dynamic(() => import("./steps/TabBudget").then(m => ({ default: m.TabBudget })), { loading: loadingFallback });
+const TabPollsLazy = dynamic(() => import("./steps/TabPolls").then(m => ({ default: m.TabPolls })), { loading: loadingFallback });
+const WorkspaceSummaryLazy = dynamic(() => import("./WorkspaceSummary").then(m => ({ default: m.WorkspaceSummary })), { loading: loadingFallback });
+const ConsensusCelebrationLazy = dynamic(() => import("./ConsensusCelebration").then(m => ({ default: m.ConsensusCelebration })), { loading: loadingFallback });
 
 interface WorkspaceViewProps {
   squad: Squad;
@@ -59,15 +63,15 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
   function renderTab() {
     switch (activeTab) {
       case "squad":
-        return <TabSquad squad={squad} onUpdate={onUpdate} />;
+        return <TabSquadLazy squad={squad} onUpdate={onUpdate} />;
       case "destinations":
-        return <TabDestinations squad={squad} onUpdate={onUpdate} />;
+        return <TabDestinationsLazy squad={squad} onUpdate={onUpdate} />;
       case "dates":
-        return <TabDates squad={squad} onUpdate={onUpdate} />;
+        return <TabDatesLazy squad={squad} onUpdate={onUpdate} />;
       case "budget":
-        return <TabBudget squad={squad} onUpdate={onUpdate} />;
+        return <TabBudgetLazy squad={squad} onUpdate={onUpdate} />;
       case "polls":
-        return <TabPolls squad={squad} onUpdate={onUpdate} />;
+        return <TabPollsLazy squad={squad} onUpdate={onUpdate} />;
     }
   }
 
@@ -165,7 +169,7 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
 
       <AnimatePresence>
         {showCelebration && (
-          <ConsensusCelebration
+          <ConsensusCelebrationLazy
             squad={squad}
             onExploreHub={() => router.push(`/trip/${squad.id}/hub`)}
             onDismiss={() => setShowCelebration(false)}
@@ -173,7 +177,7 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
         )}
 
         {showSummary && !showCelebration && (
-          <WorkspaceSummary
+          <WorkspaceSummaryLazy
             squad={squad}
             onClose={() => setShowSummary(false)}
             onUpdate={onUpdate}

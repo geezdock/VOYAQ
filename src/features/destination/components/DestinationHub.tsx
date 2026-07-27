@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -16,23 +17,27 @@ import {
   Train,
   Building2,
 } from "lucide-react";
-import { HubOverview } from "./Overview/HubOverview";
-import { HubWeather } from "./Weather/HubWeather";
-import { HubFood } from "./Food/HubFood";
-import { HubPlaces } from "./Places/HubPlaces";
-import { HubEvents } from "./Events/HubEvents";
-import { HubSafety } from "./Safety/HubSafety";
-import { HubTransport } from "./Transport/HubTransport";
-import { HubBudget } from "./Budget/HubBudget";
-import { HubAISuggestions } from "./AISuggestions/HubAISuggestions";
-import { HubItinerary } from "./Itinerary/HubItinerary";
-import { AIBudgetAllocator } from "./BudgetAllocator/AIBudgetAllocator";
-import { EventDrivenUpdates } from "./EventUpdates/EventDrivenUpdates";
-import { HubMap } from "./Map/HubMap";
-import { HubTransportBooking } from "./TransportBooking/HubTransportBooking";
-import { HubHostels } from "./Hostels/HubHostels";
+import { ErrorBoundary } from "@/shared/components/ErrorBoundary";
 import type { HubTab } from "@/types/destination";
 import type { Squad } from "@/types/squad";
+
+const skeleton = () => <div className="animate-pulse space-y-4"><div className="h-6 w-1/3 bg-ink/10 rounded-bruted" /><div className="h-24 bg-ink/10 rounded-bruted" /><div className="h-24 bg-ink/10 rounded-bruted" /></div>;
+
+const HubOverviewLazy = dynamic(() => import("./Overview/HubOverview").then(m => ({ default: m.HubOverview })), { loading: skeleton });
+const HubWeatherLazy = dynamic(() => import("./Weather/HubWeather").then(m => ({ default: m.HubWeather })), { loading: skeleton });
+const HubFoodLazy = dynamic(() => import("./Food/HubFood").then(m => ({ default: m.HubFood })), { loading: skeleton });
+const HubPlacesLazy = dynamic(() => import("./Places/HubPlaces").then(m => ({ default: m.HubPlaces })), { loading: skeleton });
+const HubEventsLazy = dynamic(() => import("./Events/HubEvents").then(m => ({ default: m.HubEvents })), { loading: skeleton });
+const HubSafetyLazy = dynamic(() => import("./Safety/HubSafety").then(m => ({ default: m.HubSafety })), { loading: skeleton });
+const HubTransportLazy = dynamic(() => import("./Transport/HubTransport").then(m => ({ default: m.HubTransport })), { loading: skeleton });
+const HubBudgetLazy = dynamic(() => import("./Budget/HubBudget").then(m => ({ default: m.HubBudget })), { loading: skeleton });
+const HubAISuggestionsLazy = dynamic(() => import("./AISuggestions/HubAISuggestions").then(m => ({ default: m.HubAISuggestions })), { loading: skeleton });
+const HubItineraryLazy = dynamic(() => import("./Itinerary/HubItinerary").then(m => ({ default: m.HubItinerary })), { loading: skeleton });
+const AIBudgetAllocatorLazy = dynamic(() => import("./BudgetAllocator/AIBudgetAllocator").then(m => ({ default: m.AIBudgetAllocator })), { loading: skeleton });
+const EventDrivenUpdatesLazy = dynamic(() => import("./EventUpdates/EventDrivenUpdates").then(m => ({ default: m.EventDrivenUpdates })), { loading: skeleton });
+const HubMapLazy = dynamic(() => import("./Map/HubMap").then(m => ({ default: m.HubMap })), { ssr: false, loading: skeleton });
+const HubTransportBookingLazy = dynamic(() => import("./TransportBooking/HubTransportBooking").then(m => ({ default: m.HubTransportBooking })), { loading: skeleton });
+const HubHostelsLazy = dynamic(() => import("./Hostels/HubHostels").then(m => ({ default: m.HubHostels })), { loading: skeleton });
 
 interface DestinationHubProps {
   squad: Squad;
@@ -127,66 +132,69 @@ export function DestinationHub({ squad, onBack }: DestinationHubProps) {
         </div>
       );
     }
+    const wrap = (node: ReactNode) => <ErrorBoundary>{node}</ErrorBoundary>;
     switch (activeTab) {
       case "overview":
-        return <HubOverview squad={squad} destinationName={destinationName} />;
+        return wrap(<HubOverviewLazy squad={squad} destinationName={destinationName} />);
       case "weather":
-        return <HubWeather destinationName={destinationName} />;
+        return wrap(<HubWeatherLazy destinationName={destinationName} />);
       case "food":
-        return <HubFood destinationName={destinationName} />;
+        return wrap(<HubFoodLazy destinationName={destinationName} />);
       case "places":
-        return <HubPlaces destinationName={destinationName} />;
+        return wrap(<HubPlacesLazy destinationName={destinationName} />);
       case "map":
-        return <HubMap destinationName={destinationName} />;
+        return wrap(<HubMapLazy destinationName={destinationName} />);
       case "events":
-        return <HubEvents destinationName={destinationName} />;
+        return wrap(<HubEventsLazy destinationName={destinationName} />);
       case "safety":
-        return <HubSafety destinationName={destinationName} />;
+        return wrap(<HubSafetyLazy destinationName={destinationName} />);
       case "transport":
-        return <HubTransport destinationName={destinationName} />;
+        return wrap(<HubTransportLazy destinationName={destinationName} />);
       case "budget":
-        return <HubBudget destinationName={destinationName} squad={squad} />;
+        return wrap(<HubBudgetLazy destinationName={destinationName} squad={squad} />);
       case "ai":
-        return (
-          <HubAISuggestions
+        return wrap(
+          <HubAISuggestionsLazy
             destinationName={destinationName}
             budget={squad.lockedBudget ?? squad.budgetPerPerson}
             dates={squad.lockedDates ?? undefined}
           />
         );
       case "itinerary":
-        return squad.lockedDates ? (
-          <HubItinerary
-            destinationName={destinationName}
-            startDate={squad.lockedDates.start}
-            endDate={squad.lockedDates.end}
-            budget={squad.lockedBudget ?? squad.budgetPerPerson}
-          />
-        ) : (
-          <div className="text-center py-16 space-y-3">
-            <CalendarDays className="w-10 h-10 text-ink-muted/40 mx-auto" />
-            <p className="font-heading text-sm text-ink-muted">Lock your trip dates to generate an itinerary</p>
-          </div>
+        return wrap(
+          squad.lockedDates ? (
+            <HubItineraryLazy
+              destinationName={destinationName}
+              startDate={squad.lockedDates.start}
+              endDate={squad.lockedDates.end}
+              budget={squad.lockedBudget ?? squad.budgetPerPerson}
+            />
+          ) : (
+            <div className="text-center py-16 space-y-3">
+              <CalendarDays className="w-10 h-10 text-ink-muted/40 mx-auto" />
+              <p className="font-heading text-sm text-ink-muted">Lock your trip dates to generate an itinerary</p>
+            </div>
+          )
         );
       case "budget-allocator":
-        return (
-          <AIBudgetAllocator
+        return wrap(
+          <AIBudgetAllocatorLazy
             destinationName={destinationName}
             totalBudget={squad.lockedBudget ?? squad.budgetPerPerson}
           />
         );
       case "event-updates":
-        return (
-          <EventDrivenUpdates
+        return wrap(
+          <EventDrivenUpdatesLazy
             destinationName={destinationName}
             startDate={squad.lockedDates?.start}
             endDate={squad.lockedDates?.end}
           />
         );
       case "transport-booking":
-        return <HubTransportBooking destinationName={destinationName} />;
+        return wrap(<HubTransportBookingLazy destinationName={destinationName} />);
       case "hostels":
-        return <HubHostels destinationName={destinationName} />;
+        return wrap(<HubHostelsLazy destinationName={destinationName} />);
     }
   }
 

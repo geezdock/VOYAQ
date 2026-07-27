@@ -22,7 +22,6 @@ import type { Squad } from "@/types/squad";
 import { useSquad } from "@/shared/providers/SquadContext";
 import { getCountdown, formatDate, getDays } from "@/utils/dates";
 import { formatRupee } from "@/utils/currency";
-import { generateTripPdf } from "@/utils/pdf";
 import { fetchItinerary } from "@/services/itinerary";
 import { fetchSafety } from "@/services/safety";
 
@@ -100,6 +99,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
         : Promise.resolve(null),
       squad.lockedDestination ? fetchSafety(squad.lockedDestination) : Promise.resolve(null),
     ]);
+    const { generateTripPdf } = await import("@/utils/pdf");
     await generateTripPdf({
       squad,
       itinerary,
