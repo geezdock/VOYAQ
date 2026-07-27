@@ -13,6 +13,8 @@ import {
   Wallet,
   Sparkles,
   ArrowLeft,
+  Train,
+  Building2,
 } from "lucide-react";
 import { HubOverview } from "./Overview/HubOverview";
 import { HubWeather } from "./Weather/HubWeather";
@@ -26,6 +28,9 @@ import { HubAISuggestions } from "./AISuggestions/HubAISuggestions";
 import { HubItinerary } from "./Itinerary/HubItinerary";
 import { AIBudgetAllocator } from "./BudgetAllocator/AIBudgetAllocator";
 import { EventDrivenUpdates } from "./EventUpdates/EventDrivenUpdates";
+import { HubMap } from "./Map/HubMap";
+import { HubTransportBooking } from "./TransportBooking/HubTransportBooking";
+import { HubHostels } from "./Hostels/HubHostels";
 import type { HubTab } from "@/types/destination";
 import type { Squad } from "@/types/squad";
 
@@ -39,6 +44,7 @@ const tabs: { id: HubTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "weather", label: "Weather", icon: CloudSun },
   { id: "food", label: "Food", icon: UtensilsCrossed },
   { id: "places", label: "Places", icon: Mountain },
+  { id: "map", label: "Map", icon: Mountain },
   { id: "events", label: "Events", icon: CalendarDays },
   { id: "safety", label: "Safety", icon: ShieldAlert },
   { id: "transport", label: "Transport", icon: Bus },
@@ -47,6 +53,8 @@ const tabs: { id: HubTab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "itinerary", label: "Itinerary", icon: CalendarDays },
   { id: "budget-allocator", label: "AI Budget", icon: Wallet },
   { id: "event-updates", label: "Alerts", icon: ShieldAlert },
+  { id: "transport-booking", label: "Book Travel", icon: Train },
+  { id: "hostels", label: "Stay", icon: Building2 },
 ];
 
 const tabIds: HubTab[] = tabs.map((t) => t.id);
@@ -128,6 +136,8 @@ export function DestinationHub({ squad, onBack }: DestinationHubProps) {
         return <HubFood destinationName={destinationName} />;
       case "places":
         return <HubPlaces destinationName={destinationName} />;
+      case "map":
+        return <HubMap destinationName={destinationName} />;
       case "events":
         return <HubEvents destinationName={destinationName} />;
       case "safety":
@@ -173,6 +183,10 @@ export function DestinationHub({ squad, onBack }: DestinationHubProps) {
             endDate={squad.lockedDates?.end}
           />
         );
+      case "transport-booking":
+        return <HubTransportBooking destinationName={destinationName} />;
+      case "hostels":
+        return <HubHostels destinationName={destinationName} />;
     }
   }
 

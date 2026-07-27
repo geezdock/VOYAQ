@@ -1,10 +1,9 @@
 import type { BudgetInsight } from "@/types/destination";
+import { getBudgetInsights } from "@/actions/data";
 
 export async function fetchBudgetInsights(destination: string): Promise<BudgetInsight[] | null> {
   try {
-    const res = await fetch(`/api/budget?dest=${encodeURIComponent(destination)}`);
-    if (!res.ok) return null;
-    const data = await res.json();
+    const data = await getBudgetInsights(destination) as unknown as { insights: BudgetInsight[] };
     return data.insights ?? null;
   } catch {
     return null;

@@ -104,11 +104,27 @@ export interface DestinationData {
   aiSuggestions: AISuggestion[];
 }
 
+export interface DestinationEntry {
+  id: string;
+  name: string;
+  slug: string;
+  country: string;
+  state: string;
+  city: string;
+  lat: number;
+  lon: number;
+  type: "beach" | "hill" | "city" | "desert" | "pilgrimage" | "adventure";
+  tags: string[];
+  image?: string;
+  description?: string;
+}
+
 export type HubTab =
   | "overview"
   | "weather"
   | "food"
   | "places"
+  | "map"
   | "events"
   | "safety"
   | "transport"
@@ -116,4 +132,6 @@ export type HubTab =
   | "ai"
   | "itinerary"
   | "budget-allocator"
-  | "event-updates";
+  | "event-updates"
+  | "transport-booking"
+  | "hostels";

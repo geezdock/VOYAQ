@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useRef, ty
 import { mockSquads } from "@/shared/mock";
 import { useAuth } from "@/shared/providers/AuthContext";
 import { createClient } from "@/services/supabase/client";
-import type { Squad } from "@/types/squad";
+import type { Squad, SquadMember } from "@/types/squad";
 
 const STORAGE_KEY = "voyaq_squads_v1";
 
@@ -17,6 +17,7 @@ interface SquadContextValue {
   isRealtimeConnected: boolean;
   getSquad: (id: string) => Squad | undefined;
   updateSquad: (squad: Squad) => void;
+  updateMember: (squadId: string, memberId: string, updates: Partial<SquadMember>) => void;
   addSquad: (squad: Squad) => Promise<Squad>;
   toast: string | null;
   showToast: (message: string) => void;
@@ -189,6 +190,24 @@ export function SquadProvider({ children }: { children: ReactNode }) {
     [showToast],
   );
 
+  const updateMember = useCallback(
+    (squadId: string, memberId: string, updates: Partial<SquadMember>) => {
+      setSquads((prev) =>
+        prev.map((s) =>
+          s.id === squadId
+            ? {
+                ...s,
+                members: s.members.map((m) =>
+                  m.id === memberId ? { ...m, ...updates } : m,
+                ),
+              }
+            : s,
+        ),
+      );
+    },
+    [],
+  );
+
   const addSquad = useCallback(
     async (squad: Squad): Promise<Squad> => {
       setSquads((prev) => [squad, ...prev]);
@@ -225,6 +244,7 @@ export function SquadProvider({ children }: { children: ReactNode }) {
         isRealtimeConnected,
         getSquad,
         updateSquad,
+        updateMember,
         addSquad,
         toast,
         showToast,

@@ -1,3 +1,5 @@
+import { getEventUpdates } from "@/actions/ai";
+
 export interface EventDrivenUpdateResult {
   destination: string;
   updates: Array<{
@@ -13,12 +15,7 @@ export interface EventDrivenUpdateResult {
 
 export async function fetchEventDrivenUpdates(destination: string, startDate?: string, endDate?: string): Promise<EventDrivenUpdateResult | null> {
   try {
-    const params = new URLSearchParams({ dest: destination });
-    if (startDate) params.set("start", startDate);
-    if (endDate) params.set("end", endDate);
-    const res = await fetch(`/api/ai/event-updates?${params}`);
-    if (!res.ok) return null;
-    return await res.json();
+    return await getEventUpdates(destination, startDate, endDate) as unknown as EventDrivenUpdateResult;
   } catch {
     return null;
   }

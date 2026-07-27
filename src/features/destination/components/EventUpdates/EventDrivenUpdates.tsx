@@ -16,7 +16,6 @@ interface EventDrivenUpdatesProps {
   destinationName: string;
   startDate?: string;
   endDate?: string;
-  onRefresh?: () => void;
 }
 
 const severityConfig: Record<string, { icon: typeof AlertTriangle; className: string }> = {
@@ -75,10 +74,17 @@ export function EventDrivenUpdates({ destinationName, startDate, endDate }: Even
 
   if (updates.length === 0) {
     return (
-      <div className="text-center py-12 space-y-3">
+      <div className="text-center py-12 space-y-4">
         <CloudRain className="w-10 h-10 text-success/40 mx-auto" />
         <p className="font-heading text-sm font-semibold text-success">All Clear</p>
         <p className="font-mono text-xs text-ink-muted/60">No weather or event alerts for {destinationName}</p>
+        <button
+          onClick={retry}
+          className="inline-flex items-center gap-1.5 font-heading text-sm font-semibold text-accent hover:text-accent/80 transition-colors min-h-[44px] px-4"
+        >
+          <RefreshCw className="w-4 h-4" />
+          Refresh
+        </button>
       </div>
     );
   }

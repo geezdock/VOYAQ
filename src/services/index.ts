@@ -9,4 +9,5 @@ export { fetchLiveWeather } from "./weather";
 export { fetchItinerary } from "./itinerary";
 export { fetchBudgetAllocation } from "./budget-allocator";
 export { fetchEventDrivenUpdates } from "./event-updates";
+export { fetchDestinations, fetchDestinationBySlug } from "./destinations";
 export { createBrowserClient, updateSession, createServerClient } from "./supabase";

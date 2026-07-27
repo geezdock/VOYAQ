@@ -15,11 +15,16 @@ import {
   XCircle,
   PartyPopper,
   Compass,
+  FileDown,
+  Wallet,
 } from "lucide-react";
 import type { Squad } from "@/types/squad";
 import { useSquad } from "@/shared/providers/SquadContext";
 import { getCountdown, formatDate, getDays } from "@/utils/dates";
 import { formatRupee } from "@/utils/currency";
+import { generateTripPdf } from "@/utils/pdf";
+import { fetchItinerary } from "@/services/itinerary";
+import { fetchSafety } from "@/services/safety";
 
 interface TripViewProps {
   squad: Squad;
@@ -81,6 +86,32 @@ export function TripView({ squad, onBack }: TripViewProps) {
     } catch {
       // silent
     }
+  }
+
+  async function handleDownloadPdf() {
+    const [itinerary, safety] = await Promise.all([
+      squad.lockedDates
+        ? fetchItinerary({
+            destination: squad.lockedDestination!,
+            startDate: squad.lockedDates.start,
+            endDate: squad.lockedDates.end,
+            budget: squad.lockedBudget ?? squad.budgetPerPerson,
+          })
+        : Promise.resolve(null),
+      squad.lockedDestination ? fetchSafety(squad.lockedDestination) : Promise.resolve(null),
+    ]);
+    await generateTripPdf({
+      squad,
+      itinerary,
+      emergencyInfo: safety
+        ? {
+            police: safety.emergency.police,
+            ambulance: safety.emergency.ambulance,
+            fire: safety.emergency.fire,
+            nearestHospital: safety.emergency.nearestHospital,
+          }
+        : null,
+    });
   }
 
   if (!hasLocked) {
@@ -244,6 +275,17 @@ export function TripView({ squad, onBack }: TripViewProps) {
               <button onClick={handleShare} className="brut-btn text-xs px-4 py-2 !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
                 <Share2 className="w-3.5 h-3.5 mr-1.5 inline" />
                 Share
+              </button>
+              <button onClick={handleDownloadPdf} className="brut-btn text-xs px-4 py-2 !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
+                <FileDown className="w-3.5 h-3.5 mr-1.5 inline" />
+                Download PDF
+              </button>
+              <button
+                onClick={() => router.push(`/trip/${squad.id}/expenses`)}
+                className="brut-btn text-xs px-4 py-2"
+              >
+                <Wallet className="w-3.5 h-3.5 mr-1.5 inline" />
+                Expenses
               </button>
               {squad.status === "cancelled" ? (
                 <button onClick={handleRebook} className="brut-btn text-xs px-4 py-2">

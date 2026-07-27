@@ -1,4 +1,5 @@
 import type { ItineraryResponse } from "@/types/itinerary";
+import { getItinerary } from "@/actions/ai";
 
 export interface ItineraryOptions {
   destination: string;
@@ -9,15 +10,7 @@ export interface ItineraryOptions {
 
 export async function fetchItinerary(options: ItineraryOptions): Promise<ItineraryResponse | null> {
   try {
-    const params = new URLSearchParams({
-      dest: options.destination,
-      start: options.startDate,
-      end: options.endDate,
-      budget: String(options.budget),
-    });
-    const res = await fetch(`/api/ai/itinerary?${params}`);
-    if (!res.ok) return null;
-    return await res.json();
+    return await getItinerary(options.destination, options.startDate, options.endDate, String(options.budget)) as unknown as ItineraryResponse;
   } catch {
     return null;
   }

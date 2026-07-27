@@ -9,6 +9,7 @@ export interface SquadMember {
   color: string;
   verified: boolean;
   joinedAt: string;
+  upiId?: string;
 }
 
 export interface DestinationVote {

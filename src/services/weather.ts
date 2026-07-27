@@ -1,12 +1,9 @@
 import type { WeatherData } from "@/types/destination";
+import { getWeather } from "@/actions/data";
 
-export async function fetchLiveWeather(
-  destination: string,
-): Promise<WeatherData | null> {
+export async function fetchLiveWeather(destination: string): Promise<WeatherData | null> {
   try {
-    const res = await fetch(`/api/weather?dest=${encodeURIComponent(destination)}`);
-    if (!res.ok) return null;
-    return await res.json();
+    return await getWeather(destination) as WeatherData;
   } catch {
     return null;
   }

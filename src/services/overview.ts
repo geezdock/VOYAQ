@@ -1,3 +1,5 @@
+import { getOverview } from "@/actions/data";
+
 export interface OverviewResult {
   description: string;
   bestTimeToVisit: string;
@@ -11,9 +13,7 @@ export interface OverviewResult {
 
 export async function fetchOverview(destination: string): Promise<OverviewResult | null> {
   try {
-    const res = await fetch(`/api/overview?dest=${encodeURIComponent(destination)}`);
-    if (!res.ok) return null;
-    return await res.json();
+    return await getOverview(destination) as unknown as OverviewResult;
   } catch {
     return null;
   }

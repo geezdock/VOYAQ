@@ -1,11 +1,10 @@
 import type { FoodItem, Attraction } from "@/types/destination";
+import { getPlaces } from "@/actions/data";
 
 export async function fetchFood(destination: string): Promise<FoodItem[] | null> {
   try {
-    const res = await fetch(`/api/places?dest=${encodeURIComponent(destination)}&type=food`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.items ?? null;
+    const result = await getPlaces(destination, "food") as unknown as { items?: FoodItem[] };
+    return result.items ?? null;
   } catch {
     return null;
   }
@@ -13,10 +12,8 @@ export async function fetchFood(destination: string): Promise<FoodItem[] | null>
 
 export async function fetchAttractions(destination: string): Promise<Attraction[] | null> {
   try {
-    const res = await fetch(`/api/places?dest=${encodeURIComponent(destination)}&type=attractions`);
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.attractions ?? null;
+    const result = await getPlaces(destination, "attractions") as unknown as { attractions?: Attraction[] };
+    return result.attractions ?? null;
   } catch {
     return null;
   }
