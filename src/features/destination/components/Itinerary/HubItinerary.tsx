@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CalendarDays,
@@ -21,6 +21,7 @@ import {
 import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchItinerary } from "@/services/itinerary";
 import { formatRupee } from "@/utils/currency";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { ItineraryResponse, ItineraryDay } from "@/types/itinerary";
 
 interface HubItineraryProps {
@@ -152,6 +153,16 @@ export function HubItinerary({ destinationName, startDate, endDate, budget }: Hu
     () => fetchItinerary({ destination: destinationName, startDate, endDate, budget }),
     [destinationName, startDate, endDate, budget],
   );
+
+  useEffect(() => {
+    if (itinerary?.days) {
+      trackEvent(VOYAQ_EVENTS.AI_ITINERARY_GENERATED, {
+        destination: destinationName,
+        days: itinerary.days.length,
+        total_cost: itinerary.totalEstimatedCost,
+      });
+    }
+  }, [itinerary, destinationName]);
 
   function toggleDay(day: number) {
     setExpandedDays((prev) => {

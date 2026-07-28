@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useSquad } from "@/shared/providers/SquadContext";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { Squad, WorkspaceTab } from "@/types/squad";
 
 const loadingFallback = () => <div className="animate-pulse space-y-4 p-6"><div className="h-6 w-1/3 bg-ink/10 rounded-bruted" /><div className="h-32 bg-ink/10 rounded-bruted" /></div>;
@@ -53,12 +54,40 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
   const allLocked = hasDest && hasBudget && hasDates;
   const lockCount = [hasDest, hasBudget, hasDates].filter(Boolean).length;
 
+  // Track individual lock events when squad state transitions
+  const prevLocksRef = useState(
+    () => ({ dest: !!squad.lockedDestination, budget: squad.lockedBudget !== undefined, dates: !!squad.lockedDates }),
+  );
+
+  useEffect(() => {
+    const prev = prevLocksRef[0];
+    const next = { dest: hasDest, budget: hasBudget, dates: hasDates };
+
+    if (!prev.dest && next.dest) {
+      trackEvent(VOYAQ_EVENTS.DESTINATION_LOCKED, { destination: squad.lockedDestination, squad_id: squad.id });
+    }
+    if (!prev.budget && next.budget) {
+      trackEvent(VOYAQ_EVENTS.BUDGET_LOCKED, { budget: squad.lockedBudget, squad_id: squad.id });
+    }
+    if (!prev.dates && next.dates) {
+      trackEvent(VOYAQ_EVENTS.DATES_LOCKED, { start: squad.lockedDates?.start, end: squad.lockedDates?.end, squad_id: squad.id });
+    }
+
+    // Assign next to the mutable ref object
+    (prevLocksRef[0] as typeof next).dest = next.dest;
+    (prevLocksRef[0] as typeof next).budget = next.budget;
+    (prevLocksRef[0] as typeof next).dates = next.dates;
+  }, [hasDest, hasBudget, hasDates, squad, prevLocksRef]);
+
   useEffect(() => {
     if (allLocked) {
-      const timer = setTimeout(() => setShowCelebration(true), 400);
+      const timer = setTimeout(() => {
+        setShowCelebration(true);
+        trackEvent(VOYAQ_EVENTS.TRIP_READY, { squad_id: squad.id, destination: squad.lockedDestination });
+      }, 400);
       return () => clearTimeout(timer);
     }
-  }, [allLocked]);
+  }, [allLocked, squad]);
 
   function renderTab() {
     switch (activeTab) {

@@ -5,6 +5,7 @@ import { Smartphone, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { buildUPIUrl } from "@/utils/upi";
 import { formatRupee } from "@/utils/currency";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { SquadMember } from "@/types/squad";
 import type { Settlement } from "@/types/expense";
 
@@ -50,7 +51,13 @@ export function SettlementQR({ settlement, fromMember, toMember }: SettlementQRP
   return (
     <>
       <button
-        onClick={() => setShowQR(true)}
+        onClick={() => {
+          setShowQR(true);
+          trackEvent(VOYAQ_EVENTS.TOOLKIT_QR_OPENED, {
+            to: toMember.name,
+            amount: settlement.amount,
+          });
+        }}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-bruted border-2 border-accent/30 text-accent font-mono text-[10px] font-bold hover:bg-accent/5 transition-colors min-h-[36px]"
         title={`Pay ${toMember.name} via UPI`}
       >

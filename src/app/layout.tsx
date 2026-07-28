@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
 import { SquadProvider } from "@/shared/providers/SquadContext";
 import { AuthProvider } from "@/shared/providers/AuthContext";
+import { AnalyticsProvider } from "@/shared/providers/AnalyticsProvider";
 import { GlobalToast } from "@/shared/components";
 import "./globals.css";
 
@@ -25,13 +26,47 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VOYAQ — Plan trips. Together.",
+  metadataBase: new URL("https://voyaq.app"),
+  title: {
+    default: "VOYAQ — Plan trips. Together.",
+    template: "%s | VOYAQ",
+  },
   description:
     "Collaborative group travel planner for Indian students. Budget, vote, and build itineraries as a squad.",
+  keywords: ["group travel", "trip planner", "squad travel", "India travel", "student travel", "budget trip"],
+  authors: [{ name: "VOYAQ" }],
+  creator: "VOYAQ",
+  openGraph: {
+    type: "website",
+    locale: "en_IN",
+    url: "https://voyaq.app",
+    siteName: "VOYAQ",
+    title: "VOYAQ — Plan trips. Together.",
+    description:
+      "Collaborative group travel planner for Indian students. Budget, vote, and build itineraries as a squad.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "VOYAQ — Group trip planner",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@voyaqapp",
+    creator: "@voyaqapp",
+    title: "VOYAQ — Plan trips. Together.",
+    description:
+      "Collaborative group travel planner for Indian students. Budget, vote, and build itineraries as a squad.",
+    images: ["/og-image.png"],
+  },
   icons: {
     icon: "/icon.svg",
   },
 };
+
 
 export const viewport = {
   width: "device-width",
@@ -58,8 +93,10 @@ export default function RootLayout({
         />
         <AuthProvider>
           <SquadProvider>
-            {children}
-            <GlobalToast />
+            <AnalyticsProvider>
+              {children}
+              <GlobalToast />
+            </AnalyticsProvider>
           </SquadProvider>
         </AuthProvider>
       </body>

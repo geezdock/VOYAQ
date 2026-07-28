@@ -11,9 +11,11 @@ import {
   RefreshCw,
   BarChart3,
 } from "lucide-react";
+import { useEffect } from "react";
 import { useFetch } from "@/shared/hooks/useFetch";
 import { fetchBudgetAllocation } from "@/services/budget-allocator";
 import { formatRupee } from "@/utils/currency";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { AIBudgetAllocation } from "@/types/itinerary";
 
 interface AIBudgetAllocatorProps {
@@ -34,6 +36,12 @@ export function AIBudgetAllocator({ destinationName, totalBudget }: AIBudgetAllo
     () => fetchBudgetAllocation(destinationName, totalBudget),
     [destinationName, totalBudget],
   );
+
+  useEffect(() => {
+    if (allocation) {
+      trackEvent(VOYAQ_EVENTS.BUDGET_ALLOCATION_VIEWED, { destination: destinationName, budget: totalBudget });
+    }
+  }, [allocation, destinationName, totalBudget]);
 
   if (loading) {
     return (

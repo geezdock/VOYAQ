@@ -6,6 +6,7 @@ import { Plus, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
 import type { ExpenseEntry, ExpenseSummary } from "@/types/expense";
 import type { SquadMember } from "@/types/squad";
 import { formatRupee } from "@/utils/currency";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 interface AddExpenseFormProps {
   members: SquadMember[];
@@ -65,6 +66,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
     setSplitAmong(members.map((m) => m.id));
     setPaidBy(members[0]?.id ?? "");
     setOpen(false);
+    trackEvent(VOYAQ_EVENTS.TOOLKIT_EXPENSE_LOGGED, { description: description.trim(), amount: amt, category });
   }
 
   return (

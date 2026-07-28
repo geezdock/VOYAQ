@@ -24,6 +24,7 @@ import { getCountdown, formatDate, getDays } from "@/utils/dates";
 import { formatRupee } from "@/utils/currency";
 import { fetchItinerary } from "@/services/itinerary";
 import { fetchSafety } from "@/services/safety";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 interface TripViewProps {
   squad: Squad;
@@ -99,6 +100,16 @@ export function TripView({ squad, onBack }: TripViewProps) {
         : Promise.resolve(null),
       squad.lockedDestination ? fetchSafety(squad.lockedDestination) : Promise.resolve(null),
     ]);
+
+    // Track AI itinerary usage when itinerary data is fetched
+    if (itinerary) {
+      trackEvent(VOYAQ_EVENTS.AI_ITINERARY_GENERATED, {
+        squad_id: squad.id,
+        destination: squad.lockedDestination,
+        days: itinerary.days?.length ?? 0,
+      });
+    }
+
     const { generateTripPdf } = await import("@/utils/pdf");
     await generateTripPdf({
       squad,
@@ -112,6 +123,8 @@ export function TripView({ squad, onBack }: TripViewProps) {
           }
         : null,
     });
+
+    trackEvent(VOYAQ_EVENTS.TOOLKIT_PDF_DOWNLOADED, { squad_id: squad.id, destination: squad.lockedDestination });
   }
 
   if (!hasLocked) {

@@ -14,6 +14,7 @@ import {
   PartyPopper,
 } from "lucide-react";
 import { useSquad } from "@/shared/providers/SquadContext";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { Squad } from "@/types/squad";
 
 type Step = "name" | "members" | "budget" | "dates" | "review";
@@ -147,6 +148,12 @@ export default function CreateSquadPage() {
 
     try {
       const created = await addSquad(newSquad);
+      trackEvent(VOYAQ_EVENTS.SQUAD_CREATED, {
+        squad_name: newSquad.name,
+        member_limit: newSquad.memberLimit,
+        has_destination: !!newSquad.destination,
+        budget_per_person: newSquad.budgetPerPerson,
+      });
       router.push(`/workspace/${created.id}`);
     } catch {
       // Squad creation failed — user stays on create page

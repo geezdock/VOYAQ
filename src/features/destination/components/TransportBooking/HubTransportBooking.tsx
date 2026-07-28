@@ -2,6 +2,7 @@
 
 import { Train, Bus, Plane, ExternalLink, Info } from "lucide-react";
 import { getDestinationEntry } from "@/constants/destinations";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 interface HubTransportBookingProps {
   destinationName: string;
@@ -94,6 +95,12 @@ export function HubTransportBooking({ destinationName }: HubTransportBookingProp
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent(VOYAQ_EVENTS.TOOLKIT_BOOKING_CLICKED, {
+                      service: svc.id,
+                      destination: city,
+                    })
+                  }
                   className={`flex items-center justify-center gap-1.5 w-full py-2 rounded-bruted border-2 font-mono text-[11px] font-bold transition-colors min-h-[40px] ${svc.borderColor} ${svc.color} hover:bg-ink/5`}
                 >
                   <ExternalLink className="w-3.5 h-3.5" />

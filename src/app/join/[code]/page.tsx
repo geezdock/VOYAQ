@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Users, ArrowRight, AlertCircle } from "lucide-react";
 import { useSquad } from "@/shared/providers/SquadContext";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 export default function JoinPage() {
   const params = useParams();
@@ -85,7 +86,15 @@ export default function JoinPage() {
             Cancel
           </button>
           <button
-            onClick={() => router.push(`/workspace/${squad.id}`)}
+            onClick={() => {
+              trackEvent(VOYAQ_EVENTS.INVITE_ACCEPTED, {
+                squad_id: squad.id,
+                squad_name: squad.name,
+                invite_code: code,
+                member_count: squad.members.length,
+              });
+              router.push(`/workspace/${squad.id}`);
+            }}
             className="flex-1 brut-btn text-sm flex items-center justify-center gap-2"
           >
             Join Squad

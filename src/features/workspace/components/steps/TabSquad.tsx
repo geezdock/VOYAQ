@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Copy, Check, Users, UserMinus, Crown } from "lucide-react";
 import type { Squad } from "@/types/squad";
 import { useSquad } from "@/shared/providers/SquadContext";
+import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 interface TabSquadProps {
   squad: Squad;
@@ -20,10 +21,10 @@ export function TabSquad({ squad, onUpdate }: TabSquadProps) {
     try {
       await navigator.clipboard.writeText(url);
     } catch {
-      // Clipboard not available — fall back to prompt
       prompt("Copy invite link:", url);
     }
     setCopied(true);
+    trackEvent(VOYAQ_EVENTS.INVITE_SENT, { squad_id: squad.id, squad_name: squad.name });
     setTimeout(() => setCopied(false), 2000);
   }
 
