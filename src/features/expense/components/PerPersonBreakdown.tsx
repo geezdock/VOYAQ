@@ -60,20 +60,20 @@ export function PerPersonBreakdown({ members, summary, squadId, updateMember }: 
                       value={upiValue}
                       onChange={(e) => setUpiValue(e.target.value)}
                       placeholder="example@paytm"
-                      className="w-40 border-2 border-accent/30 rounded-[6px] px-2 py-0.5 font-mono text-[10px] bg-surface outline-none focus:border-accent"
+                      className="w-full max-w-[160px] border-2 border-accent/30 rounded-[6px] px-2 py-1 font-mono text-[10px] bg-surface outline-none focus:border-accent"
                       autoFocus
                     />
                     <button
                       onClick={() => saveUpi(m.id)}
-                      className="w-5 h-5 flex items-center justify-center rounded text-success hover:bg-success/10 transition-colors"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-success hover:bg-success/10 transition-colors"
                     >
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-4 h-4" />
                     </button>
                     <button
                       onClick={cancelEdit}
-                      className="w-5 h-5 flex items-center justify-center rounded text-error hover:bg-error/10 transition-colors"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-error hover:bg-error/10 transition-colors"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
@@ -86,10 +86,10 @@ export function PerPersonBreakdown({ members, summary, squadId, updateMember }: 
                     ) : null}
                     <button
                       onClick={() => startEdit(m)}
-                      className="w-5 h-5 flex items-center justify-center rounded text-ink-muted/40 hover:text-ink hover:bg-ink/5 transition-colors"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-ink-muted/40 hover:text-ink hover:bg-ink/5 transition-colors"
                       title={m.upiId ? "Edit UPI ID" : "Set UPI ID"}
                     >
-                      <Pencil className="w-3 h-3" />
+                      <Pencil className="w-4 h-4" />
                     </button>
                   </div>
                 )}

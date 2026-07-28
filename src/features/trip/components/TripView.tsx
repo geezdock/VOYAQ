@@ -147,7 +147,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
         <div className="max-w-3xl mx-auto px-4 flex items-center justify-between h-14">
           <button
             onClick={onBack}
-            className="flex items-center gap-1.5 font-heading text-sm font-semibold text-ink-muted hover:text-ink transition-colors"
+            className="flex items-center gap-1.5 font-heading text-sm font-semibold text-ink-muted hover:text-ink transition-colors min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" />
             Dashboard
@@ -162,7 +162,7 @@ export function TripView({ squad, onBack }: TripViewProps) {
             )}
             <button
               onClick={handleShare}
-              className="w-8 h-8 flex items-center justify-center rounded-bruted text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-bruted text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
               title="Share"
             >
               <Share2 className="w-4 h-4" />
@@ -280,35 +280,35 @@ export function TripView({ squad, onBack }: TripViewProps) {
             <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-ink/10">
               <button
                 onClick={() => router.push(`/trip/${squad.id}/hub`)}
-                className="brut-btn text-xs px-4 py-2"
+                className="brut-btn text-xs px-4 py-2 min-h-[44px]"
               >
                 <Compass className="w-3.5 h-3.5 mr-1.5 inline" />
                 Destination Hub
               </button>
-              <button onClick={handleShare} className="brut-btn text-xs px-4 py-2 !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
+              <button onClick={handleShare} className="brut-btn text-xs px-4 py-2 min-h-[44px] !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
                 <Share2 className="w-3.5 h-3.5 mr-1.5 inline" />
                 Share
               </button>
-              <button onClick={handleDownloadPdf} className="brut-btn text-xs px-4 py-2 !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
+              <button onClick={handleDownloadPdf} className="brut-btn text-xs px-4 py-2 min-h-[44px] !bg-surface-card !text-ink !shadow-bruted-sm hover:!shadow-bruted">
                 <FileDown className="w-3.5 h-3.5 mr-1.5 inline" />
                 Download PDF
               </button>
               <button
                 onClick={() => router.push(`/trip/${squad.id}/expenses`)}
-                className="brut-btn text-xs px-4 py-2"
+                className="brut-btn text-xs px-4 py-2 min-h-[44px]"
               >
                 <Wallet className="w-3.5 h-3.5 mr-1.5 inline" />
                 Expenses
               </button>
               {squad.status === "cancelled" ? (
-                <button onClick={handleRebook} className="brut-btn text-xs px-4 py-2">
+                <button onClick={handleRebook} className="brut-btn text-xs px-4 py-2 min-h-[44px]">
                   Book Again
                 </button>
               ) : (
                 (squad.status === "booked" || squad.status === "pending") && (
                   <button
                     onClick={() => setShowCancel(true)}
-                    className="brut-btn text-xs px-4 py-2 !bg-error !text-white !border-error"
+                    className="brut-btn text-xs px-4 py-2 min-h-[44px] !bg-error !text-white !border-error"
                   >
                     <XCircle className="w-3.5 h-3.5 mr-1.5 inline" />
                     Cancel

@@ -33,10 +33,10 @@ export function ExpenseTracker({ squad, onBack }: ExpenseTrackerProps) {
             <ArrowLeft className="w-4 h-4" />
             Trip
           </button>
-          <h1 className="font-display text-lg font-bold text-ink uppercase tracking-tight">
+          <h1 className="font-display text-lg font-bold text-ink uppercase tracking-tight absolute left-1/2 -translate-x-1/2">
             Expenses
           </h1>
-          <div className="w-20" />
+          <div className="w-10" />
         </div>
       </header>
 
@@ -50,7 +50,7 @@ export function ExpenseTracker({ squad, onBack }: ExpenseTrackerProps) {
                 {squad.name} — Expense Summary
               </h2>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="text-center">
                 <p className="font-mono text-[10px] text-ink-muted uppercase tracking-wider">Total Spent</p>
                 <p className="font-display text-xl sm:text-2xl font-extrabold text-ink mt-1">
@@ -88,7 +88,7 @@ export function ExpenseTracker({ squad, onBack }: ExpenseTrackerProps) {
             {expenses.length > 0 && (
               <button
                 onClick={clearExpenses}
-                className="font-mono text-[10px] font-bold text-error hover:text-error/80 transition-colors px-2 py-1 min-h-[36px]"
+                className="font-mono text-[10px] font-bold text-error hover:text-error/80 transition-colors px-2 py-1 min-h-[44px]"
               >
                 Clear All
               </button>

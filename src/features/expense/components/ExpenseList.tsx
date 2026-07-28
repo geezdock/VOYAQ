@@ -83,10 +83,10 @@ export function ExpenseList({ expenses, members, onRemove }: ExpenseListProps) {
 
             <button
               onClick={() => onRemove(exp.id)}
-              className="w-7 h-7 flex items-center justify-center rounded-bruted text-ink-muted/40 hover:text-error hover:bg-error/5 transition-colors shrink-0"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-bruted text-ink-muted/40 hover:text-error hover:bg-error/5 transition-colors shrink-0"
               title="Remove"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash2 className="w-4 h-4" />
             </button>
           </div>
         );

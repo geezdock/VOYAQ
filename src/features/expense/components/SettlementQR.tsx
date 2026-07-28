@@ -58,7 +58,7 @@ export function SettlementQR({ settlement, fromMember, toMember }: SettlementQRP
             amount: settlement.amount,
           });
         }}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-bruted border-2 border-accent/30 text-accent font-mono text-[10px] font-bold hover:bg-accent/5 transition-colors min-h-[36px]"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-bruted border-2 border-accent/30 text-accent font-mono text-[10px] font-bold hover:bg-accent/5 transition-colors min-h-[44px]"
         title={`Pay ${toMember.name} via UPI`}
       >
         <Smartphone className="w-3.5 h-3.5" />
@@ -78,7 +78,7 @@ export function SettlementQR({ settlement, fromMember, toMember }: SettlementQRP
               </h3>
               <button
                 onClick={() => setShowQR(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-bruted text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-bruted text-ink-muted hover:text-ink hover:bg-ink/5 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -103,7 +103,7 @@ export function SettlementQR({ settlement, fromMember, toMember }: SettlementQRP
               href={upiUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="brut-btn text-xs px-4 py-2 mt-4 inline-flex items-center gap-1.5"
+              className="brut-btn text-xs px-4 py-2 mt-4 inline-flex items-center gap-1.5 min-h-[44px]"
             >
               <Smartphone className="w-3.5 h-3.5" />
               Open UPI App

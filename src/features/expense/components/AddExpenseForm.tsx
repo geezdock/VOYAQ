@@ -115,7 +115,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted block mb-1">
                     Amount (₹)
@@ -148,7 +148,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <div className="flex-1">
                   <label className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted block mb-1">
                     Date
@@ -190,7 +190,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
                         key={m.id}
                         type="button"
                         onClick={() => toggleMember(m.id)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-bruted border-2 font-mono text-[11px] font-bold transition-all min-h-[36px] ${
+                        className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-bruted border-2 font-mono text-[11px] font-bold transition-all min-h-[44px] ${
                           selected
                             ? "bg-accent/10 text-accent border-accent/30"
                             : "bg-ink/5 text-ink-muted border-ink/10"
@@ -207,7 +207,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
               <div className="flex justify-end pt-1">
                 <button
                   type="submit"
-                  className="brut-btn text-sm px-5 py-2 inline-flex items-center gap-1.5"
+                  className="brut-btn text-sm px-5 py-2 inline-flex items-center gap-1.5 min-h-[44px]"
                 >
                   <Plus className="w-4 h-4" />
                   Add Expense

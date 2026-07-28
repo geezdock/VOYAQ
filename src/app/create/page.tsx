@@ -182,7 +182,7 @@ export default function CreateSquadPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-8">
         {/* Steps indicator */}
-        <div className="flex items-center justify-center gap-2 mb-10">
+        <div className="flex items-center justify-center gap-2 mb-10 overflow-x-auto">
           {steps.map((s, i) => {
             const isActive = step === s.id;
             const isDone = stepIndex > i;
