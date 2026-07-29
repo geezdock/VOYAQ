@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
@@ -55,12 +55,12 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
   const lockCount = [hasDest, hasBudget, hasDates].filter(Boolean).length;
 
   // Track individual lock events when squad state transitions
-  const prevLocksRef = useState(
-    () => ({ dest: !!squad.lockedDestination, budget: squad.lockedBudget !== undefined, dates: !!squad.lockedDates }),
+  const prevLocksRef = useRef(
+    { dest: !!squad.lockedDestination, budget: squad.lockedBudget !== undefined, dates: !!squad.lockedDates },
   );
 
   useEffect(() => {
-    const prev = prevLocksRef[0];
+    const prev = prevLocksRef.current;
     const next = { dest: hasDest, budget: hasBudget, dates: hasDates };
 
     if (!prev.dest && next.dest) {
@@ -73,11 +73,8 @@ export function WorkspaceView({ squad, onBack, onUpdate }: WorkspaceViewProps) {
       trackEvent(VOYAQ_EVENTS.DATES_LOCKED, { start: squad.lockedDates?.start, end: squad.lockedDates?.end, squad_id: squad.id });
     }
 
-    // Assign next to the mutable ref object
-    (prevLocksRef[0] as typeof next).dest = next.dest;
-    (prevLocksRef[0] as typeof next).budget = next.budget;
-    (prevLocksRef[0] as typeof next).dates = next.dates;
-  }, [hasDest, hasBudget, hasDates, squad, prevLocksRef]);
+    prevLocksRef.current = next;
+  }, [hasDest, hasBudget, hasDates, squad]);
 
   useEffect(() => {
     if (allLocked) {

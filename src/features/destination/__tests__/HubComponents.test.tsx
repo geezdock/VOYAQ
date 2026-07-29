@@ -92,7 +92,7 @@ describe("HubFood", () => {
   it("shows loading state", () => {
     fetchFoodMock.mockReturnValue(new Promise(() => {}));
     render(<HubFood destinationName="goa" />);
-    expect(screen.getByText("Finding restaurants nearby...")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows empty state when no results", async () => {
@@ -132,7 +132,7 @@ describe("HubPlaces", () => {
   it("shows loading state", () => {
     fetchAttractionsMock.mockReturnValue(new Promise(() => {}));
     render(<HubPlaces destinationName="goa" />);
-    expect(screen.getByText("Discovering attractions nearby...")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
@@ -156,7 +156,7 @@ describe("HubEvents", () => {
   it("shows loading state", () => {
     fetchEventsMock.mockReturnValue(new Promise(() => {}));
     render(<HubEvents destinationName="goa" />);
-    expect(screen.getByText("Loading events...")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows empty state", async () => {
@@ -179,7 +179,7 @@ describe("HubTransport", () => {
   it("shows loading state", () => {
     fetchTransportMock.mockReturnValue(new Promise(() => {}));
     render(<HubTransport destinationName="goa" />);
-    expect(screen.getByText("Loading transport options...")).toBeInTheDocument();
+    expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {

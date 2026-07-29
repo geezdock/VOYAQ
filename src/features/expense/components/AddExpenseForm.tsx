@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
 import type { ExpenseEntry, ExpenseSummary } from "@/types/expense";
@@ -29,21 +29,20 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
   const [paidBy, setPaidBy] = useState(members[0]?.id ?? "");
   const [category, setCategory] = useState<ExpenseEntry["category"]>("food");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [splitAmong, setSplitAmong] = useState<string[]>(members.map((m) => m.id));
-
-  useEffect(() => {
-    setSplitAmong((prev) => {
-      const current = new Set(prev);
-      const allIds = members.map((m) => m.id);
-      const updated = allIds.filter((id) => current.has(id));
-      return updated.length ? updated : allIds;
-    });
-  }, [members]);
+  const allMemberIds = useMemo(() => members.map((m) => m.id), [members]);
+  const [excludedIds, setExcludedIds] = useState<Set<string>>(new Set());
+  const splitAmong = useMemo(
+    () => allMemberIds.filter((id) => !excludedIds.has(id)),
+    [allMemberIds, excludedIds],
+  );
 
   function toggleMember(id: string) {
-    setSplitAmong((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    );
+    setExcludedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -63,7 +62,7 @@ export function AddExpenseForm({ members, onAdd, summary }: AddExpenseFormProps)
     setDescription("");
     setAmount("");
     setCategory("food");
-    setSplitAmong(members.map((m) => m.id));
+    setExcludedIds(new Set());
     setPaidBy(members[0]?.id ?? "");
     setOpen(false);
     trackEvent(VOYAQ_EVENTS.TOOLKIT_EXPENSE_LOGGED, { description: description.trim(), amount: amt, category });

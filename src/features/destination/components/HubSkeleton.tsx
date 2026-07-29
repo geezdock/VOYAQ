@@ -6,7 +6,7 @@ interface HubSkeletonProps {
 
 export function HubSkeleton({ count = 3 }: HubSkeletonProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="hub-skeleton">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}

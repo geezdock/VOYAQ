@@ -39,8 +39,7 @@ export function trackEvent(
 ): void {
   if (typeof window === "undefined") return;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ph = (window as any).posthog;
+    const ph = (window as unknown as { posthog: { capture: (e: string, p?: Record<string, unknown>) => void; __loaded: boolean } }).posthog;
     if (ph && typeof ph.capture === "function" && ph.__loaded) {
       ph.capture(event, properties);
     }
