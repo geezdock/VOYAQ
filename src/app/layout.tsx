@@ -65,6 +65,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.svg",
   },
+  manifest: "/manifest.json",
 };
 
 
@@ -89,6 +90,13 @@ export default function RootLayout({
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `(function(){function c(){var a=document.querySelectorAll("[bis_skin_checked]");for(var b=0;b<a.length;b++){a[b].removeAttribute("bis_skin_checked")}}var d=new MutationObserver(c);d.observe(document.documentElement,{attributes:!0,subtree:!0,attributeFilter:["bis_skin_checked"]});document.readyState==="loading"?document.addEventListener("DOMContentLoaded",c):c()})()`,
+          }}
+        />
+        <Script
+          id="register-sw"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `if("serviceWorker"in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("/sw.js")})}`,
           }}
         />
         <AuthProvider>
