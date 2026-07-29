@@ -14,6 +14,7 @@ export function AuthFlow() {
   const searchParams = useSearchParams();
   const { signInWithGoogle, signInWithMagicLink } = useAuth();
   const mode = searchParams.get("mode") ?? "get-started";
+  const redirectParam = searchParams.get("redirect") || "/dashboard";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -21,6 +22,10 @@ export function AuthFlow() {
   const [magicLinkSent, setMagicLinkSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function navigateAfterAuth() {
+    router.push(redirectParam);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,7 +35,7 @@ export function AuthFlow() {
       if (!email.trim()) return;
       setLoading(true);
       setError(null);
-      const { error: magicLinkError } = await signInWithMagicLink(email.trim());
+      const { error: magicLinkError } = await signInWithMagicLink(email.trim(), redirectParam);
       setLoading(false);
       if (magicLinkError) {
         setError(magicLinkError.message);
@@ -58,7 +63,7 @@ export function AuthFlow() {
               display_name: name.trim(),
             }),
           );
-          router.push("/dashboard");
+          navigateAfterAuth();
           return;
         }
         throw signInError;
@@ -70,7 +75,7 @@ export function AuthFlow() {
 
       if (updateError) throw updateError;
 
-      router.push("/dashboard");
+      navigateAfterAuth();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       if (message.includes("422") || message.includes("anonymous")) {
@@ -178,7 +183,7 @@ export function AuthFlow() {
 
         <div className="space-y-2">
           <button
-            onClick={() => signInWithGoogle()}
+            onClick={() => signInWithGoogle(redirectParam)}
             className="w-full flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-ink rounded-bruted bg-white font-heading text-sm font-semibold text-ink hover:bg-surface-alt transition-colors shadow-bruted-sm"
           >
             <span>Google Login</span>
