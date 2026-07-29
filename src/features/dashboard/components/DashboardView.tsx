@@ -7,7 +7,6 @@ import { Users } from "lucide-react";
 import { EmptyState } from "./EmptyState";
 import { SquadGrid } from "./SquadGrid";
 import { useSquad } from "@/shared/providers/SquadContext";
-import { mockSquads } from "@/shared/mock";
 import type { Squad } from "@/types/squad";
 
 export function DashboardView() {
@@ -20,7 +19,7 @@ export function DashboardView() {
 
   const pendingJoin = useMemo(() => {
     if (!joinCode || dismissed) return null;
-    const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
+    const found = squads.find((s) => s.inviteCode === joinCode);
     if (!found) return null;
     if (found.members.some((m) => isMe(m.id)) || found.members.length >= found.memberLimit) return null;
     return found;
@@ -29,7 +28,7 @@ export function DashboardView() {
   // Handle redirect + URL cleanup for join codes
   useEffect(() => {
     if (!joinCode) return;
-    const found = squads.find((s) => s.inviteCode === joinCode) || mockSquads.find((s) => s.inviteCode === joinCode);
+    const found = squads.find((s) => s.inviteCode === joinCode);
     if (found) {
       const alreadyJoined = found.members.some((m) => isMe(m.id));
       if (alreadyJoined || found.members.length >= found.memberLimit) {
