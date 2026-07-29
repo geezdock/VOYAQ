@@ -1,5 +1,6 @@
 "use server";
 
+import { memo } from "@/lib/cache";
 import { getDestinationCoords } from "@/constants/destinations";
 
 // ─── Gemini helper ─────────────────────────────────────
@@ -65,10 +66,13 @@ export async function getAISuggestions(options: {
     return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
   }
 
-  const coords = getDestinationCoords(destination);
-  const state = coords?.state ?? "";
+  const cacheKey = `ai:suggestions:${destination}:${budget ?? "none"}:${dates?.start ?? "none"}:${dates?.end ?? "none"}:${(preferences ?? []).sort().join(",") || "none"}`;
 
-  const prompt = `You are a travel AI for a group trip planning app used by Indian college students. 
+  return memo(cacheKey, 60 * 60 * 1000, async () => {
+    const coords = getDestinationCoords(destination);
+    const state = coords?.state ?? "";
+
+    const prompt = `You are a travel AI for a group trip planning app used by Indian college students. 
 Generate 5 concise, actionable travel tips for a group trip to ${destination}${state ? ", " + state : ""} in India.
 ${budget ? `The group's budget is ₹${budget}/person.` : ""}
 ${dates ? `Trip dates: ${dates.start} to ${dates.end}.` : ""}
@@ -85,13 +89,14 @@ Rules:
 - Consider budget constraints, weather, and group dynamics
 - Return ONLY the JSON array, no markdown, no explanation`;
 
-  const text = await callGemini(prompt, 1024);
-  if (!text) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
+    const text = await callGemini(prompt, 1024);
+    if (!text) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
 
-  const suggestions = parseJSON<unknown[]>(text);
-  if (!suggestions) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
+    const suggestions = parseJSON<unknown[]>(text);
+    if (!suggestions) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
 
-  return { suggestions };
+    return { suggestions };
+  });
 }
 
 // ─── Itinerary ─────────────────────────────────────────
@@ -138,10 +143,13 @@ export async function getItinerary(dest: string, startDate: string, endDate: str
     return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
   }
 
-  const coords = getDestinationCoords(dest);
-  const state = coords?.state ?? "";
+  const cacheKey = `ai:itinerary:${dest}:${startDate}:${endDate}:${budget}`;
 
-  const prompt = `You are a travel AI for VOYAQ, a group trip planning app for Indian college students (ages 18-25).
+  return memo(cacheKey, 24 * 60 * 60 * 1000, async () => {
+    const coords = getDestinationCoords(dest);
+    const state = coords?.state ?? "";
+
+    const prompt = `You are a travel AI for VOYAQ, a group trip planning app for Indian college students (ages 18-25).
 Generate a day-by-day itinerary for a group trip to ${dest}${state ? ", " + state : ""}, India.
 
 Trip details:
@@ -186,15 +194,16 @@ Rules:
 - Time entries must be chronological within each day
 - Return ONLY the JSON object, no markdown, no explanation`;
 
-  const text = await callGemini(prompt, 4096);
-  if (!text) {
-    return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
-  }
-  const itinerary = parseJSON<Record<string, unknown>>(text);
-  if (!itinerary) {
-    return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
-  }
-  return itinerary;
+    const text = await callGemini(prompt, 4096);
+    if (!text) {
+      return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
+    }
+    const itinerary = parseJSON<Record<string, unknown>>(text);
+    if (!itinerary) {
+      return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
+    }
+    return itinerary;
+  });
 }
 
 // ─── Budget Allocator ──────────────────────────────────
@@ -219,10 +228,13 @@ export async function getBudgetAllocation(dest: string, budgetRaw: string) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return getFallbackAllocation(totalBudget);
 
-  const coords = getDestinationCoords(dest);
-  const state = coords?.state ?? "";
+  const cacheKey = `ai:budget-alloc:${dest}:${budgetRaw}`;
 
-  const prompt = `You are a travel budget AI for VOYAQ, a group trip planner for Indian college students.
+  return memo(cacheKey, 24 * 60 * 60 * 1000, async () => {
+    const coords = getDestinationCoords(dest);
+    const state = coords?.state ?? "";
+
+    const prompt = `You are a travel budget AI for VOYAQ, a group trip planner for Indian college students.
 Given a destination and total per-person budget, allocate the budget optimally for a group of students.
 
 Destination: ${dest}${state ? ", " + state : ""}
@@ -250,11 +262,12 @@ Rules:
 - Make it specific to ${dest}'s cost of living
 - Return ONLY the JSON object`;
 
-  const text = await callGemini(prompt, 1024);
-  if (!text) return getFallbackAllocation(totalBudget);
-  const allocation = parseJSON<Record<string, unknown>>(text);
-  if (!allocation) return getFallbackAllocation(totalBudget);
-  return allocation;
+    const text = await callGemini(prompt, 1024);
+    if (!text) return getFallbackAllocation(totalBudget);
+    const allocation = parseJSON<Record<string, unknown>>(text);
+    if (!allocation) return getFallbackAllocation(totalBudget);
+    return allocation;
+  });
 }
 
 // ─── Event Updates ─────────────────────────────────────

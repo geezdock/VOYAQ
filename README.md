@@ -174,6 +174,20 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). The app works entirely with mock data — no database or accounts required.
 
+### Environment Variables
+
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | — | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | — | Supabase anonymous key |
+| `GEMINI_API_KEY` | No | — | Google Gemini AI key (enables AI tips, itineraries, budget allocation) |
+| `NEXT_PUBLIC_DEV_AUTH` | No | `false` | Bypass Supabase auth with a local-only session |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | — | Sentry project DSN (enables error tracking; leave blank to disable) |
+| `UPSTASH_REDIS_REST_URL` | No | — | Upstash Redis REST URL (enables persistent caching; falls back to in-memory) |
+| `UPSTASH_REDIS_REST_TOKEN` | No | — | Upstash Redis REST token (required if URL is set) |
+
+Set them in `.env.local`. Sentry and Upstash are optional — the app runs without them.
+
 ### Scripts
 
 | Command | Action |
