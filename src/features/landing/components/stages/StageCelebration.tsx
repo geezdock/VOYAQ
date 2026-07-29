@@ -173,7 +173,7 @@ export function StageCelebration({
           style={{ opacity: subtextOpacity }}
           className="font-heading text-base sm:text-lg text-ink-light mt-3"
         >
-          From 127 messages to one plan.
+          From group chat chaos to a confirmed trip.
         </motion.p>
       </div>
     </motion.div>

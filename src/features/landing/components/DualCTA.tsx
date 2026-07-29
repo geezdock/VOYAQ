@@ -16,8 +16,9 @@ export function DualCTA() {
   const router = useRouter();
 
   return (
-    <section className="py-20 sm:py-28 lg:py-36 px-4 bg-surface">
-      <div className="max-w-[1200px] mx-auto text-center">
+    <section className="py-16 sm:py-20 lg:py-24 px-4 bg-surface relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none bg-dot-grid-subtle opacity-20" />
+      <div className="max-w-[1200px] mx-auto text-center relative z-10">
         <motion.div
           initial="hidden"
           whileInView="visible"

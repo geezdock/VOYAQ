@@ -162,15 +162,16 @@ export function QuickWalkthrough() {
   const [activeCard, setActiveCard] = useState<number | null>(null);
 
   return (
-    <section className="py-20 sm:py-28 lg:py-36 px-4 bg-surface">
-      <div className="max-w-[1200px] mx-auto">
-        <div className="text-center mb-12 sm:mb-16">
+    <section className="py-16 sm:py-20 lg:py-24 px-4 bg-surface relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none bg-dot-grid-subtle opacity-30" />
+      <div className="max-w-[1200px] mx-auto relative z-10">
+        <div className="text-center mb-8 sm:mb-10">
           <span className="font-mono text-xs font-bold text-ink-muted uppercase tracking-widest">
             How it works
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {cards.map((card, i) => {
             const StepComponent = stepComponents[i];
             return (
@@ -183,15 +184,15 @@ export function QuickWalkthrough() {
                 onHoverStart={() => setActiveCard(i)}
                 onHoverEnd={() => setActiveCard(null)}
                 onTap={() => setActiveCard(activeCard === i ? null : i)}
-                className="border-[3px] border-ink rounded-[16px] bg-white p-5 sm:p-6 shadow-bruted-lg cursor-pointer hover:shadow-bruted hover:translate-x-[-2px] hover:translate-y-[-2px] transition-shadow"
+                className="border-[3px] border-ink rounded-[16px] bg-white p-4 sm:p-5 shadow-bruted-lg cursor-pointer hover:shadow-bruted hover:translate-x-[-2px] hover:translate-y-[-2px] transition-shadow"
               >
                 <span className="font-mono text-[10px] font-bold text-accent uppercase tracking-widest">
                   STEP {card.step}
                 </span>
-                <h3 className="font-display text-lg sm:text-xl font-extrabold text-ink uppercase tracking-tight mt-2 mb-1">
+                <h3 className="font-display text-base sm:text-lg font-extrabold text-ink uppercase tracking-tight mt-1.5 mb-0.5">
                   {card.title}
                 </h3>
-                <p className="font-heading text-sm text-ink-light mb-4">
+                <p className="font-heading text-sm text-ink-light mb-3">
                   {card.sub}
                 </p>
                 <div className="h-auto sm:h-16 flex items-center justify-center">

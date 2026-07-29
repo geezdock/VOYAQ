@@ -70,9 +70,11 @@ export function StageChaos({
   return (
     <motion.div
       style={{ opacity: stageOpacity }}
-      className="absolute inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center overflow-hidden"
     >
-      <div className="w-full max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-6 lg:gap-16">
+      <div className="absolute top-1/4 left-0 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-clay/5 rounded-full blur-3xl" />
+      <div className="w-full max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center gap-4 lg:gap-10 relative z-10">
         <div className="flex-1 max-w-lg">
           <motion.h2
             style={{ opacity: headlineOpacity, y: headlineY }}
@@ -84,7 +86,7 @@ export function StageChaos({
           </motion.h2>
           <motion.p
             style={{ opacity: subheadOpacity }}
-            className="font-heading text-base sm:text-lg text-ink-light mt-3 max-w-md"
+            className="font-heading text-base sm:text-lg text-ink-light mt-2 max-w-md"
           >
             One idea. A hundred messages.
           </motion.p>

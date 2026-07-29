@@ -72,12 +72,14 @@ export function StageAI({
   return (
     <motion.div
       style={{ opacity: stageOpacity }}
-      className="absolute inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center overflow-hidden"
     >
-      <div className="w-full max-w-3xl mx-auto px-4">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-clay/5 rounded-full blur-3xl" />
+      <div className="w-full max-w-3xl mx-auto px-4 relative z-10">
         <motion.div
           style={{ opacity: headlineOpacity, y: headlineY }}
-          className="text-center mb-8"
+          className="text-center mb-6 lg:mb-8"
         >
           <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold text-ink uppercase tracking-tight">
             Let AI handle the planning.
@@ -86,9 +88,9 @@ export function StageAI({
 
         <motion.div
           style={{ opacity: cardOpacity, y: cardY }}
-          className="border-[3px] border-ink rounded-[16px] bg-white p-4 sm:p-8 shadow-bruted-lg"
+          className="border-[3px] border-ink rounded-[16px] bg-white p-4 sm:p-6 shadow-bruted-lg"
         >
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-4 lg:mb-6">
             <motion.div
               animate={{ rotate: 360 }}
               transition={{ duration: 3, repeat: Infinity, ease: "linear" }}

@@ -140,12 +140,14 @@ export function StageVoting({
   return (
     <motion.div
       style={{ opacity: stageOpacity }}
-      className="absolute inset-0 flex items-center justify-center"
+      className="absolute inset-0 flex items-center justify-center overflow-hidden"
     >
-      <div className="w-full max-w-3xl mx-auto px-4">
+      <div className="absolute top-10 right-10 w-80 h-80 bg-success/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-10 left-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
+      <div className="w-full max-w-3xl mx-auto px-4 relative z-10">
         <motion.div
           style={{ opacity: headlineOpacity, y: headlineY }}
-          className="text-center mb-8"
+          className="text-center mb-6 lg:mb-8"
         >
           <h2 className="font-display text-2xl sm:text-4xl lg:text-5xl font-extrabold text-ink uppercase tracking-tight">
             Let everyone have a say.
@@ -154,9 +156,9 @@ export function StageVoting({
 
         <motion.div
           style={{ opacity: cardOpacity, y: cardY }}
-          className="border-[3px] border-ink rounded-[16px] bg-white p-6 sm:p-8 shadow-bruted-lg"
+          className="border-[3px] border-ink rounded-[16px] bg-white p-5 sm:p-6 shadow-bruted-lg"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 lg:mb-6">
             <span className="font-mono text-xs font-bold text-ink-muted uppercase tracking-wider">
               Destination Vote
             </span>

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useSquad } from "@/shared/providers/SquadContext";
 import { DestinationHub } from "@/features/destination/components/DestinationHub";
+import { DestinationBackground } from "@/features/destination/components/backgrounds/DestinationBackground";
 
 export default function DestinationHubPage() {
   const params = useParams();
@@ -47,8 +48,9 @@ export default function DestinationHubPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <main className="max-w-4xl mx-auto px-4 py-8">
+    <div className="min-h-screen relative">
+      <DestinationBackground destinationName={squad.lockedDestination} />
+      <main className="max-w-4xl mx-auto px-4 py-8 relative z-10">
         <DestinationHub
           squad={squad}
           onBack={() => router.push(`/trip/${squad.id}`)}
