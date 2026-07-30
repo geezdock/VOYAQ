@@ -73,10 +73,33 @@ export class SquadRepository {
   }
 
   private async fetchFromSupabase(userId: string): Promise<Squad[]> {
+    const [createdResult, memberResult] = await Promise.all([
+      this.supabase
+        .from("squads")
+        .select("id")
+        .eq("created_by", userId),
+      this.supabase
+        .from("squad_members")
+        .select("squad_id")
+        .eq("profile_id", userId),
+    ]);
+
+    if (createdResult.error) throw new Error(createdResult.error.message);
+    if (memberResult.error) throw new Error(memberResult.error.message);
+
+    const ids = [
+      ...new Set([
+        ...(createdResult.data ?? []).map((r) => r.id),
+        ...(memberResult.data ?? []).map((r) => r.squad_id),
+      ]),
+    ];
+
+    if (ids.length === 0) return [];
+
     const { data: rows, error } = await this.supabase
       .from("squads")
       .select("*, squad_members(*), destinations(*), destination_votes(*), budget_preferences(*), date_proposals(*), polls(*, poll_options(*, poll_votes(*)))")
-      .or(`created_by.eq.${userId},squad_members.profile_id.eq.${userId}`);
+      .in("id", ids);
 
     if (error) throw new Error(error.message);
     return rows ? rows.map(mapRowToSquad) : [];
