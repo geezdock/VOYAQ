@@ -13,6 +13,7 @@ const PUBLIC_ROUTES = new Set([
   "/sitemap.xml",
   "/manifest.json",
   "/sw.js",
+  "/offline",
 ]);
 
 function isPublicRoute(pathname: string): boolean {
@@ -74,6 +75,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.json|sw.js|offline|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

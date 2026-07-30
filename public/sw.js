@@ -1,5 +1,5 @@
-const CACHE = "voyaq-v2";
-const STATIC_PATHS = ["/", "/offline", "/icon.svg", "/manifest.json"];
+const CACHE = "voyaq-v3";
+const STATIC_PATHS = ["/icon.svg", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

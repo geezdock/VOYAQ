@@ -80,8 +80,9 @@ export function AuthFlow() {
       const message = err instanceof Error ? err.message : "Something went wrong";
       if (message.includes("422") || message.includes("anonymous")) {
         setError(
-          "Anonymous sign-ins are disabled in your Supabase project. " +
-          "Set NEXT_PUBLIC_DEV_AUTH=true in .env.local to bypass or sign in with Google/Email below.",
+          DEV_MODE
+            ? "Anonymous sign-ins are disabled in your Supabase project. Set NEXT_PUBLIC_DEV_AUTH=true in .env.local to bypass."
+            : "Could not sign in anonymously. Please use Google or Email below.",
         );
       } else {
         setError(message);
