@@ -1,11 +1,4 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/geezdock/VOYAQ/main/public/og-image.png">
-    <img src="https://raw.githubusercontent.com/geezdock/VOYAQ/main/public/og-image.png" width="100%" alt="VOYAQ — Plan trips. Together.">
-  </picture>
-</p>
-
-<p align="center">
   <a href="https://github.com/geezdock/VOYAQ/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/geezdock/VOYAQ/ci.yml?branch=main&label=CI&logo=github&style=flat-square" alt="CI"></a>
   <a href="https://github.com/geezdock/VOYAQ/blob/main/LICENSE"><img src="https://img.shields.io/github/license/geezdock/VOYAQ?style=flat-square&color=blue" alt="License"></a>
   <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
@@ -38,34 +31,7 @@
 | **Custom Polls** | Create ad-hoc polls for accommodation type, travel mode, activities — anything. |
 | **Trip Ready** | When dest + budget + dates are locked, the trip view becomes available. |
 
-### 📸 Screenshots
 
-<table>
-  <tr>
-    <td width="50%"><img src="public/screenshots/landing.png" alt="Landing page"/></td>
-    <td width="50%"><img src="public/screenshots/dashboard.png" alt="Dashboard"/></td>
-  </tr>
-  <tr>
-    <td align="center"><em>Landing page — scroll-driven story mode</em></td>
-    <td align="center"><em>Dashboard — squad list</em></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="public/screenshots/workspace.png" alt="Workspace"/></td>
-    <td width="50%"><img src="public/screenshots/destination-hub.png" alt="Destination Hub"/></td>
-  </tr>
-  <tr>
-    <td align="center"><em>Squad workspace — voting, budget, dates, polls</em></td>
-    <td align="center"><em>Destination Hub — 9-tab intelligence dashboard</em></td>
-  </tr>
-  <tr>
-    <td width="50%"><img src="public/screenshots/toolkit.png" alt="Toolkit"/></td>
-    <td width="50%"><img src="public/screenshots/packing-list.png" alt="Packing List"/></td>
-  </tr>
-  <tr>
-    <td align="center"><em>Toolkit hub — packing, budget, currency converter</em></td>
-    <td align="center"><em>Packing checklist with categories</em></td>
-  </tr>
-</table>
 
 ### 🧰 Toolkit
 
