@@ -19,6 +19,7 @@
     "@sentry/nextjs": "^10.68.0",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.5",
+    "@swc/helpers": "^0.5.23",
     "@upstash/redis": "^1.38.0",
     "framer-motion": "^12.40.0",
     "html2canvas": "^1.4.1",
