@@ -17,6 +17,26 @@
 | **Custom Polls** | Create ad-hoc polls for accommodation type, travel mode, activities — anything. |
 | **Trip Ready** | When dest + budget + dates are locked, the trip view becomes available. |
 
+### Toolkit (`/toolkit`)
+
+Utility tools for trip planning:
+- **Packing List** — 6 categories (clothes, toiletries, electronics, etc.), progress bar, add/remove custom items, local storage persistence
+- **Budget Calculator** — category-based estimated vs actual spending, summary cards
+- **Currency Converter** — live rates via exchangerate-api.com, 15 currencies + INR, offline fallback
+
+### Latest / Intel (`/latest`)
+
+State-wise travel intelligence for 26 Indian states:
+- **State News** — Google News RSS per state
+- **Gov Advisories** — curated travel advisories with severity levels
+- **Weather Alerts** — Open-Meteo weather codes aggregated by state
+
+### PWA / Offline
+
+- Service worker with cache-first (static) and network-first (navigation) strategies
+- Offline fallback page at `/offline`
+- PWA manifest with app icons generated at build time
+
 ### Destination Hub (`/trip/[id]/hub`)
 
 A full destination intelligence dashboard with 9 tabs:
@@ -152,6 +172,14 @@ src/
 | `/how-it-works` | Product explainer |
 | `/safety` | Travel safety guide |
 | `/consent` | Parental consent (placeholder) |
+| `/toolkit` | Toolkit hub (packing, budget, currency) |
+| `/toolkit/packing` | Packing checklist |
+| `/toolkit/budget-calculator` | Trip budget calculator |
+| `/toolkit/currency-converter` | Currency converter |
+| `/latest` | State-wise travel intel (news, advisories, weather) |
+| `/offline` | Offline fallback page |
+| `/expenses` | Expense sharing |
+| `/trip/[id]/expenses` | Trip expense detail |
 
 ---
 
@@ -185,8 +213,10 @@ Open [http://localhost:3000](http://localhost:3000). The app works entirely with
 | `NEXT_PUBLIC_SENTRY_DSN` | No | — | Sentry project DSN (enables error tracking; leave blank to disable) |
 | `UPSTASH_REDIS_REST_URL` | No | — | Upstash Redis REST URL (enables persistent caching; falls back to in-memory) |
 | `UPSTASH_REDIS_REST_TOKEN` | No | — | Upstash Redis REST token (required if URL is set) |
+| `NEXT_PUBLIC_POSTHOG_KEY` | No | — | PostHog project key (enables product analytics) |
+| `NEXT_PUBLIC_POSTHOG_HOST` | No | — | PostHog API host |
 
-Set them in `.env.local`. Sentry and Upstash are optional — the app runs without them.
+Set them in `.env.local`. Sentry, Upstash, and PostHog are optional — the app runs without them.
 
 ### Scripts
 
@@ -195,10 +225,14 @@ Set them in `.env.local`. Sentry and Upstash are optional — the app runs witho
 | `npm run dev` | Start Next.js dev server |
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
-| `npm run lint` | Run ESLint (`--max-warnings 0`) |
+| `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript compiler check |
 | `npm test` | Run all tests (Vitest) |
 | `npm run test:watch` | Watch mode |
+| `npm run analyze` | Build with bundle analyzer |
+| `npm run generate-icons` | Generate PWA icons from SVG |
+| `npm run test:e2e` | Run Playwright E2E tests |
+| `npm run test:e2e:ui` | Playwright UI mode |
 
 ---
 
@@ -228,9 +262,13 @@ npm run test:watch # Watch mode
 
 GitHub Actions workflow (`.github/workflows/ci.yml`):
 
-- Trigger: Pull requests to `main`
-- Runs: `ubuntu-latest`, Node 20
-- Steps: `npm ci` → `npm run lint` → `npm run typecheck` → `npm test` → `npm run build`
+- Trigger: Push or pull request to `main`
+- Concurrency: Cancels in-progress runs on the same branch
+- Jobs (parallel):
+  1. **lint-typecheck** — `npm run lint` + `npm run typecheck`
+  2. **test** — `npm test`
+  3. **build** — Production build (depends on lint-typecheck + test)
+  4. **analyze** — Bundle analysis (push only or `analyze` PR label), uploads `.next/analyze/` as artifact
 
 ---
 
@@ -247,12 +285,16 @@ Custom Tailwind theme with brut-inspired tokens:
 
 ## Future Roadmap
 
-- [ ] **AI Itinerary Generator** — day-by-day trip plans from locked destination + budget
-- [ ] **Toolkit** — expense split, packing checklist, budget calculator, currency converter, offline downloads
-- [ ] **Latest / Intel** — state-wise travel news, gov notices, weather alerts, festivals
+- [x] **AI Itinerary Generator** — day-by-day trip plans from locked destination + budget
+- [x] **Toolkit** — packing checklist, budget calculator, currency converter
+- [x] **Latest / Intel** — state-wise travel news, gov notices, weather alerts
+- [x] **PWA / Offline** — service worker, offline fallback, manifest
+- [x] **CI Pipeline** — lint, typecheck, test, build, bundle analysis
+- [x] **Sentry + Redis caching** — error tracking, dual-layer cache (Upstash + in-memory)
 - [x] **Real API integration** — weather, places, events, safety, transport, budget, AI tips
-- [ ] **Backend persistence** — re-add Supabase or alternative data layer
+- [ ] **Internationalization** — `next-intl` installed, not wired
 - [ ] **Beta testing** — onboarding flows, feedback collection
+- [ ] **Expense sharing** — per-trip expense split and settlement
 
 ---
 
