@@ -1,12 +1,33 @@
-# VOYAQ
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/geezdock/VOYAQ/main/public/og-image.png">
+    <img src="https://raw.githubusercontent.com/geezdock/VOYAQ/main/public/og-image.png" width="100%" alt="VOYAQ — Plan trips. Together.">
+  </picture>
+</p>
 
-**Collaborative group travel planner for Indian students.** Budget, vote, and build itineraries as a squad — no spreadsheets, no group-chaos, no endless WhatsApp polls.
+<p align="center">
+  <a href="https://github.com/geezdock/VOYAQ/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/geezdock/VOYAQ/ci.yml?branch=main&label=CI&logo=github&style=flat-square" alt="CI"></a>
+  <a href="https://github.com/geezdock/VOYAQ/blob/main/LICENSE"><img src="https://img.shields.io/github/license/geezdock/VOYAQ?style=flat-square&color=blue" alt="License"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16-000?style=flat-square&logo=next.js&logoColor=white" alt="Next.js"></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white" alt="React"></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
+  <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase"></a>
+  <br>
+  <a href="https://travo-sable.vercel.app"><img src="https://img.shields.io/badge/Live_Demo-voyaq.app-000?style=flat-square&logo=vercel&logoColor=white" alt="Live Demo"></a>
+  <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs Welcome"></a>
+  <a href="https://github.com/geezdock/VOYAQ/issues"><img src="https://img.shields.io/github/issues/geezdock/VOYAQ?style=flat-square" alt="Issues"></a>
+  <img src="https://img.shields.io/badge/175_tests-passing-success?style=flat-square" alt="Tests">
+</p>
+
+<h1 align="center">VOYAQ</h1>
+<p align="center"><strong>Collaborative group travel planner for Indian students.</strong><br>Budget, vote, and build itineraries as a squad — no spreadsheets, no group-chaos, no endless WhatsApp polls.</p>
 
 ---
 
 ## Features
 
-### Squad Workflow
+### 🗺️ Squad Workflow
 
 | Stage | What happens |
 |---|---|
@@ -17,67 +38,68 @@
 | **Custom Polls** | Create ad-hoc polls for accommodation type, travel mode, activities — anything. |
 | **Trip Ready** | When dest + budget + dates are locked, the trip view becomes available. |
 
-### Toolkit (`/toolkit`)
+### 📸 Screenshots
+
+<table>
+  <tr>
+    <td width="50%"><img src="public/screenshots/landing.png" alt="Landing page"/></td>
+    <td width="50%"><img src="public/screenshots/dashboard.png" alt="Dashboard"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Landing page — scroll-driven story mode</em></td>
+    <td align="center"><em>Dashboard — squad list</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="public/screenshots/workspace.png" alt="Workspace"/></td>
+    <td width="50%"><img src="public/screenshots/destination-hub.png" alt="Destination Hub"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Squad workspace — voting, budget, dates, polls</em></td>
+    <td align="center"><em>Destination Hub — 9-tab intelligence dashboard</em></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="public/screenshots/toolkit.png" alt="Toolkit"/></td>
+    <td width="50%"><img src="public/screenshots/packing-list.png" alt="Packing List"/></td>
+  </tr>
+  <tr>
+    <td align="center"><em>Toolkit hub — packing, budget, currency converter</em></td>
+    <td align="center"><em>Packing checklist with categories</em></td>
+  </tr>
+</table>
+
+### 🧰 Toolkit
 
 Utility tools for trip planning:
-- **Packing List** — 6 categories (clothes, toiletries, electronics, etc.), progress bar, add/remove custom items, local storage persistence
+
+- **Packing List** — 6 categories (clothes, toiletries, electronics, etc.), progress bar, add/remove custom items, localStorage persistence
 - **Budget Calculator** — category-based estimated vs actual spending, summary cards
 - **Currency Converter** — live rates via exchangerate-api.com, 15 currencies + INR, offline fallback
 
-### Latest / Intel (`/latest`)
+### 📡 Latest / Intel
 
 State-wise travel intelligence for 26 Indian states:
+
 - **State News** — Google News RSS per state
 - **Gov Advisories** — curated travel advisories with severity levels
 - **Weather Alerts** — Open-Meteo weather codes aggregated by state
 
-### PWA / Offline
+### 📱 PWA / Offline
 
 - Service worker with cache-first (static) and network-first (navigation) strategies
 - Offline fallback page at `/offline`
 - PWA manifest with app icons generated at build time
 
-### Destination Hub (`/trip/[id]/hub`)
+### 🏙️ Destination Hub
 
-A full destination intelligence dashboard with 9 tabs:
+A full destination intelligence dashboard with 9 tabs: Overview, Weather, Food, Places, Events, Safety, Transport, Budget, AI Tips. Navigate via click, arrow keys (`←` / `→`), or prev/next buttons.
 
-- **Overview** — weather snapshot, budget health, event count, advisories, AI tip, quick facts
-- **Weather** — current conditions + 5-day forecast
-- **Food** — local cuisine recommendations with restaurant links, price ranges, tags
-- **Places** — attractions grouped by category with costs, best times, durations
-- **Events** — upcoming festivals, cultural events, concerts
-- **Safety** — government travel advisories + emergency contacts
-- **Transport** — how to get there + getting around, with cost estimates
-- **Budget** — per-person cost breakdown vs squad's locked budget
-- **AI Tips** — data-driven suggestions (weather swaps, budget optimisation, transport hacks)
+### ✈️ Trip Dashboard
 
-Navigate tabs via click, arrow keys (`←` / `→`), or prev/next buttons.
+Countdown to departure, status tracking (Booked / Pending / Cancelled), quick stats, share trip link, cancel/rebook.
 
-### Trip Dashboard (`/trip/[id]`)
+### 🎬 Landing Page
 
-- Countdown to departure
-- Status tracking (Booked / Pending / Cancelled)
-- Quick stats: destination, dates, budget/person, member count
-- Share trip link
-- Cancel / rebook
-
-### Landing Page
-
-Scroll-driven story mode with interactive demo stages:
-
-1. **The Chaos** — a messy group chat scenario
-2. **Destination Voting** — live vote UI
-3. **AI Itinerary** — generated day plan
-4. **Celebration** — trip ready moment
-
-Also includes: hero section, quick walkthrough, dual CTAs, featured-travel marquee ticker.
-
-### Static Pages
-
-| Route | Description |
-|---|---|
-| `/how-it-works` | Comparison table, real-world scenarios, FAQ, sharing/export info |
-| `/safety` | Travel safety guidelines, emergency contacts, smart-travel tips |
+Scroll-driven story mode with 4 interactive demo stages: The Chaos → Destination Voting → AI Itinerary → Celebration.
 
 ---
 
@@ -92,9 +114,44 @@ Also includes: hero section, quick walkthrough, dual CTAs, featured-travel marqu
 | **Icons** | [Lucide React](https://lucide.dev/) |
 | **Validation** | [Zod 4](https://zod.dev/) |
 | **Testing** | [Vitest 4](https://vitest.dev/) + [Testing Library](https://testing-library.com/) + [jsdom](https://github.com/jsdom/jsdom) |
+| **E2E** | [Playwright](https://playwright.dev/) |
+| **Database** | [Supabase](https://supabase.com/) (PostgreSQL + Auth + Realtime) |
+| **AI** | [Google Gemini](https://ai.google.dev/) |
+| **Caching** | [Upstash Redis](https://upstash.com/) + in-memory fallback |
+| **Monitoring** | [Sentry](https://sentry.io/) (errors) + [PostHog](https://posthog.com/) (analytics) |
 | **Linting** | [ESLint 9](https://eslint.org/) (`eslint-config-next`) |
 | **TypeScript** | 5.x — strict mode across codebase |
 | **Package Manager** | npm |
+
+---
+
+## Quick Start
+
+```bash
+git clone https://github.com/geezdock/VOYAQ.git
+cd VOYAQ
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). The app works entirely with mock data — no database or accounts required. Set `NEXT_PUBLIC_DEV_AUTH=true` in `.env.local` to bypass Supabase auth.
+
+### Environment Variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous key |
+| `GEMINI_API_KEY` | No | Google Gemini AI (AI tips, itineraries, budget) |
+| `NEXT_PUBLIC_DEV_AUTH` | No | Bypass Supabase auth for local dev |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | Sentry error tracking (leave blank to disable) |
+| `UPSTASH_REDIS_REST_URL` | No | Upstash Redis persistent caching |
+| `UPSTASH_REDIS_REST_TOKEN` | No | Required if URL is set |
+| `NEXT_PUBLIC_POSTHOG_KEY` | No | PostHog product analytics |
+| `NEXT_PUBLIC_POSTHOG_HOST` | No | PostHog API host |
+
+All services are optional — the app runs fully without them.
 
 ---
 
@@ -103,158 +160,50 @@ Also includes: hero section, quick walkthrough, dual CTAs, featured-travel marqu
 ```
 src/
 ├── app/                  # Next.js App Router pages + API routes
-│   ├── (dashboard)/      # Route group: dashboard, profile, notifications
-│   ├── api/              # API routes (weather, places, events, safety, transport, budget, ai)
-│   ├── auth/             # Auth flow + callback
-│   ├── trip/[id]/        # Trip overview + Destination Hub (/hub)
-│   ├── workspace/[id]/   # Squad workspace (voting, budget, dates, polls)
-│   └── ...               # Static pages (how-it-works, safety, settings, etc.)
-│
-├── components/           # React components by domain
-│   ├── landing/          # Home page (splash, hero, story mode, demo)
-│   ├── dashboard/        # Squad grid, cards, create modal, nav shell
-│   ├── workspace/        # Workspace tabs + summary
-│   ├── trip/             # Trip overview view
-│   ├── destination/      # Destination Hub (10 modular sections)
-│   ├── demo/             # Interactive demo steps
-│   ├── how-it-works/     # Info pages
-│   ├── safety/           # Safety guidelines
-│   └── auth/             # Auth flow UI
-│
-├── contexts/             # React context providers
-│   └── AuthContext.tsx    # Auth state provider
-│
-├── lib/                  # Business logic, hooks, services
-│   ├── hooks/            # Custom hooks (useFetch, useAuthSteps)
-│   ├── services/         # API service functions (weather, places, events, safety, transport, budget, ai)
-│   ├── supabase/         # Supabase client, server, middleware
-│   ├── SquadContext.tsx  # Global squad state provider
-│   ├── destinations.ts  # Destination metadata + coordinates
-│   ├── mock.ts          # Mock squads for development
-│   └── trip-utils.ts    # Date, budget, countdown utilities
-│
-├── types/                # TypeScript interfaces
-│   ├── squad.ts          # Squad, Member, Vote, Poll, etc.
-│   ├── destination.ts   # Weather, Food, Attraction, Event, etc.
-│   └── auth.ts           # Auth state types
-│
-├── proxy.ts              # Auth callback proxy
-│
-└── tests/                # Global test setup
-    └── setup.ts          # jest-dom matchers
+├── features/            # Domain-specific feature modules
+│   ├── destination/     # Destination Hub (9-tab dashboard)
+│   ├── intel/           # Latest / Intel (news, advisories, weather)
+│   ├── landing/         # Home page (story mode, demo, hero)
+│   ├── toolkit/         # Packing, budget, currency tools
+│   └── workspace/       # Squad workspace (voting, budget, dates)
+├── shared/              # Cross-cutting (hooks, providers, components)
+├── services/            # External API clients (Supabase)
+├── proxy.ts             # Auth middleware (Next.js 16 auto-detected)
+└── app/api/             # API route handlers
 ```
 
-### Key Design Decisions
-
-- **Live API-first** — Destination Hub data is fetched from real APIs (Open-Meteo for weather, Wikipedia REST for events, Overpass for places/safety/transport/budget, OSRM for transport times, Gemini for AI tips). Each API route lives in `src/app/api/` and is consumed via a `useFetch` hook with built-in loading, error, and retry states.
-- **Service layer** — `src/lib/services/` contains typed fetcher functions for each API route, keeping components clean and testable.
-- **Modular destination hub** — each section (Weather, Food, Safety, etc.) is an independent component in its own directory. All use the shared `useFetch` hook for consistent loading/error/retry UX.
-- **Route groups** — `(dashboard)` groups dashboard sub-pages under a shared layout without affecting the URL path.
-- **Tests co-located** — `__tests__/` directories sit next to their source components, not in a central `tests/` folder.
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for full details.
 
 ---
 
-## Routes
-
-| Path | Description |
-|---|---|
-| `/` | Landing page (splash, hero, story mode, CTA) |
-| `/auth` | Login — enter name, go to dashboard |
-| `/dashboard` | Squad list — create or join a squad |
-| `/create` | Create a new squad |
-| `/join/[code]` | Join a squad by invite code |
-| `/workspace/[id]` | Squad workspace (5 tabs) |
-| `/trip/[id]` | Trip overview (countdown, stats, actions) |
-| `/trip/[id]/hub` | Destination intelligence hub (9 tabs) |
-| `/profile` | User profile |
-| `/settings` | Account settings + sign out |
-| `/notifications` | Notification preferences |
-| `/how-it-works` | Product explainer |
-| `/safety` | Travel safety guide |
-| `/consent` | Parental consent (placeholder) |
-| `/toolkit` | Toolkit hub (packing, budget, currency) |
-| `/toolkit/packing` | Packing checklist |
-| `/toolkit/budget-calculator` | Trip budget calculator |
-| `/toolkit/currency-converter` | Currency converter |
-| `/latest` | State-wise travel intel (news, advisories, weather) |
-| `/offline` | Offline fallback page |
-| `/expenses` | Expense sharing |
-| `/trip/[id]/expenses` | Trip expense detail |
-
----
-
-## Getting Started
-
-```bash
-# Clone
-git clone https://github.com/geezdock/VOYAQ.git
-cd VOYAQ
-
-# Install
-npm install
-
-# Copy environment (optional — runs on mock data without it)
-cp .env.example .env.local
-
-# Start dev server
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000). The app works entirely with mock data — no database or accounts required.
-
-### Environment Variables
-
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | — | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | — | Supabase anonymous key |
-| `GEMINI_API_KEY` | No | — | Google Gemini AI key (enables AI tips, itineraries, budget allocation) |
-| `NEXT_PUBLIC_DEV_AUTH` | No | `false` | Bypass Supabase auth with a local-only session |
-| `NEXT_PUBLIC_SENTRY_DSN` | No | — | Sentry project DSN (enables error tracking; leave blank to disable) |
-| `UPSTASH_REDIS_REST_URL` | No | — | Upstash Redis REST URL (enables persistent caching; falls back to in-memory) |
-| `UPSTASH_REDIS_REST_TOKEN` | No | — | Upstash Redis REST token (required if URL is set) |
-| `NEXT_PUBLIC_POSTHOG_KEY` | No | — | PostHog project key (enables product analytics) |
-| `NEXT_PUBLIC_POSTHOG_HOST` | No | — | PostHog API host |
-
-Set them in `.env.local`. Sentry, Upstash, and PostHog are optional — the app runs without them.
-
-### Scripts
+## Scripts
 
 | Command | Action |
 |---|---|
-| `npm run dev` | Start Next.js dev server |
+| `npm run dev` | Start dev server |
 | `npm run build` | Production build |
 | `npm run start` | Serve production build |
 | `npm run lint` | Run ESLint |
 | `npm run typecheck` | Run TypeScript compiler check |
 | `npm test` | Run all tests (Vitest) |
-| `npm run test:watch` | Watch mode |
 | `npm run analyze` | Build with bundle analyzer |
-| `npm run generate-icons` | Generate PWA icons from SVG |
 | `npm run test:e2e` | Run Playwright E2E tests |
-| `npm run test:e2e:ui` | Playwright UI mode |
 
 ---
 
 ## Testing
 
-175 tests across 17 test files. Tests are co-located with source files in `__tests__/` directories.
+**175 tests** across **17 test files**. Tests are co-located with source files in `__tests__/` directories.
 
-```bash
-npm test          # Run once
-npm run test:watch # Watch mode
-```
-
-**What's tested:**
-
-- All workspace tabs (squad, destinations, dates, budget, polls) — 55 tests
-- Trip view (stats, status, countdown, cancel/rebook) — 18 tests
-- Dashboard (squad card, grid, create modal, avatar dropdown) — 19 tests
-- Workspace summary (trip ready overlay) — 7 tests
-- Destination Hub components (loading, empty, error, retry, data states) — 18 tests
-- `useFetch` hook (loading, success, error, retry) — 4 tests
-- Utility functions (trip-utils, schemas, useAuthSteps) — 54 tests
-- Schema validation (Zod) — 27 tests
+| Area | Tests |
+|---|---|
+| Workspace tabs (squad, destinations, dates, budget, polls) | 55 |
+| Trip view (stats, status, countdown, cancel/rebook) | 18 |
+| Dashboard (squad card, grid, create modal, avatar dropdown) | 19 |
+| Destination Hub (loading, empty, error, retry, data states) | 18 |
+| Utility functions (trip-utils, schemas, useAuthSteps) | 54 |
+| Schema validation (Zod) | 27 |
+| `useFetch` hook | 4 |
 
 ---
 
@@ -262,13 +211,13 @@ npm run test:watch # Watch mode
 
 GitHub Actions workflow (`.github/workflows/ci.yml`):
 
-- Trigger: Push or pull request to `main`
-- Concurrency: Cancels in-progress runs on the same branch
-- Jobs (parallel):
-  1. **lint-typecheck** — `npm run lint` + `npm run typecheck`
-  2. **test** — `npm test`
-  3. **build** — Production build (depends on lint-typecheck + test)
-  4. **analyze** — Bundle analysis (push only or `analyze` PR label), uploads `.next/analyze/` as artifact
+- **Trigger:** Push or pull request to `main`
+- **Concurrency:** Cancels in-progress runs on the same branch
+- **Jobs (parallel):**
+  1. **lint-typecheck** — ESLint + TypeScript check
+  2. **test** — Vitest unit tests
+  3. **build** — Production build (depends on lint/typecheck + test)
+  4. **analyze** — Bundle analysis (push only or `analyze` label), artifact upload
 
 ---
 
@@ -279,22 +228,34 @@ Custom Tailwind theme with brut-inspired tokens:
 - **Colors:** `surface`, `surface-card`, `surface-alt`, `ink`, `ink-muted`, `ink-light`, `accent`, `peach`, `peach-dark`, `clay`, `clay-light`, `error`, `success`
 - **Borders:** `rounded-bruted` (custom 10px radius), `shadow-bruted` (solid 3px offset squares)
 - **Typography:** `font-display` (bold condensed), `font-heading` (sans), `font-mono` (tabular data)
-- **Components:** `brut-card`, `brut-btn`, `brut-input` — consistent shadow/border tokens
+- **Components:** `brut-card`, `brut-btn`, `brut-input`
 
 ---
 
-## Future Roadmap
+## Contributing
 
-- [x] **AI Itinerary Generator** — day-by-day trip plans from locked destination + budget
-- [x] **Toolkit** — packing checklist, budget calculator, currency converter
-- [x] **Latest / Intel** — state-wise travel news, gov notices, weather alerts
-- [x] **PWA / Offline** — service worker, offline fallback, manifest
-- [x] **CI Pipeline** — lint, typecheck, test, build, bundle analysis
-- [x] **Sentry + Redis caching** — error tracking, dual-layer cache (Upstash + in-memory)
-- [x] **Real API integration** — weather, places, events, safety, transport, budget, AI tips
-- [ ] **Internationalization** — `next-intl` installed, not wired
-- [ ] **Beta testing** — onboarding flows, feedback collection
-- [ ] **Expense sharing** — per-trip expense split and settlement
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for setup instructions, code conventions, and PR process.
+
+---
+
+## Deployment
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for Vercel setup, environment configuration, security headers, post-deployment checklist, and monitoring setup.
+
+---
+
+## Roadmap
+
+- [x] AI Itinerary Generator
+- [x] Toolkit (packing, budget, currency)
+- [x] Latest / Intel (news, advisories, weather)
+- [x] PWA / Offline
+- [x] CI Pipeline + Bundle Analysis
+- [x] Sentry + Redis caching
+- [x] Real API integration (weather, places, events, safety, transport, budget, AI)
+- [ ] Internationalization
+- [ ] Beta testing
+- [ ] Expense sharing & settlement
 
 ---
 
