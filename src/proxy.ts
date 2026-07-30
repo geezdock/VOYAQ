@@ -11,6 +11,8 @@ const PUBLIC_ROUTES = new Set([
   "/consent",
   "/robots.txt",
   "/sitemap.xml",
+  "/manifest.json",
+  "/sw.js",
 ]);
 
 function isPublicRoute(pathname: string): boolean {
@@ -20,6 +22,7 @@ function isPublicRoute(pathname: string): boolean {
   if (pathname.startsWith("/icon.svg")) return true;
   if (pathname.startsWith("/og-image.png")) return true;
   if (/^\/[^/]+\.(svg|png|jpg|jpeg|gif|webp)$/.test(pathname)) return true;
+  if (/\.[a-z]{2,6}$/.test(pathname)) return true;
   return false;
 }
 
@@ -71,6 +74,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|icon.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|icon.svg|manifest.json|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
