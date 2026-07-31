@@ -148,7 +148,7 @@ export function TripBoardPreview() {
             <span className="font-display text-lg max-sm:text-base sm:text-2xl font-extrabold text-[#2D2A24] leading-none">
               <AnimatedNumber target={6} delay={0.15} duration={1200} />
             </span>
-            <span className="font-heading text-[10px] max-sm:text-[9px] sm:text-xs font-semibold text-[#8B7D72]">
+            <span className="font-heading text-[10px] max-sm:text-[9px] sm:text-xs font-semibold text-ink-muted">
               /8
             </span>
             <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[10px] font-bold text-[#2D2A24] uppercase tracking-wider ml-1 sm:ml-2">
@@ -194,10 +194,10 @@ export function TripBoardPreview() {
             transition={{ delay: 1.5, type: "spring", stiffness: 400, damping: 16 }}
             className="flex items-center gap-0.5 border-[1.5px] border-dashed border-[#2D2A24] rounded-full pr-1 max-sm:pr-0.5 sm:pr-2 overflow-hidden bg-[#F7F4EF]"
           >
-            <div className="w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 sm:w-5 sm:h-5 bg-[#EDE6DF] flex items-center justify-center text-[9px] max-sm:text-[8px] sm:text-xs font-heading font-bold text-[#8B7D72]">
+            <div className="w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 sm:w-5 sm:h-5 bg-[#EDE6DF] flex items-center justify-center text-[9px] max-sm:text-[8px] sm:text-xs font-heading font-bold text-ink-muted">
               +
             </div>
-            <span className="font-heading text-[9px] max-sm:text-[7px] sm:text-[10px] font-semibold text-[#8B7D72] leading-none pt-px">
+            <span className="font-heading text-[9px] max-sm:text-[7px] sm:text-[10px] font-semibold text-ink-muted leading-none pt-px">
               Invite
             </span>
           </motion.div>
@@ -212,7 +212,7 @@ export function TripBoardPreview() {
           transition={{ delay: 0.2, duration: 0.4 }}
           className="flex items-center justify-between mb-1 max-sm:mb-0.5 sm:mb-2"
         >
-          <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[11px] font-bold text-[#8B7D72] uppercase tracking-wider">
+          <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[11px] font-bold text-ink-muted uppercase tracking-wider">
             Destination
           </span>
           <motion.span
@@ -239,7 +239,7 @@ export function TripBoardPreview() {
                   {dest.name}
                 </span>
                 <div className="flex-1" />
-                <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[10px] text-[#8B7D72]">
+                <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[10px] text-ink-muted">
                   <AnimatedNumber target={dest.votes} delay={0.4 + i * 0.12} duration={600} />v
                 </span>
                 <span className="font-mono text-[9px] max-sm:text-[8px] sm:text-[10px] font-bold text-[#2D2A24] w-4 sm:w-7 text-right">
@@ -261,7 +261,7 @@ export function TripBoardPreview() {
           className="flex-1 border-[2px] border-[#2D2A24] rounded-[8px] p-1 max-sm:p-0.5 sm:p-2.5 bg-white"
         >
           <div className="flex items-center justify-between mb-0.5 sm:mb-1.5">
-            <span className="font-mono text-[8px] max-sm:text-[7px] sm:text-[10px] font-bold text-[#8B7D72] uppercase tracking-wider">
+            <span className="font-mono text-[8px] max-sm:text-[7px] sm:text-[10px] font-bold text-ink-muted uppercase tracking-wider">
               Budget
             </span>
             <motion.span
@@ -275,7 +275,7 @@ export function TripBoardPreview() {
             </motion.span>
           </div>
           <span className="font-heading text-[10px] max-sm:text-[9px] sm:text-xs font-bold text-[#2D2A24]">
-            ₹5,000 <span className="font-normal text-[#8B7D72]">/pp</span>
+            ₹5,000 <span className="font-normal text-ink-muted">/pp</span>
           </span>
           <div className="w-full h-1 max-sm:h-0.5 sm:h-1.5 rounded-[3px] bg-ink/10 overflow-hidden mt-0.5 sm:mt-1.5">
             <div
@@ -292,7 +292,7 @@ export function TripBoardPreview() {
           className="flex-1 border-[2px] border-[#2D2A24] rounded-[8px] p-1 max-sm:p-0.5 sm:p-2.5 bg-white"
         >
           <div className="flex items-center justify-between mb-0.5 sm:mb-1.5">
-            <span className="font-mono text-[8px] max-sm:text-[7px] sm:text-[10px] font-bold text-[#8B7D72] uppercase tracking-wider">
+            <span className="font-mono text-[8px] max-sm:text-[7px] sm:text-[10px] font-bold text-ink-muted uppercase tracking-wider">
               Dates
             </span>
             <motion.span
@@ -334,7 +334,7 @@ export function TripBoardPreview() {
             <p className="font-mono text-[9px] max-sm:text-[8px] sm:text-[11px] font-bold text-[#2D2A24] uppercase tracking-wider leading-tight">
               AI Itinerary Generated
             </p>
-            <p className="font-heading text-[9px] max-sm:text-[8px] sm:text-[11px] text-[#8B7D72] mb-0.5 sm:mb-1.5">
+            <p className="font-heading text-[9px] max-sm:text-[8px] sm:text-[11px] text-ink-muted mb-0.5 sm:mb-1.5">
               3 Days
               <span className="mx-0.5 sm:mx-1.5 text-[#C4A99A]">·</span>
               12 Stops

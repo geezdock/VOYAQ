@@ -11,33 +11,47 @@ const config: Config = {
     extend: {
       colors: {
         surface: {
-          DEFAULT: "#F5F0EB",
-          alt: "#EDE6DF",
-          card: "#FFFFFF",
+          DEFAULT: "var(--color-surface)",
+          alt: "var(--color-surface-alt)",
+          card: "var(--color-surface-card)",
         },
         peach: {
-          DEFAULT: "#F0D5C9",
-          light: "#F5E3DB",
-          dark: "#E8C4B8",
+          DEFAULT: "var(--color-peach)",
+          light: "var(--color-peach-light)",
+          dark: "var(--color-peach-dark)",
         },
         clay: {
-          DEFAULT: "#C4A99A",
-          light: "#D4BFB2",
-          dark: "#A88D7E",
+          DEFAULT: "var(--color-clay)",
+          light: "var(--color-clay-light)",
+          dark: "var(--color-clay-dark)",
         },
         ink: {
-          DEFAULT: "#2D2A24",
-          light: "#5C554A",
-          muted: "#8B7D72",
+          DEFAULT: "var(--color-ink)",
+          light: "var(--color-ink-light)",
+          muted: "var(--color-ink-muted)",
+        },
+        text: {
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          muted: "var(--color-text-muted)",
+          onAccent: "var(--color-text-on-accent)",
+        },
+        border: {
+          subtle: "var(--color-border-subtle)",
+          focus: "var(--color-border-focus)",
+        },
+        bg: {
+          surface: "var(--color-bg-surface)",
+          card: "var(--color-bg-card)",
         },
         accent: {
-          DEFAULT: "#D4836A",
-          light: "#E09D88",
-          dark: "#C06A52",
+          DEFAULT: "var(--color-accent)",
+          light: "var(--color-accent-light)",
+          dark: "var(--color-accent-dark)",
         },
-        success: "#4A7C59",
-        warning: "#C49B3C",
-        error: "#B84A4A",
+        success: "var(--color-success)",
+        warning: "var(--color-warning)",
+        error: "var(--color-error)",
       },
       fontFamily: {
         display: ["var(--font-syne)", "sans-serif"],
@@ -46,16 +60,16 @@ const config: Config = {
         sans: ["var(--font-space-grotesk)", "sans-serif"],
       },
       boxShadow: {
-        bruted: "4px 4px 0px #2D2A24",
-        "bruted-sm": "2px 2px 0px #2D2A24",
-        "bruted-lg": "6px 6px 0px #2D2A24",
+        bruted: "var(--brut-shadow)",
+        "bruted-sm": "var(--brut-shadow-sm)",
+        "bruted-lg": "var(--brut-shadow-lg)",
       },
       borderWidth: {
-        bruted: "2px",
+        bruted: "var(--brut-border)",
       },
       borderRadius: {
-        bruted: "4px",
-        "bruted-lg": "8px",
+        bruted: "var(--brut-radius)",
+        "bruted-lg": "var(--brut-radius-lg)",
       },
       keyframes: {
         ticker: {

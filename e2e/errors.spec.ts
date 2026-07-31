@@ -1,18 +1,23 @@
 import { test, expect } from "@playwright/test";
+import { mockSupabaseSession, seedMockSquad } from "./helpers";
 
 test.describe("Error States", () => {
-  test("invalid trip shows error UI", async ({ page }) => {
+  test("invalid trip redirects to dashboard", async ({ page }) => {
+    await mockSupabaseSession(page);
+    await seedMockSquad(page);
     await page.goto("/trip/nonexistent");
-    await expect(page.locator("text=Trip").or(page.locator("text=Error")).or(page.locator("text=not found"))).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   });
 
-  test("invalid workspace shows error UI", async ({ page }) => {
+  test("invalid workspace redirects to dashboard", async ({ page }) => {
+    await mockSupabaseSession(page);
+    await seedMockSquad(page);
     await page.goto("/workspace/nonexistent");
-    await expect(page.locator("text=not found").or(page.locator("text=Error"))).toBeVisible();
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 10000 });
   });
 
   test("invalid invite code shows error", async ({ page }) => {
     await page.goto("/join/invalid-code");
-    await expect(page.locator("text=Invalid").or(page.locator("text=not found"))).toBeVisible();
+    await expect(page.locator("text=Invalid Invite Code")).toBeVisible();
   });
 });

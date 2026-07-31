@@ -67,7 +67,7 @@ export function InteractiveDemo() {
                   onClick={() => goTo(i)}
                   className={`flex items-center justify-center w-full py-2.5 min-h-[44px] px-1 rounded-[6px] border-[2px] transition-all ${
                     i <= current
-                      ? "border-accent bg-accent/10 text-accent"
+                      ? "border-ink bg-ink/5 text-ink"
                       : "border-ink/10 bg-white text-ink-muted hover:border-ink/30"
                   }`}
                 >
@@ -80,7 +80,7 @@ export function InteractiveDemo() {
                 </button>
                 {i < total - 1 && (
                   <div className={`h-[2px] flex-1 mx-0.5 sm:mx-1 transition-colors ${
-                    i < current ? "bg-accent" : "bg-ink/10"
+                    i < current ? "bg-ink" : "bg-ink/10"
                   }`} />
                 )}
               </div>

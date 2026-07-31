@@ -1,22 +1,15 @@
 import { test, expect } from "@playwright/test";
-import { mockSupabaseSession, MOCK_SQUAD } from "./helpers";
+import { mockSupabaseSession, seedMockSquad } from "./helpers";
 
 test.describe("Trip View", () => {
   test.beforeEach(async ({ page }) => {
     await mockSupabaseSession(page);
-    await page.route("**/rest/v1/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("squad")) {
-        await route.fulfill({ json: [MOCK_SQUAD] });
-      } else {
-        await route.fulfill({ json: [] });
-      }
-    });
+    await seedMockSquad(page);
     await page.goto("/trip/test-squad-1");
   });
 
   test("renders trip details", async ({ page }) => {
-    await expect(page.locator(`text=${MOCK_SQUAD.name}`).first()).toBeVisible();
+    await expect(page.locator("text=Goa Crew").first()).toBeVisible();
   });
 
   test("shows destination hub button", async ({ page }) => {

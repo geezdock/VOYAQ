@@ -1,17 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { mockSupabaseSession, MOCK_SQUAD } from "./helpers";
+import { mockSupabaseSession, seedMockSquad } from "./helpers";
 
 test.describe("AI Features in Hub", () => {
   test.beforeEach(async ({ page }) => {
     await mockSupabaseSession(page);
-    await page.route("**/rest/v1/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("squad")) {
-        await route.fulfill({ json: [MOCK_SQUAD] });
-      } else {
-        await route.fulfill({ json: [] });
-      }
-    });
+    await seedMockSquad(page);
     await page.goto("/trip/test-squad-1/hub");
   });
 

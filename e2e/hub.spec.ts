@@ -1,22 +1,15 @@
 import { test, expect } from "@playwright/test";
-import { mockSupabaseSession, MOCK_SQUAD } from "./helpers";
+import { mockSupabaseSession, seedMockSquad, settleAnimations } from "./helpers";
 
 test.describe("Destination Hub", () => {
   test.beforeEach(async ({ page }) => {
     await mockSupabaseSession(page);
-    await page.route("**/rest/v1/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("squad")) {
-        await route.fulfill({ json: [MOCK_SQUAD] });
-      } else {
-        await route.fulfill({ json: [] });
-      }
-    });
+    await seedMockSquad(page);
     await page.goto("/trip/test-squad-1/hub");
   });
 
   test("renders destination name and tab bar", async ({ page }) => {
-    await expect(page.locator(`text=${MOCK_SQUAD.lockedDestination}`).first()).toBeVisible();
+    await expect(page.locator("text=Goa").first()).toBeVisible();
     await expect(page.locator("text=Overview").first()).toBeVisible();
     await expect(page.locator("text=Weather").first()).toBeVisible();
   });
@@ -41,7 +34,8 @@ test.describe("Destination Hub", () => {
   });
 
   test("back button returns to trip view", async ({ page }) => {
-    await page.getByRole("link", { name: /trip/i }).first().click();
+    await settleAnimations(page, 800);
+    await page.getByRole("button", { name: /trip/i }).first().click();
     await expect(page).toHaveURL(/\/trip\/test-squad-1$/);
   });
 
@@ -50,6 +44,7 @@ test.describe("Destination Hub", () => {
   });
 
   test("keyboard arrows switch tabs", async ({ page }) => {
+    await page.locator("text=Overview").first().click();
     await page.keyboard.press("ArrowRight");
     await expect(page.locator("text=2 / 15")).toBeVisible();
 

@@ -1,17 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { mockSupabaseSession, MOCK_SQUAD } from "./helpers";
+import { mockSupabaseSession, seedMockSquad } from "./helpers";
 
 test.describe("Workspace", () => {
   test.beforeEach(async ({ page }) => {
     await mockSupabaseSession(page);
-    await page.route("**/rest/v1/**", async (route) => {
-      const url = route.request().url();
-      if (url.includes("squad")) {
-        await route.fulfill({ json: [MOCK_SQUAD] });
-      } else {
-        await route.fulfill({ json: [] });
-      }
-    });
+    await seedMockSquad(page);
     await page.goto("/workspace/test-squad-1");
   });
 
@@ -21,6 +14,8 @@ test.describe("Workspace", () => {
   });
 
   test("navigates between all 5 tabs", async ({ page }) => {
+    await page.getByRole("button", { name: /stay in workspace/i }).click();
+
     await page.locator("text=Destinations").click();
     await expect(page.locator("text=Destinations").first()).toBeVisible();
 
@@ -35,7 +30,7 @@ test.describe("Workspace", () => {
   });
 
   test("shows invite code in squad tab", async ({ page }) => {
-    await expect(page.locator(`text=${MOCK_SQUAD.inviteCode}`)).toBeVisible();
+    await expect(page.locator(`text=${"goa-trip-abc"}`)).toBeVisible();
   });
 
   test("shows trip ready button when all locked", async ({ page }) => {

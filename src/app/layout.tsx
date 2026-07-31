@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Space_Grotesk, Syne, JetBrains_Mono } from "next/font/google";
+import { MotionConfig } from "framer-motion";
 import { SquadProvider } from "@/shared/providers/SquadContext";
 import { AuthProvider } from "@/shared/providers/AuthContext";
 import { AnalyticsProvider } from "@/shared/providers/AnalyticsProvider";
@@ -93,8 +94,10 @@ export default function RootLayout({
         <AuthProvider>
           <SquadProvider>
             <AnalyticsProvider>
-              {children}
-              <GlobalToast />
+              <MotionConfig reducedMotion="user">
+                {children}
+                <GlobalToast />
+              </MotionConfig>
             </AnalyticsProvider>
           </SquadProvider>
         </AuthProvider>
