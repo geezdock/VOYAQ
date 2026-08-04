@@ -26,13 +26,16 @@ const labels = [
 const splashState = { seen: false };
 
 export function SplashScreen({ children }: SplashScreenProps) {
-  const [showSplash, setShowSplash] = useState(() => {
-    if (splashState.seen) return false;
-    splashState.seen = true;
-    return true;
-  });
+  const [showSplash, setShowSplash] = useState(false);
   const [phase, setPhase] = useState<"typing" | "converging" | "locking" | "done">("typing");
   const [showBoldV, setShowBoldV] = useState(false);
+
+  useEffect(() => {
+    if (splashState.seen) return;
+    splashState.seen = true;
+    const t = setTimeout(() => setShowSplash(true), 0);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!showSplash) return;

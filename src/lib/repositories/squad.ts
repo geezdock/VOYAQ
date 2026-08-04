@@ -61,20 +61,24 @@ export class SquadRepository {
   private supabase = createClient();
 
   async fetchUserSquads(userId: string): Promise<{ data: Squad[]; fromCache: boolean }> {
-    if (!isUuid(userId)) {
-      return { data: [], fromCache: false };
+    const isRealUser = isUuid(userId);
+    const cached = loadCachedSquads();
+
+    if (cached.length > 0) {
+      if (isRealUser) {
+        this.fetchFromSupabase(userId)
+          .then((server) => {
+            saveCachedSquads(server);
+          })
+          .catch(() => {
+            // Network failure — keep the stale cache.
+          });
+      }
+      return { data: cached, fromCache: true };
     }
 
-    const cached = loadCachedSquads();
-    if (cached.length > 0) {
-      this.fetchFromSupabase(userId)
-        .then((server) => {
-          saveCachedSquads(server);
-        })
-        .catch(() => {
-          // Network failure — keep the stale cache.
-        });
-      return { data: cached, fromCache: true };
+    if (!isRealUser) {
+      return { data: [], fromCache: false };
     }
 
     const server = await this.fetchFromSupabase(userId);
