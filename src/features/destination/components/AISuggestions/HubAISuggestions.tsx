@@ -80,22 +80,24 @@ export function HubAISuggestions({ destinationName, budget, dates }: HubAISugges
       </div>
       {suggestions.map((suggestion, i) => {
         const cfg = typeConfig[suggestion.type];
-        const Icon = cfg.icon;
+        const Icon = cfg?.icon ?? Info;
+        const label = priorityLabel[suggestion.priority] ?? "Tip";
+        const color = priorityColor[suggestion.priority] ?? "text-ink-muted bg-ink/5 border-ink/10";
         return (
           <motion.div
             key={`${suggestion.type}-${i}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.08 }}
-            className={`border-2 rounded-[12px] p-4 sm:p-5 space-y-3 ${cfg.className}`}
+            className={`border-2 rounded-[12px] p-4 sm:p-5 space-y-3 ${cfg?.className ?? "border-ink/20 bg-surface-alt/50"}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2 min-w-0">
                 <Icon className="w-5 h-5 text-ink shrink-0" />
                 <h3 className="font-heading text-sm font-bold text-ink capitalize">{suggestion.type}</h3>
               </div>
-              <span className={`font-mono text-[10px] font-bold px-2 py-1 rounded-bruted border shrink-0 ${priorityColor[suggestion.priority]}`}>
-                {priorityLabel[suggestion.priority]}
+              <span className={`font-mono text-[10px] font-bold px-2 py-1 rounded-bruted border shrink-0 ${color}`}>
+                {label}
               </span>
             </div>
             <p className="font-heading text-sm text-ink-muted leading-relaxed">{suggestion.tip}</p>

@@ -50,32 +50,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = createClient();
+    let mounted = true;
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        setSession(session);
-        setUser(session.user);
-      } else {
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        if (session) {
+          setSession(session);
+          setUser(session.user);
+        } else {
+          const devUser = getDevUser();
+          if (devUser) {
+            setUser({ id: devUser.id } as User);
+          }
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        if (!mounted) return;
         const devUser = getDevUser();
         if (devUser) {
           setUser({ id: devUser.id } as User);
         }
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       if (session) {
         setSession(session);
         setUser(session.user);
         clearDevUser();
+      } else if (_event !== "INITIAL_SESSION") {
+        // SIGNED_OUT / TOKEN_REFRESHED with a null session — clear stale state.
+        setSession(null);
+        setUser(null);
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // DEV_MODE: AuthFlow writes the dev user after the initial effect has resolved.
+    function handleDevAuth() {
+      const devUser = getDevUser();
+      if (devUser) {
+        setUser({ id: devUser.id } as User);
+        setSession(null);
+        setLoading(false);
+      }
+    }
+    window.addEventListener("voyaq:dev-auth", handleDevAuth);
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+      window.removeEventListener("voyaq:dev-auth", handleDevAuth);
+    };
   }, []);
 
   const signInWithGoogle = async (redirectTo?: string) => {

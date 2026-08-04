@@ -78,10 +78,10 @@ export function HubSafety({ destinationName }: HubSafetyProps) {
         ) : (
           <div className="divide-y divide-ink/10">
             {advisories.map((advisory, i) => {
-              const cfg = severityConfig[advisory.severity];
+              const cfg = severityConfig[advisory.severity] ?? severityConfig.low;
               return (
                 <motion.div
-                  key={advisory.title}
+                  key={advisory.title ?? `advisory-${i}`}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
@@ -95,8 +95,13 @@ export function HubSafety({ destinationName }: HubSafetyProps) {
                   </div>
                   <p className="font-heading text-xs text-ink-muted leading-relaxed">{advisory.description}</p>
                   <div className="flex items-center gap-3 font-mono text-[10px] text-ink-muted">
-                    <span>Source: {advisory.source}</span>
-                    <span>Updated: {new Date(advisory.date).toLocaleDateString("en-IN")}</span>
+                    <span>Source: {advisory.source ?? "State tourism department"}</span>
+                    <span>
+                      Updated:{" "}
+                      {advisory.date
+                        ? new Date(advisory.date).toLocaleDateString("en-IN")
+                        : "Recently updated"}
+                    </span>
                   </div>
                 </motion.div>
               );

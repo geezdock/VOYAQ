@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { User, Settings, LogOut } from "lucide-react";
+import { useAuth } from "@/shared/providers/AuthContext";
 
 export function UserAvatarDropdown() {
   const [open, setOpen] = useState(false);
@@ -15,6 +16,7 @@ export function UserAvatarDropdown() {
   });
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { signOut } = useAuth();
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -44,6 +46,7 @@ export function UserAvatarDropdown() {
       icon: LogOut,
       action: () => {
         sessionStorage.removeItem("voyaq_username");
+        signOut();
         router.push("/");
       },
     },

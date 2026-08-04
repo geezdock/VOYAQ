@@ -32,6 +32,7 @@ interface SquadContextValue {
   updateSquad: (squad: Squad) => void;
   updateMember: (squadId: string, memberId: string, updates: Partial<SquadMember>) => void;
   addSquad: (squad: Squad) => Promise<Squad>;
+  joinSquad: (inviteCode: string) => Promise<{ squadId?: string; error?: string }>;
   retryFailedMutations: () => Promise<void>;
   toast: string | null;
   showToast: (message: string) => void;
@@ -79,16 +80,27 @@ export function SquadProvider({ children }: { children: ReactNode }) {
 
   // Fetch squads on mount + user change
   useEffect(() => {
-    if (authLoading || !repoRef.current || !currentUserId) {
+    if (authLoading || !repoRef.current) {
+      return;
+    }
+
+    if (!currentUserId) {
+      Promise.resolve().then(() => {
+        setSquads([]);
+        setLoading(false);
+        setError(null);
+      });
       return;
     }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    repoRef.current
-      .fetchUserSquads(currentUserId)
+    Promise.resolve()
+      .then(() => {
+        if (cancelled) return;
+        setLoading(true);
+        setError(null);
+      })
+      .then(() => repoRef.current!.fetchUserSquads(currentUserId))
       .then(({ data, fromCache }) => {
         if (cancelled) return;
         setSquads(data);
@@ -124,6 +136,7 @@ export function SquadProvider({ children }: { children: ReactNode }) {
         setSquads((prev) =>
           prev.map((s) => (s.id === updated.id ? updated : s)),
         );
+        previousRef.current.set(updated.id, updated);
         setSyncStatus("synced");
         setLastSyncedAt(new Date().toISOString());
       });
@@ -247,14 +260,14 @@ export function SquadProvider({ children }: { children: ReactNode }) {
         repo.queueMutation({
           id: updated.id,
           type: "updateSquad",
-          payload: { id: updated.id, changes: updated },
+          payload: { id: updated.id, changes: updated, previous: prevSquad },
         });
         setPendingMutations(repo.getPendingCount());
         return;
       }
 
       repo
-        .updateSquad(updated.id, updated)
+        .updateSquad(updated.id, updated, undefined, prevSquad)
         .then((result) => {
           if (result.conflict) {
             setSyncStatus("conflict");
@@ -296,6 +309,41 @@ export function SquadProvider({ children }: { children: ReactNode }) {
             : s,
         ),
       );
+
+      const prevSquad = previousRef.current.get(squadId);
+      if (prevSquad) {
+        previousRef.current.set(squadId, {
+          ...prevSquad,
+          members: prevSquad.members.map((m) =>
+            m.id === memberId ? { ...m, ...updates } : m,
+          ),
+        });
+      }
+
+      repo.updateMember(squadId, memberId, updates).catch(() => {
+        // RLS / dev-mode — local state remains authoritative.
+      });
+    },
+    [],
+  );
+
+  const joinSquad = useCallback(
+    async (inviteCode: string): Promise<{ squadId?: string; error?: string }> => {
+      const repo = repoRef.current;
+      if (!repo) return { error: "Repository not initialized" };
+
+      const result = await repo.joinSquad(inviteCode);
+      if (result.error) return { error: result.error };
+      if (result.squad) {
+        setSquads((prev) => {
+          const exists = prev.some((s) => s.id === result.squad!.id);
+          return exists
+            ? prev.map((s) => (s.id === result.squad!.id ? result.squad! : s))
+            : [result.squad!, ...prev];
+        });
+        previousRef.current.set(result.squad.id, result.squad);
+      }
+      return { squadId: result.squadId };
     },
     [],
   );
@@ -316,6 +364,7 @@ export function SquadProvider({ children }: { children: ReactNode }) {
         updateSquad,
         updateMember,
         addSquad,
+        joinSquad,
         retryFailedMutations,
         toast,
         showToast,

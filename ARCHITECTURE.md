@@ -46,5 +46,5 @@ features/<domain>/
 5. **Shared providers** (AuthContext, SquadContext) wrap the app and provide state
 6. **Types** are shared across all layers via `src/types/`
 7. **Utils** provide pure helper functions used across features
-8. **API routes** (`src/app/api/`) proxy external APIs (Open-Meteo, Wikipedia, Overpass, Gemini) with error handling
+8. **Server actions** (`src/actions/`) proxy external APIs (Open-Meteo, Wikipedia, Overpass, Gemini) with error handling and memoization
 9. **Caching** (`src/lib/cache.ts`) provides dual-layer memoization (Upstash Redis + in-memory fallback)

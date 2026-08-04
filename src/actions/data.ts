@@ -329,19 +329,28 @@ export async function getWeather(dest: string) {
     );
     if (!res.ok) throw new Error("Open-Meteo request failed");
     const data = await res.json();
+    const current = data?.current ?? {};
+    const daily = data?.daily ?? {};
+    const currentTemp = current.temperature_2m;
+    const currentCode = current.weather_code;
+    if (typeof currentTemp !== "number") throw new Error("Open-Meteo response missing current data");
+    const times: string[] = Array.isArray(daily.time) ? daily.time : [];
+    const maxTemps: unknown[] = Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max : [];
+    const minTemps: unknown[] = Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min : [];
+    const codes: unknown[] = Array.isArray(daily.weather_code) ? daily.weather_code : [];
     return {
       current: {
-        temp: Math.round(data.current.temperature_2m),
-        condition: wmoToCondition(data.current.weather_code),
+        temp: Math.round(currentTemp),
+        condition: wmoToCondition(currentCode),
         icon: "",
-        humidity: data.current.relative_humidity_2m,
-        windSpeed: Math.round(data.current.wind_speed_10m),
+        humidity: typeof current.relative_humidity_2m === "number" ? current.relative_humidity_2m : 0,
+        windSpeed: typeof current.wind_speed_10m === "number" ? Math.round(current.wind_speed_10m) : 0,
       },
-      forecast: data.daily.time.map((date: string, i: number) => ({
+      forecast: times.map((date: string, i: number) => ({
         date,
-        tempHigh: Math.round(data.daily.temperature_2m_max[i]),
-        tempLow: Math.round(data.daily.temperature_2m_min[i]),
-        condition: wmoToCondition(data.daily.weather_code[i]),
+        tempHigh: typeof maxTemps[i] === "number" ? Math.round(maxTemps[i] as number) : 0,
+        tempLow: typeof minTemps[i] === "number" ? Math.round(minTemps[i] as number) : 0,
+        condition: typeof codes[i] === "number" ? wmoToCondition(codes[i] as number) : "Unknown",
       })),
     };
   });
@@ -445,7 +454,11 @@ export async function getSafety(dest: string) {
       }
     } catch { /* fall through */ }
     const helpline = STATE_TOURIST_HELPLINES[state] ?? DEFAULT_HELPLINE;
-    const advisories = ADVISORIES[key] ?? [];
+    const advisories = (ADVISORIES[key] ?? []).map((a) => ({
+      ...a,
+      source: "Ministry of Tourism, Govt. of India",
+      date: new Date().toISOString().slice(0, 10),
+    }));
     return {
       advisories,
       emergency: {

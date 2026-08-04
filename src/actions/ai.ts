@@ -2,6 +2,7 @@
 
 import { memo } from "@/lib/cache";
 import { getDestinationCoords } from "@/constants/destinations";
+import type { AISuggestion } from "@/types/destination";
 
 // ─── Gemini helper ─────────────────────────────────────
 
@@ -37,6 +38,32 @@ function parseJSON<T>(text: string): T | null {
   } catch {
     return null;
   }
+}
+
+const VALID_SUGGESTION_TYPES = new Set(["weather", "budget", "transport", "food", "general"]);
+const VALID_PRIORITIES = new Set(["high", "medium", "low"]);
+
+function sanitizeSuggestions(input: unknown): AISuggestion[] | null {
+  if (!Array.isArray(input)) return null;
+  const out: AISuggestion[] = [];
+  for (const item of input) {
+    if (typeof item !== "object" || item === null) continue;
+    const s = item as Record<string, unknown>;
+    if (
+      typeof s.type === "string" &&
+      VALID_SUGGESTION_TYPES.has(s.type) &&
+      typeof s.tip === "string" &&
+      typeof s.priority === "string" &&
+      VALID_PRIORITIES.has(s.priority)
+    ) {
+      out.push({
+        type: s.type as AISuggestion["type"],
+        tip: s.tip,
+        priority: s.priority as AISuggestion["priority"],
+      });
+    }
+  }
+  return out.length > 0 ? out : null;
 }
 
 // ─── Suggest ───────────────────────────────────────────
@@ -92,7 +119,7 @@ Rules:
     const text = await callGemini(prompt, 1024);
     if (!text) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
 
-    const suggestions = parseJSON<unknown[]>(text);
+    const suggestions = sanitizeSuggestions(parseJSON<unknown>(text));
     if (!suggestions) return { suggestions: getFallbackSuggestions(destination, budget), isFallback: true };
 
     return { suggestions };

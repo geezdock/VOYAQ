@@ -10,12 +10,14 @@ import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 export default function JoinPage() {
   const params = useParams();
   const router = useRouter();
-  const { squads, isMe } = useSquad();
+  const { squads, isMe, joinSquad } = useSquad();
   const code = params.code as string;
 
   const squad = squads.find((s) => s.inviteCode === code);
   const alreadyJoined = squad?.members.some((m) => isMe(m.id));
   const squadFull = squad ? squad.members.length >= squad.memberLimit : false;
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   useEffect(() => {
     if ((alreadyJoined || squadFull) && squad) {
@@ -86,21 +88,34 @@ export default function JoinPage() {
             Cancel
           </button>
           <button
-            onClick={() => {
+            onClick={async () => {
+              if (joining) return;
+              setJoining(true);
+              setJoinError(null);
               trackEvent(VOYAQ_EVENTS.INVITE_ACCEPTED, {
                 squad_id: squad.id,
                 squad_name: squad.name,
                 invite_code: code,
                 member_count: squad.members.length,
               });
-              router.push(`/workspace/${squad.id}`);
+              const result = await joinSquad(code);
+              setJoining(false);
+              if (result.error) {
+                setJoinError(result.error);
+                return;
+              }
+              router.push(`/workspace/${result.squadId ?? squad.id}`);
             }}
-            className="flex-1 brut-btn text-sm flex items-center justify-center gap-2"
+            disabled={joining}
+            className="flex-1 brut-btn text-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            Join Squad
-            <ArrowRight className="w-4 h-4 inline" />
+            {joining ? "Joining..." : "Join Squad"}
+            {!joining && <ArrowRight className="w-4 h-4 inline" />}
           </button>
         </div>
+        {joinError && (
+          <p className="font-heading text-xs text-error">{joinError}</p>
+        )}
       </motion.div>
     </div>
   );

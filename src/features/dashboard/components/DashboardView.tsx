@@ -7,15 +7,16 @@ import { Users } from "lucide-react";
 import { EmptyState } from "./EmptyState";
 import { SquadGrid } from "./SquadGrid";
 import { useSquad } from "@/shared/providers/SquadContext";
-import type { Squad } from "@/types/squad";
 
 export function DashboardView() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const joinCode = searchParams.get("join");
 
-  const { squads, updateSquad, addSquad, isMe, currentUserId } = useSquad();
+  const { squads, addSquad, joinSquad, isMe } = useSquad();
   const [dismissed, setDismissed] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   const pendingJoin = useMemo(() => {
     if (!joinCode || dismissed) return null;
@@ -38,25 +39,18 @@ export function DashboardView() {
     window.history.replaceState({}, "", "/dashboard");
   }, [joinCode, squads, router, isMe]);
 
-  function handleJoinSquad() {
-    if (!pendingJoin) return;
-    const updated: Squad = {
-      ...pendingJoin,
-      members: [
-        ...pendingJoin.members,
-        {
-          id: currentUserId || "me",
-          name: "You",
-          initial: "Y",
-          color: "bg-accent",
-          verified: true,
-          joinedAt: new Date().toISOString(),
-        },
-      ],
-    };
-    updateSquad(updated);
+  async function handleJoinSquad() {
+    if (!pendingJoin || joining) return;
+    setJoining(true);
+    setJoinError(null);
+    const result = await joinSquad(pendingJoin.inviteCode);
+    setJoining(false);
+    if (result.error) {
+      setJoinError(result.error);
+      return;
+    }
     setDismissed(true);
-    router.push(`/workspace/${updated.id}`);
+    router.push(`/workspace/${result.squadId ?? pendingJoin.id}`);
   }
 
   return (
@@ -157,11 +151,18 @@ export function DashboardView() {
                 </button>
                 <button
                   onClick={handleJoinSquad}
-                  className="flex-1 brut-btn text-sm"
+                  disabled={joining}
+                  className="flex-1 brut-btn text-sm disabled:opacity-50"
                 >
-                  Join Squad
+                  {joining ? "Joining..." : "Join Squad"}
                 </button>
               </div>
+
+              {joinError && (
+                <p className="font-heading text-xs text-error text-center">
+                  {joinError}
+                </p>
+              )}
             </motion.div>
           </div>
         )}

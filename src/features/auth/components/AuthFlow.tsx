@@ -63,6 +63,7 @@ export function AuthFlow() {
               display_name: name.trim(),
             }),
           );
+          window.dispatchEvent(new Event("voyaq:dev-auth"));
           navigateAfterAuth();
           return;
         }

@@ -3,9 +3,14 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { UserAvatarDropdown } from "@/features/dashboard/components/UserAvatarDropdown";
 
 const mockPush = vi.fn();
+const mockSignOut = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
+}));
+
+vi.mock("@/shared/providers/AuthContext", () => ({
+  useAuth: () => ({ signOut: mockSignOut }),
 }));
 
 describe("UserAvatarDropdown", () => {
@@ -45,6 +50,7 @@ describe("UserAvatarDropdown", () => {
     render(<UserAvatarDropdown />);
     fireEvent.click(screen.getByLabelText("User menu"));
     fireEvent.click(screen.getByText("Sign Out"));
+    expect(mockSignOut).toHaveBeenCalled();
     expect(sessionStorage.getItem("voyaq_username")).toBeNull();
     expect(mockPush).toHaveBeenCalledWith("/");
   });

@@ -4,9 +4,17 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ArrowLeft, LogOut, User, Bell, MapPin, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/shared/providers/AuthContext";
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { signOut } = useAuth();
+
+  async function handleSignOut() {
+    sessionStorage.removeItem("voyaq_username");
+    await signOut();
+    router.push("/");
+  }
 
   return (
     <div className="min-h-screen">
@@ -88,7 +96,7 @@ export default function SettingsPage() {
             </div>
 
             <button
-              onClick={() => router.push("/")}
+              onClick={handleSignOut}
               className="w-full brut-card !p-4 flex items-center justify-center gap-2 hover:bg-error/5 hover:border-error/30 transition-colors"
             >
               <LogOut className="w-4 h-4 text-error" />
