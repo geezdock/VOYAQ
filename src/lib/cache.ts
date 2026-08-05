@@ -40,7 +40,3 @@ export async function memo<T>(
   store.set(key, { data, expires: Date.now() + ttlMs });
   return data;
 }
-
-export function clearCache() {
-  store.clear();
-}

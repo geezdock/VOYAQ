@@ -46,19 +46,3 @@ export function AnalyticsProvider({ children }: { children: ReactNode }) {
     </>
   );
 }
-
-export function useAnalytics() {
-  const track = (event: string, props?: Record<string, unknown>) => {
-    if (typeof window === "undefined") return;
-    try {
-      const ph = (window as unknown as { posthog?: { capture: (e: string, p?: Record<string, unknown>) => void; __loaded: boolean } }).posthog;
-      if (ph?.capture && ph.__loaded) {
-        ph.capture(event, props);
-      }
-    } catch {
-      // no-op
-    }
-  };
-
-  return { track };
-}

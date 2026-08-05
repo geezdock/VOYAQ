@@ -5,7 +5,7 @@ import { MotionConfig } from "framer-motion";
 import { SquadProvider } from "@/shared/providers/SquadContext";
 import { AuthProvider } from "@/shared/providers/AuthContext";
 import { AnalyticsProvider } from "@/shared/providers/AnalyticsProvider";
-import { GlobalToast } from "@/shared/components";
+import { GlobalToast } from "@/shared/components/GlobalToast";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({

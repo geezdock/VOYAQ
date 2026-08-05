@@ -14,10 +14,6 @@ const VALID_COLORS = [
   "bg-[#D4BFB2]",
 ];
 
-function pickColor(index: number) {
-  return VALID_COLORS[index % VALID_COLORS.length];
-}
-
 interface SquadContextValue {
   squads: Squad[];
   currentUserId: string | null;
@@ -381,5 +377,3 @@ export function useSquad(): SquadContextValue {
   if (!ctx) throw new Error("useSquad must be used within a SquadProvider");
   return ctx;
 }
-
-export { pickColor };
