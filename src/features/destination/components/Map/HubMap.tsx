@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { MapPin, Navigation, RefreshCw, Layers } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchAttractions } from "@/services/places";
+import { getPlaces } from "@/actions/data";
 import { getDestinationCoords } from "@/constants/destinations";
 import type { Attraction } from "@/types/destination";
 
@@ -22,7 +22,7 @@ export function HubMap({ destinationName }: HubMapProps) {
   const coords = getDestinationCoords(destinationName);
 
   const { data: attractions } = useFetch<Attraction[]>(
-    () => fetchAttractions(destinationName),
+    () => getPlaces(destinationName, "attractions").then((d) => d.attractions ?? null),
     [destinationName],
   );
 

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { IndianRupee, Info, SearchX, RefreshCw } from "lucide-react";
 import { formatRupee } from "@/utils/currency";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchBudgetInsights } from "@/services/budget";
+import { getBudgetInsights } from "@/actions/data";
 import type { BudgetInsight } from "@/types/destination";
 import type { Squad } from "@/types/squad";
 
@@ -24,7 +24,7 @@ const categoryColor: Record<string, string> = {
 
 export function HubBudget({ destinationName, squad }: HubBudgetProps) {
   const { data: insights, loading, error, retry } = useFetch<BudgetInsight[]>(
-    () => fetchBudgetInsights(destinationName),
+    () => getBudgetInsights(destinationName).then((d) => d.insights),
     [destinationName],
   );
 

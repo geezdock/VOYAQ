@@ -19,7 +19,7 @@ import {
   Info,
 } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchItinerary } from "@/services/itinerary";
+import { getItinerary } from "@/actions/ai";
 import { formatRupee } from "@/utils/currency";
 import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { ItineraryResponse, ItineraryDay } from "@/types/itinerary";
@@ -150,7 +150,7 @@ function DayCard({ day, isExpanded, onToggle }: { day: ItineraryDay; isExpanded:
 export function HubItinerary({ destinationName, startDate, endDate, budget }: HubItineraryProps) {
   const [expandedDays, setExpandedDays] = useState<Set<number>>(new Set());
   const { data: itinerary, loading, error, retry } = useFetch<ItineraryResponse>(
-    () => fetchItinerary({ destination: destinationName, startDate, endDate, budget }),
+    () => getItinerary(destinationName, startDate, endDate, String(budget)),
     [destinationName, startDate, endDate, budget],
   );
 

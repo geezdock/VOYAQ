@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ShieldAlert, Phone, Hospital, AlertTriangle, ShieldCheck, SearchX, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchSafety } from "@/services/safety";
+import { getSafety } from "@/actions/data";
 import type { Advisory, EmergencyInfo } from "@/types/destination";
 
 import { HubSkeleton } from "../HubSkeleton";
@@ -25,7 +25,7 @@ interface SafetyData {
 
 export function HubSafety({ destinationName }: HubSafetyProps) {
   const { data, loading, error, retry } = useFetch<SafetyData>(
-    () => fetchSafety(destinationName),
+    () => getSafety(destinationName),
     [destinationName],
   );
 

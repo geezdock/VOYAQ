@@ -14,13 +14,8 @@ import {
 } from "lucide-react";
 import { formatRupee } from "@/utils/currency";
 import { getCountdown } from "@/utils/dates";
-import { fetchOverview } from "@/services/overview";
-import { fetchLiveWeather } from "@/services/weather";
-import { fetchBudgetInsights } from "@/services/budget";
-import { fetchEvents } from "@/services/events";
-import { fetchSafety } from "@/services/safety";
+import { getOverview, getWeather, getBudgetInsights, getEvents, getSafety } from "@/actions/data";
 import type { Squad } from "@/types/squad";
-import type { OverviewResult } from "@/services/overview";
 
 interface HubOverviewProps {
   squad: Squad;
@@ -28,7 +23,7 @@ interface HubOverviewProps {
 }
 
 export function HubOverview({ squad, destinationName }: HubOverviewProps) {
-  const [overview, setOverview] = useState<OverviewResult | null>(null);
+  const [overview, setOverview] = useState<Awaited<ReturnType<typeof getOverview>> | null>(null);
   const [weather, setWeather] = useState<{ temp: number; condition: string } | null>(null);
   const [eventsCount, setEventsCount] = useState<number>(0);
   const [advisoriesCount, setAdvisoriesCount] = useState<number>(0);
@@ -38,18 +33,18 @@ export function HubOverview({ squad, destinationName }: HubOverviewProps) {
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetchOverview(destinationName),
-      fetchLiveWeather(destinationName),
-      fetchEvents(destinationName),
-      fetchSafety(destinationName),
-      fetchBudgetInsights(destinationName),
+      getOverview(destinationName).catch(() => null),
+      getWeather(destinationName).catch(() => null),
+      getEvents(destinationName).catch(() => null),
+      getSafety(destinationName).catch(() => null),
+      getBudgetInsights(destinationName).catch(() => null),
     ]).then(([ov, w, ev, sf, bd]) => {
       if (cancelled) return;
       if (ov) setOverview(ov);
       if (w) setWeather({ temp: w.current.temp, condition: w.current.condition });
-      if (ev) setEventsCount(ev.length);
+      if (ev) setEventsCount(ev.events.length);
       if (sf) setAdvisoriesCount(sf.advisories.length);
-      if (bd) setBudgetTotal(bd.reduce((s, b) => s + b.estimatedCost, 0));
+      if (bd) setBudgetTotal(bd.insights.reduce((s, b) => s + b.estimatedCost, 0));
       setLoading(false);
     });
     return () => { cancelled = true; };

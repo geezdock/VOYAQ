@@ -22,8 +22,8 @@ import type { Squad } from "@/types/squad";
 import { useSquad } from "@/shared/providers/SquadContext";
 import { getCountdown, formatDate, getDays } from "@/utils/dates";
 import { formatRupee } from "@/utils/currency";
-import { fetchItinerary } from "@/services/itinerary";
-import { fetchSafety } from "@/services/safety";
+import { getItinerary } from "@/actions/ai";
+import { getSafety } from "@/actions/data";
 import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 
 interface TripViewProps {
@@ -91,14 +91,14 @@ export function TripView({ squad, onBack }: TripViewProps) {
   async function handleDownloadPdf() {
     const [itinerary, safety] = await Promise.all([
       squad.lockedDates
-        ? fetchItinerary({
-            destination: squad.lockedDestination!,
-            startDate: squad.lockedDates.start,
-            endDate: squad.lockedDates.end,
-            budget: squad.lockedBudget ?? squad.budgetPerPerson,
-          })
+        ? getItinerary(
+            squad.lockedDestination!,
+            squad.lockedDates.start,
+            squad.lockedDates.end,
+            String(squad.lockedBudget ?? squad.budgetPerPerson),
+          ).catch(() => null)
         : Promise.resolve(null),
-      squad.lockedDestination ? fetchSafety(squad.lockedDestination) : Promise.resolve(null),
+      squad.lockedDestination ? getSafety(squad.lockedDestination).catch(() => null) : Promise.resolve(null),
     ]);
 
     // Track AI itinerary usage when itinerary data is fetched

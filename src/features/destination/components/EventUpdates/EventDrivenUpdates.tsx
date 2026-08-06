@@ -10,7 +10,7 @@ import {
   Megaphone,
 } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchEventDrivenUpdates } from "@/services/event-updates";
+import { getEventUpdates } from "@/actions/ai";
 
 interface EventDrivenUpdatesProps {
   destinationName: string;
@@ -32,7 +32,7 @@ const typeIcon: Record<string, typeof AlertTriangle> = {
 
 export function EventDrivenUpdates({ destinationName, startDate, endDate }: EventDrivenUpdatesProps) {
   const { data: result, loading, error, retry } = useFetch(
-    () => fetchEventDrivenUpdates(destinationName, startDate, endDate),
+    () => getEventUpdates(destinationName, startDate, endDate),
     [destinationName, startDate, endDate],
   );
 

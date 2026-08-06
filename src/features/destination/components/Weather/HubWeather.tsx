@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CloudSun, Droplets, Wind, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchLiveWeather } from "@/services/weather";
+import { getWeather } from "@/actions/data";
 import type { WeatherData } from "@/types/destination";
 
 interface HubWeatherProps {
@@ -23,7 +23,7 @@ const conditionIcon: Record<string, string> = {
 
 export function HubWeather({ destinationName }: HubWeatherProps) {
   const { data, loading, error, retry } = useFetch<WeatherData>(
-    () => fetchLiveWeather(destinationName),
+    () => getWeather(destinationName),
     [destinationName],
   );
 

@@ -2,22 +2,10 @@
 
 import { getDestinationCoords, DESTINATION_CATALOG, getDestinationsByType, getDestinationsByState, searchDestinations, getDestinationEntry } from "@/constants/destinations";
 import { memo } from "@/lib/cache";
+import { wmoToCondition } from "@/utils/weather";
+import type { FoodItem, Attraction } from "@/types/destination";
 
 // ─── Helpers ───────────────────────────────────────────
-
-function wmoToCondition(code: number): string {
-  if (code === 0 || code === 1) return "Sunny";
-  if (code === 2) return "Partly Cloudy";
-  if (code === 3) return "Cloudy";
-  if (code >= 45 && code <= 48) return "Foggy";
-  if ((code >= 51 && code <= 55) || code === 56 || code === 57) return "Light Rain";
-  if ((code >= 61 && code <= 65) || code === 66 || code === 67) return "Showers";
-  if (code >= 71 && code <= 77) return "Snow";
-  if (code >= 80 && code <= 82) return "Showers";
-  if (code >= 85 && code <= 86) return "Snow";
-  if (code >= 95 && code <= 99) return "Thunderstorms";
-  return "Sunny";
-}
 
 interface WikiPage {
   extract?: string;
@@ -356,7 +344,10 @@ export async function getWeather(dest: string) {
   });
 }
 
-export async function getPlaces(dest: string, type: string = "attractions") {
+export async function getPlaces(
+  dest: string,
+  type: "food" | "attractions" = "attractions",
+): Promise<{ items?: FoodItem[]; attractions?: Attraction[] }> {
   return memo(`places:${dest}:${type}`, 30 * 60 * 1000, async () => {
     const coords = getDestinationCoords(dest);
     if (!coords) throw new Error(`Unknown destination: ${dest}`);

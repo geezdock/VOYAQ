@@ -662,10 +662,6 @@ export class SquadRepository {
   getPendingCount(): number {
     return loadQueue().length;
   }
-
-  getFailedMutations(): PendingMutation[] {
-    return loadQueue().filter((m) => m.retryCount >= 3);
-  }
 }
 
 function parseJson<T>(value: unknown, fallback: T): T {

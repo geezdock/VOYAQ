@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, AlertTriangle, Lightbulb, Info, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchAISuggestions } from "@/services/ai";
+import { getAISuggestions } from "@/actions/ai";
 import type { AISuggestion } from "@/types/destination";
 
 interface HubAISuggestionsProps {
@@ -34,7 +34,7 @@ const priorityColor = {
 
 export function HubAISuggestions({ destinationName, budget, dates }: HubAISuggestionsProps) {
   const { data: suggestions, loading, error, retry } = useFetch<AISuggestion[]>(
-    () => destinationName ? fetchAISuggestions({ destination: destinationName, budget, dates }) : Promise.resolve(null),
+    () => destinationName ? getAISuggestions({ destination: destinationName, budget, dates }).then((d) => d.suggestions) : Promise.resolve(null),
     [destinationName, budget, dates],
   );
 

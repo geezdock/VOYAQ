@@ -2,7 +2,9 @@
 
 import { memo } from "@/lib/cache";
 import { getDestinationCoords } from "@/constants/destinations";
+import { wmoToCondition } from "@/utils/weather";
 import type { AISuggestion } from "@/types/destination";
+import type { ItineraryResponse, ItineraryDay, ItineraryEntry, AIBudgetAllocation, EventDrivenUpdate } from "@/types/itinerary";
 
 // ─── Gemini helper ─────────────────────────────────────
 
@@ -68,7 +70,7 @@ function sanitizeSuggestions(input: unknown): AISuggestion[] | null {
 
 // ─── Suggest ───────────────────────────────────────────
 
-function getFallbackSuggestions(destination: string, budget?: number) {
+function getFallbackSuggestions(destination: string, budget?: number): AISuggestion[] {
   const budgetStr = budget ? ` ₹${budget.toLocaleString("en-IN")}` : "";
   return [
     { type: "budget", tip: `Book group stays and local transport in advance for ${destination} to keep costs within your target budget${budgetStr}.`, priority: "high" },
@@ -84,7 +86,7 @@ export async function getAISuggestions(options: {
   budget?: number;
   dates?: { start: string; end: string };
   preferences?: string[];
-}) {
+}): Promise<{ suggestions: AISuggestion[]; isFallback?: boolean }> {
   const { destination, budget, dates, preferences } = options;
   if (!destination) throw new Error("Missing 'destination'");
 
@@ -128,9 +130,9 @@ Rules:
 
 // ─── Itinerary ─────────────────────────────────────────
 
-function getFallbackItinerary(destination: string, daysCount: number, budget: number) {
+function getFallbackItinerary(destination: string, daysCount: number, budget: number): ItineraryDay[] {
   const dayBudget = Math.round(budget / daysCount);
-  const activities = [
+  const activities: { time: string; activity: string; description: string; category: ItineraryEntry["category"]; cost: number; location: string }[] = [
     { time: "08:00", activity: "Breakfast at local café", description: `Start the day with a hearty breakfast at a nearby eatery in ${destination}.`, category: "food", cost: 200, location: "" },
     { time: "09:30", activity: "Explore local market", description: "Visit the main market area to experience local culture and shop for souvenirs.", category: "activity", cost: 300, location: "" },
     { time: "12:30", activity: "Lunch break", description: "Enjoy a traditional lunch at a recommended restaurant.", category: "food", cost: 350, location: "" },
@@ -157,7 +159,7 @@ function getFallbackItinerary(destination: string, daysCount: number, budget: nu
   return days;
 }
 
-export async function getItinerary(dest: string, startDate: string, endDate: string, budgetRaw?: string) {
+export async function getItinerary(dest: string, startDate: string, endDate: string, budgetRaw?: string): Promise<ItineraryResponse> {
   if (!dest || !startDate || !endDate) throw new Error("Missing required parameters: dest, start, end");
   const budget = budgetRaw ? parseInt(budgetRaw, 10) : 5000;
   const start = new Date(startDate);
@@ -225,7 +227,7 @@ Rules:
     if (!text) {
       return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
     }
-    const itinerary = parseJSON<Record<string, unknown>>(text);
+    const itinerary = parseJSON<ItineraryResponse>(text);
     if (!itinerary) {
       return { destination: dest, totalBudget: budget, days: getFallbackItinerary(dest, daysCount, budget), totalEstimatedCost: budget, generatedAt: new Date().toISOString() };
     }
@@ -247,7 +249,7 @@ function getFallbackAllocation(totalBudget: number) {
   };
 }
 
-export async function getBudgetAllocation(dest: string, budgetRaw: string) {
+export async function getBudgetAllocation(dest: string, budgetRaw: string): Promise<AIBudgetAllocation> {
   if (!dest || !budgetRaw) throw new Error("Missing required parameters: dest, budget");
   const totalBudget = parseInt(budgetRaw, 10);
   if (isNaN(totalBudget) || totalBudget <= 0) throw new Error("Invalid budget value");
@@ -291,7 +293,7 @@ Rules:
 
     const text = await callGemini(prompt, 1024);
     if (!text) return getFallbackAllocation(totalBudget);
-    const allocation = parseJSON<Record<string, unknown>>(text);
+    const allocation = parseJSON<AIBudgetAllocation>(text);
     if (!allocation) return getFallbackAllocation(totalBudget);
     return allocation;
   });
@@ -299,7 +301,7 @@ Rules:
 
 // ─── Event Updates ─────────────────────────────────────
 
-function getFallbackEventUpdates(destination: string) {
+function getFallbackEventUpdates(destination: string): { destination: string; updates: EventDrivenUpdate[] } {
   return {
     destination,
     updates: [
@@ -315,21 +317,7 @@ function getFallbackEventUpdates(destination: string) {
   };
 }
 
-function wdToCondition(code: number): string {
-  if (code === 0 || code === 1) return "Sunny";
-  if (code === 2) return "Partly Cloudy";
-  if (code === 3) return "Cloudy";
-  if (code >= 45 && code <= 48) return "Foggy";
-  if ((code >= 51 && code <= 55) || code === 56 || code === 57) return "Light Rain";
-  if ((code >= 61 && code <= 65) || code === 66 || code === 67) return "Showers";
-  if (code >= 71 && code <= 77) return "Snow";
-  if (code >= 80 && code <= 82) return "Showers";
-  if (code >= 85 && code <= 86) return "Snow";
-  if (code >= 95 && code <= 99) return "Thunderstorms";
-  return "Sunny";
-}
-
-export async function getEventUpdates(dest: string, startDate?: string, endDate?: string) {
+export async function getEventUpdates(dest: string, startDate?: string, endDate?: string): Promise<{ destination: string; updates: EventDrivenUpdate[] }> {
   if (!dest) throw new Error("Missing required parameter: dest");
 
   let weatherData: { current?: { temp: number; condition: string }; forecast?: Array<{ date: string; condition: string; tempHigh: number; tempLow: number }> } = {};
@@ -345,11 +333,11 @@ export async function getEventUpdates(dest: string, startDate?: string, endDate?
         const wd = await weatherRes.json();
         weatherData.forecast = wd.daily?.time?.map((date: string, i: number) => ({
           date,
-          condition: wdToCondition(wd.daily.weather_code?.[i] ?? 0),
+          condition: wmoToCondition(wd.daily.weather_code?.[i] ?? 0),
           tempHigh: Math.round(wd.daily.temperature_2m_max[i]),
           tempLow: Math.round(wd.daily.temperature_2m_min[i]),
         }));
-        weatherData.current = wd.current ? { temp: Math.round(wd.current.temperature_2m), condition: wdToCondition(wd.current?.weather_code ?? 0) } : undefined;
+        weatherData.current = wd.current ? { temp: Math.round(wd.current.temperature_2m), condition: wmoToCondition(wd.current?.weather_code ?? 0) } : undefined;
       }
     } catch { /* continue */ }
     try {
@@ -409,7 +397,7 @@ Rules:
 
   const text = await callGemini(prompt, 2048);
   if (!text) return getFallbackEventUpdates(dest);
-  const result = parseJSON<Record<string, unknown>>(text);
+  const result = parseJSON<{ destination: string; updates: EventDrivenUpdate[] }>(text);
   if (!result) return getFallbackEventUpdates(dest);
   return result;
 }

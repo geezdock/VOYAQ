@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Plane, Train, Car, Bike, IndianRupee, Timer, ArrowRight, SearchX, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchTransport } from "@/services/transport";
+import { getTransport } from "@/actions/data";
 import type { TransportOption } from "@/types/destination";
 
 import { HubSkeleton } from "../HubSkeleton";
@@ -22,7 +22,7 @@ const modeIcon: Record<string, typeof Plane> = {
 
 export function HubTransport({ destinationName }: HubTransportProps) {
   const { data: options, loading, error, retry } = useFetch<TransportOption[]>(
-    () => fetchTransport(destinationName),
+    () => getTransport(destinationName).then((d) => d.options),
     [destinationName],
   );
 

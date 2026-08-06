@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Tag, UtensilsCrossed, SearchX, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchFood } from "@/services/places";
+import { getPlaces } from "@/actions/data";
 import type { FoodItem } from "@/types/destination";
 
 import { HubSkeleton } from "../HubSkeleton";
@@ -14,7 +14,7 @@ interface HubFoodProps {
 
 export function HubFood({ destinationName }: HubFoodProps) {
   const { data: items, loading, error, retry } = useFetch<FoodItem[]>(
-    () => fetchFood(destinationName),
+    () => getPlaces(destinationName, "food").then((d) => d.items ?? null),
     [destinationName],
   );
 

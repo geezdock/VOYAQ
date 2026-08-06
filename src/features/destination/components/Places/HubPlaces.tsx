@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Clock, Sun, IndianRupee, SearchX, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchAttractions } from "@/services/places";
+import { getPlaces } from "@/actions/data";
 import type { Attraction } from "@/types/destination";
 
 import { HubSkeleton } from "../HubSkeleton";
@@ -22,7 +22,7 @@ const categoryEmoji: Record<string, string> = {
 
 export function HubPlaces({ destinationName }: HubPlacesProps) {
   const { data: attractions, loading, error, retry } = useFetch<Attraction[]>(
-    () => fetchAttractions(destinationName),
+    () => getPlaces(destinationName, "attractions").then((d) => d.attractions ?? null),
     [destinationName],
   );
 

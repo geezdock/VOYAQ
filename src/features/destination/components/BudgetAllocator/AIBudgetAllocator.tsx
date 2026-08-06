@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchBudgetAllocation } from "@/services/budget-allocator";
+import { getBudgetAllocation } from "@/actions/ai";
 import { formatRupee } from "@/utils/currency";
 import { trackEvent, VOYAQ_EVENTS } from "@/lib/analytics";
 import type { AIBudgetAllocation } from "@/types/itinerary";
@@ -33,7 +33,7 @@ const categoryMeta: Record<string, { icon: typeof Home; label: string; color: st
 
 export function AIBudgetAllocator({ destinationName, totalBudget }: AIBudgetAllocatorProps) {
   const { data: allocation, loading, error, retry } = useFetch<AIBudgetAllocation>(
-    () => fetchBudgetAllocation(destinationName, totalBudget),
+    () => getBudgetAllocation(destinationName, String(totalBudget)),
     [destinationName, totalBudget],
   );
 

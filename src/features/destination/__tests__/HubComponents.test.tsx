@@ -28,42 +28,19 @@ const mockBudget = [
   { category: "Stay", estimatedCost: 2000, notes: "Per night" },
 ];
 
-const { fetchFoodMock, fetchAttractionsMock, fetchEventsMock, fetchSafetyMock, fetchTransportMock, fetchBudgetInsightsMock } = vi.hoisted(() => ({
-  fetchFoodMock: vi.fn(),
-  fetchAttractionsMock: vi.fn(),
-  fetchEventsMock: vi.fn(),
-  fetchSafetyMock: vi.fn(),
-  fetchTransportMock: vi.fn(),
-  fetchBudgetInsightsMock: vi.fn(),
+const { getPlacesFoodMock, getPlacesAttractionsMock, getEventsMock, getTransportMock, getBudgetInsightsMock } = vi.hoisted(() => ({
+  getPlacesFoodMock: vi.fn(),
+  getPlacesAttractionsMock: vi.fn(),
+  getEventsMock: vi.fn(),
+  getTransportMock: vi.fn(),
+  getBudgetInsightsMock: vi.fn(),
 }));
 
-vi.mock("@/services/places", () => ({
-  fetchFood: fetchFoodMock,
-  fetchAttractions: fetchAttractionsMock,
-}));
-
-vi.mock("@/services/events", () => ({
-  fetchEvents: fetchEventsMock,
-}));
-
-vi.mock("@/services/safety", () => ({
-  fetchSafety: fetchSafetyMock,
-}));
-
-vi.mock("@/services/transport", () => ({
-  fetchTransport: fetchTransportMock,
-}));
-
-vi.mock("@/services/budget", () => ({
-  fetchBudgetInsights: fetchBudgetInsightsMock,
-}));
-
-vi.mock("@/services/weather", () => ({
-  fetchLiveWeather: vi.fn(),
-}));
-
-vi.mock("@/services/ai", () => ({
-  fetchAISuggestions: vi.fn(),
+vi.mock("@/actions/data", () => ({
+  getPlaces: (_dest: string, type: string) => (type === "food" ? getPlacesFoodMock() : getPlacesAttractionsMock()),
+  getEvents: getEventsMock,
+  getTransport: getTransportMock,
+  getBudgetInsights: getBudgetInsightsMock,
 }));
 
 function makeSquad(overrides: Partial<Squad> = {}): Squad {
@@ -90,26 +67,26 @@ describe("HubFood", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it("shows loading state", () => {
-    fetchFoodMock.mockReturnValue(new Promise(() => {}));
+    getPlacesFoodMock.mockReturnValue(new Promise(() => {}));
     render(<HubFood destinationName="goa" />);
     expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows empty state when no results", async () => {
-    fetchFoodMock.mockResolvedValue([]);
+    getPlacesFoodMock.mockResolvedValue({ items: [] });
     render(<HubFood destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("No restaurants found nearby")).toBeInTheDocument());
   });
 
   it("shows error state with retry button", async () => {
-    fetchFoodMock.mockResolvedValue(null);
+    getPlacesFoodMock.mockResolvedValue(null);
     render(<HubFood destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Failed to load restaurants")).toBeInTheDocument());
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
   it("renders food items on success", async () => {
-    fetchFoodMock.mockResolvedValue(mockFood);
+    getPlacesFoodMock.mockResolvedValue({ items: mockFood });
     render(<HubFood destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Test Dish")).toBeInTheDocument());
     expect(screen.getByText("Test Cafe")).toBeInTheDocument();
@@ -117,12 +94,12 @@ describe("HubFood", () => {
   });
 
   it("retry button re-fetches", async () => {
-    fetchFoodMock.mockResolvedValueOnce(null).mockResolvedValueOnce(mockFood);
+    getPlacesFoodMock.mockResolvedValueOnce(null).mockResolvedValueOnce({ items: mockFood });
     render(<HubFood destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Failed to load restaurants")).toBeInTheDocument());
     fireEvent.click(screen.getByText("Retry"));
     await waitFor(() => expect(screen.getByText("Test Dish")).toBeInTheDocument());
-    expect(fetchFoodMock).toHaveBeenCalledTimes(2);
+    expect(getPlacesFoodMock).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -130,20 +107,20 @@ describe("HubPlaces", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it("shows loading state", () => {
-    fetchAttractionsMock.mockReturnValue(new Promise(() => {}));
+    getPlacesAttractionsMock.mockReturnValue(new Promise(() => {}));
     render(<HubPlaces destinationName="goa" />);
     expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
-    fetchAttractionsMock.mockResolvedValue(null);
+    getPlacesAttractionsMock.mockResolvedValue(null);
     render(<HubPlaces destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Failed to load attractions")).toBeInTheDocument());
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
   it("renders attractions grouped by category", async () => {
-    fetchAttractionsMock.mockResolvedValue(mockAttractions);
+    getPlacesAttractionsMock.mockResolvedValue({ attractions: mockAttractions });
     render(<HubPlaces destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Test Beach")).toBeInTheDocument());
     expect(screen.getByText("Beach")).toBeInTheDocument();
@@ -154,19 +131,19 @@ describe("HubEvents", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it("shows loading state", () => {
-    fetchEventsMock.mockReturnValue(new Promise(() => {}));
+    getEventsMock.mockReturnValue(new Promise(() => {}));
     render(<HubEvents destinationName="goa" />);
     expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows empty state", async () => {
-    fetchEventsMock.mockResolvedValue([]);
+    getEventsMock.mockResolvedValue({ events: [] });
     render(<HubEvents destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("No upcoming events found")).toBeInTheDocument());
   });
 
   it("renders events on success", async () => {
-    fetchEventsMock.mockResolvedValue(mockEvents);
+    getEventsMock.mockResolvedValue({ events: mockEvents });
     render(<HubEvents destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Test Fest")).toBeInTheDocument());
     expect(screen.getByText("Test Venue")).toBeInTheDocument();
@@ -177,20 +154,20 @@ describe("HubTransport", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it("shows loading state", () => {
-    fetchTransportMock.mockReturnValue(new Promise(() => {}));
+    getTransportMock.mockReturnValue(new Promise(() => {}));
     render(<HubTransport destinationName="goa" />);
     expect(screen.getByTestId("hub-skeleton")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
-    fetchTransportMock.mockResolvedValue(null);
+    getTransportMock.mockResolvedValue(null);
     render(<HubTransport destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Failed to load transport options")).toBeInTheDocument());
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
   it("renders transport options on success", async () => {
-    fetchTransportMock.mockResolvedValue(mockTransport);
+    getTransportMock.mockResolvedValue({ options: mockTransport });
     render(<HubTransport destinationName="goa" />);
     await waitFor(() => expect(screen.getByText("Bus")).toBeInTheDocument());
     expect(screen.getByText("AC bus available")).toBeInTheDocument();
@@ -201,20 +178,20 @@ describe("HubBudget", () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
   it("shows loading state", () => {
-    fetchBudgetInsightsMock.mockReturnValue(new Promise(() => {}));
+    getBudgetInsightsMock.mockReturnValue(new Promise(() => {}));
     render(<HubBudget destinationName="goa" squad={makeSquad({ lockedBudget: 5000 })} />);
     expect(screen.getByText("Loading budget insights...")).toBeInTheDocument();
   });
 
   it("shows error state with retry", async () => {
-    fetchBudgetInsightsMock.mockResolvedValue(null);
+    getBudgetInsightsMock.mockResolvedValue(null);
     render(<HubBudget destinationName="goa" squad={makeSquad({ lockedBudget: 5000 })} />);
     await waitFor(() => expect(screen.getByText("Failed to load budget insights")).toBeInTheDocument());
     expect(screen.getByText("Retry")).toBeInTheDocument();
   });
 
   it("renders budget breakdown on success", async () => {
-    fetchBudgetInsightsMock.mockResolvedValue(mockBudget);
+    getBudgetInsightsMock.mockResolvedValue({ insights: mockBudget });
     render(<HubBudget destinationName="goa" squad={makeSquad({ lockedBudget: 5000 })} />);
     await waitFor(() => expect(screen.getByText("Budget Breakdown")).toBeInTheDocument());
     expect(screen.getByText("₹1,000")).toBeInTheDocument();
@@ -222,7 +199,7 @@ describe("HubBudget", () => {
   });
 
   it("shows over budget state", async () => {
-    fetchBudgetInsightsMock.mockResolvedValue(mockBudget);
+    getBudgetInsightsMock.mockResolvedValue({ insights: mockBudget });
     render(<HubBudget destinationName="goa" squad={makeSquad({ lockedBudget: 2000 })} />);
     await waitFor(() => expect(screen.getByText("Budget Breakdown")).toBeInTheDocument());
     expect(screen.getByText(/-₹1,000/)).toBeInTheDocument();

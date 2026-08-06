@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CalendarDays, MapPin, Tag, SearchX, RefreshCw } from "lucide-react";
 import { useFetch } from "@/shared/hooks/useFetch";
-import { fetchEvents } from "@/services/events";
+import { getEvents } from "@/actions/data";
 import type { EventItem } from "@/types/destination";
 
 import { HubSkeleton } from "../HubSkeleton";
@@ -14,7 +14,7 @@ interface HubEventsProps {
 
 export function HubEvents({ destinationName }: HubEventsProps) {
   const { data: events, loading, error, retry } = useFetch<EventItem[]>(
-    () => fetchEvents(destinationName),
+    () => getEvents(destinationName).then((d) => d.events),
     [destinationName],
   );
 
