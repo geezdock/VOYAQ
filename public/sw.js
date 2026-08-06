@@ -1,4 +1,4 @@
-const CACHE = "voyaq-v3";
+const CACHE = "voyaq-v4";
 const STATIC_PATHS = ["/icon.svg", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
